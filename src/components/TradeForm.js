@@ -114,7 +114,7 @@ function TradeForm({ supabase, userId, onTradeAdded }) {
       <input
         type="number"
         value={rrRatio}
-        onChange={(e) => setRpRatio(e.target.value)}
+        onChange={(e) => setRrRatio(e.target.value)}
         placeholder="Risk-Reward Ratio"
         className="neo-input mb-4"
         step="0.01"
