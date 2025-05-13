@@ -1,14 +1,30 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-/* Ensure responsive images */
-img {
-  max-width: 100%;
-  height: auto;
+body {
+  font-family: 'Inter', sans-serif;
+  @apply bg-gradient-to-br from-blue-50 via-white to-purple-50 min-h-screen;
 }
 
-/* Improve accessibility */
-button, input, textarea {
-  @apply focus:outline-none focus:ring-2 focus:ring-blue-500;
+/* Glassmorphism Card */
+.glass-card {
+  @apply bg-white bg-opacity-30 backdrop-blur-lg border border-gray-100 rounded-xl shadow-lg;
+}
+
+/* Modern Button */
+.modern-button {
+  @apply px-4 py-2 rounded-lg font-semibold transition-all duration-200 ease-in-out transform hover:scale-105 hover:shadow-md;
+}
+
+/* Form Input */
+.modern-input {
+  @apply w-full p-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-300 focus:border-blue-400 transition-all duration-200 bg-white bg-opacity-50;
+}
+
+/* Responsive Container */
+.container {
+  @apply max-w-4xl mx-auto px-4 sm:px-6 lg:px-8;
 }
