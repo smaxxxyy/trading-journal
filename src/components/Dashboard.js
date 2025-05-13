@@ -234,17 +234,17 @@ function Dashboard({ supabase }) {
         const rect = cardRef.current.getBoundingClientRect();
         const x = e.clientX - rect.left - rect.width / 2;
         const y = e.clientY - rect.top - rect.height / 2;
-        setMousePosition({ x: x / 20, y: y / 20 });
+        setMousePosition({ x: x / 30, y: y / 30 });
       }
     };
 
     return (
       <motion.div
         ref={cardRef}
-        className="futuristic-card holographic-border p-4 flex flex-col gap-2 text-sm min-h-[180px]"
+        className="futuristic-card holographic-border p-4 grid grid-cols-2 gap-2 text-xs min-h-[160px]"
         initial={{ opacity: 0, scale: 0.95 }}
         animate={{ opacity: 1, scale: 1 }}
-        transition={{ duration: 0.4 }}
+        transition={{ duration: 0.3 }}
         whileHover={{ scale: 1.02 }}
         style={{
           transform: `perspective(1000px) rotateX(${mousePosition.y}deg) rotateY(${mousePosition.x}deg)`,
@@ -252,39 +252,51 @@ function Dashboard({ supabase }) {
         onMouseMove={handleMouseMove}
         onMouseLeave={() => setMousePosition({ x: 0, y: 0 })}
       >
-        <div className="flex justify-between">
-          <p className="text-gray-100 font-medium">{trade.pair || 'N/A'}</p>
-          <p className="text-[var(--color-neon-blue)]">{trade.outcome || 'N/A'}</p>
-        </div>
-        <p className="text-gray-100">RR: {trade.rr_ratio?.toFixed(2) || 'N/A'}</p>
-        <p className="text-gray-100">Plan: {habit?.had_plan ? 'Yes' : 'No'}</p>
-        <p className="text-gray-100">Followed: {habit?.plan_followed ? 'Yes' : 'No'}</p>
-        <p className="text-gray-100">Gamble: {habit?.was_gamble ? 'Yes' : 'No'}</p>
+        <p className="text-gray-100 font-medium">Pair</p>
+        <p className="text-[var(--color-neon-blue)]">{trade.pair || 'N/A'}</p>
+        <p className="text-gray-100 font-medium">Outcome</p>
+        <p className="text-[var(--color-neon-blue)]">{trade.outcome || 'N/A'}</p>
+        <p className="text-gray-100 font-medium">RR</p>
+        <p className="text-gray-100">{trade.rr_ratio?.toFixed(2) || 'N/A'}</p>
+        <p className="text-gray-100 font-medium">Plan</p>
+        <p className="text-gray-100">{habit?.had_plan ? 'Yes' : 'No'}</p>
+        <p className="text-gray-100 font-medium">Followed</p>
+        <p className="text-gray-100">{habit?.plan_followed ? 'Yes' : 'No'}</p>
+        <p className="text-gray-100 font-medium">Gamble</p>
+        <p className="text-gray-100">{habit?.was_gamble ? 'Yes' : 'No'}</p>
         {trade.screenshot_url && (
-          <button
-            onClick={() => setModalImage(trade.screenshot_url)}
-            className="mt-2"
-            aria-label="View trade screenshot"
-          >
-            <img
-              src={trade.screenshot_url}
-              alt="Trade screenshot thumbnail"
-              className="rounded-lg w-10 h-10 object-cover border border-[var(--color-glass-border)]"
-            />
-          </button>
+          <>
+            <p className="text-gray-100 font-medium">Screenshot</p>
+            <button
+              onClick={() => setModalImage(trade.screenshot_url)}
+              className="flex"
+              aria-label="View trade screenshot"
+            >
+              <img
+                src={trade.screenshot_url}
+                alt="Trade screenshot thumbnail"
+                className="rounded-lg w-8 h-8 object-cover border border-[var(--color-glass-border)]"
+              />
+            </button>
+          </>
         )}
         {trade.rule_broken && (
-          <p className="text-red-400 font-medium mt-2">Rule Broken</p>
+          <>
+            <p className="text-gray-100 font-medium">Rule</p>
+            <p className="text-red-400 font-medium">Broken</p>
+          </>
         )}
-        <motion.button
-          onClick={() => handleDeleteTrade(trade.id)}
-          className="futuristic-button from-red-500 to-red-600 mt-2 text-sm py-2"
-          whileHover={{ scale: 1.05 }}
-          whileTap={{ scale: 0.95 }}
-          aria-label="Delete trade button"
-        >
-          Delete
-        </motion.button>
+        <div className="col-span-2 mt-2">
+          <motion.button
+            onClick={() => handleDeleteTrade(trade.id)}
+            className="futuristic-button from-red-500 to-red-600 w-full text-xs py-1.5"
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            aria-label="Delete trade button"
+          >
+            Delete
+          </motion.button>
+        </div>
       </motion.div>
     );
   };
@@ -304,9 +316,9 @@ function Dashboard({ supabase }) {
   }
 
   return (
-    <div className="container py-8">
+    <div className="container py-8 relative">
       <motion.div
-        className="flex flex-col sm:flex-row justify-between items-center mb-6 gap-4"
+        className="flex justify-between items-center mb-6"
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ duration: 0.5 }}
@@ -314,7 +326,8 @@ function Dashboard({ supabase }) {
         <h2 className="text-2xl font-extrabold text-[var(--color-neon-purple)]" aria-label="Dashboard">
           Trading Journal
         </h2>
-        <div className="flex flex-col sm:flex-row gap-3">
+        {/* Desktop Buttons (Hidden on Mobile) */}
+        <div className="hidden sm:flex gap-3">
           <motion.button
             onClick={handleExport}
             className="futuristic-button"
@@ -333,6 +346,25 @@ function Dashboard({ supabase }) {
           </motion.button>
         </div>
       </motion.div>
+      {/* Mobile Buttons (Bottom Bar, Hidden on Desktop) */}
+      <div className="sm:hidden fixed bottom-0 left-0 right-0 bg-[var(--color-glass-bg)] backdrop-blur-lg border-t border-[var(--color-glass-border)] p-4 flex justify-between gap-2 z-10">
+        <motion.button
+          onClick={handleExport}
+          className="futuristic-button flex-1 text-xs py-2"
+          whileHover={{ scale: 1.05 }}
+          whileTap={{ scale: 0.95 }}
+        >
+          Export
+        </motion.button>
+        <motion.button
+          onClick={handleLogout}
+          className="futuristic-button from-red-500 to-red-600 flex-1 text-xs py-2"
+          whileHover={{ scale: 1.05 }}
+          whileTap={{ scale: 0.95 }}
+        >
+          Logout
+        </motion.button>
+      </div>
       {error && (
         <motion.div
           className="futuristic-card p-4 mb-6"
@@ -357,7 +389,7 @@ function Dashboard({ supabase }) {
           <TradeForm supabase={supabase} userId={userId} onTradeAdded={handleTradeAdded} />
           <TradeAnalytics trades={trades} streakData={streakData} supabase={supabase} userId={userId} />
           <motion.div
-            className="futuristic-card holographic-border p-6"
+            className="futuristic-card holographic-border p-6 mb-16 sm:mb-6"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5 }}
@@ -446,7 +478,7 @@ function Dashboard({ supabase }) {
                         {group.message}
                       </p>
                     )}
-                    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
+                    <div className="grid grid-cols-1 gap-3">
                       {group.trades.map(trade => (
                         <TradeCard key={trade.id} trade={trade} />
                       ))}
