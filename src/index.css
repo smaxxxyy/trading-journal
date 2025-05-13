@@ -192,4 +192,4 @@ input[type="range"]::-moz-range-thumb {
 ::-webkit-scrollbar-thumb {
   background: var(--color-accent);
   border-radius: 9999px;
- 
+ }
