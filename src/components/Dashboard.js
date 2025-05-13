@@ -136,7 +136,7 @@ function Dashboard({ supabase }) {
     try {
       const trade = trades.find(t => t.id === tradeId);
       if (trade.status === 'in_progress') {
-        updatedData = { tp: updatedData.tp, sl: updatedData.sl }; // Only allow TP/SL edits
+        updatedData = { ...(updatedData.tp ? { tp: updatedData.tp } : {}), ...(updatedData.sl ? { sl: updatedData.sl } : {}), ...(updatedData.multiple_tps ? { multiple_tps: updatedData.multiple_tps } : {}) };
       }
       const { error: tradeError } = await supabase
         .from('trades')
@@ -589,21 +589,30 @@ function Dashboard({ supabase }) {
                   {selectedTrade.trade.status === 'in_progress' && (
                     <>
                       <p className="font-medium">Take Profit</p>
-                      {selectedTrade.trade.tp.map((tpValue, index) => (
+                      {selectedTrade.trade.multiple_tps ? selectedTrade.trade.multiple_tps.map((tpValue, index) => (
                         <input
                           key={index}
                           type="number"
                           value={tpValue}
                           onChange={(e) => {
-                            const newTp = [...selectedTrade.trade.tp];
+                            const newTp = [...(selectedTrade.trade.multiple_tps || [selectedTrade.trade.tp || ''])];
                             newTp[index] = e.target.value;
-                            handleEditTrade(selectedTrade.trade.id, { tp: newTp });
+                            handleEditTrade(selectedTrade.trade.id, { multiple_tps: newTp });
                           }}
                           className="futuristic-input text-xs mt-1"
                           step="0.01"
                           aria-label={`Take Profit ${index + 1} edit`}
                         />
-                      ))}
+                      )) : (
+                        <input
+                          type="number"
+                          value={selectedTrade.trade.tp || ''}
+                          onChange={(e) => handleEditTrade(selectedTrade.trade.id, { tp: e.target.value })}
+                          className="futuristic-input text-xs mt-1"
+                          step="0.01"
+                          aria-label="Take Profit edit"
+                        />
+                      )}
                       <p className="font-medium">Stop Loss</p>
                       <input
                         type="number"
@@ -618,7 +627,7 @@ function Dashboard({ supabase }) {
                   {selectedTrade.trade.status !== 'in_progress' && (
                     <>
                       <p className="font-medium">Take Profit</p>
-                      <p>{selectedTrade.trade.tp.join(', ') || 'N/A'}</p>
+                      <p>{selectedTrade.trade.multiple_tps ? selectedTrade.trade.multiple_tps.join(', ') : selectedTrade.trade.tp?.toFixed(2) || 'N/A'}</p>
                       <p className="font-medium">Stop Loss</p>
                       <p>{selectedTrade.trade.sl?.toFixed(2) || 'N/A'}</p>
                     </>
@@ -675,7 +684,7 @@ function Dashboard({ supabase }) {
                 )}
                 <motion.button
                   onClick={() => setSelectedTrade(null)}
-                  className="futuristic-button w-full mt-4"
+                  className="futuristic-button w-full mt-1"
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
                 >
@@ -693,7 +702,7 @@ function Dashboard({ supabase }) {
 const determineOutcome = (trade) => {
   const { entry, tp, sl, direction } = trade;
   const entryPrice = parseFloat(entry);
-  const takeProfit = parseFloat(tp[0]);
+  const takeProfit = parseFloat(tp);
   const stopLoss = parseFloat(sl);
 
   if (direction === 'long') {
