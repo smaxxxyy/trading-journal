@@ -4,18 +4,16 @@
   "private": true,
   "dependencies": {
     "@supabase/supabase-js": "^2.45.4",
-    "autoprefixer": "^10.4.20",
     "axios": "^1.7.7",
     "chart.js": "^4.4.9",
     "framer-motion": "^12.11.0",
     "papaparse": "^5.5.2",
-    "postcss": "^8.4.47",
     "react": "^18.2.0",
     "react-chartjs-2": "^5.3.0",
     "react-dom": "^18.2.0",
     "react-router-dom": "^6.26.1",
     "react-scripts": "^5.0.1",
-    "tailwindcss": "^3.4.13",
+    "tailwind-scrollbar": "^4.0.2",
     "web-vitals": "^5.0.0",
     "zod": "^3.24.4"
   },
@@ -47,5 +45,23 @@
       "last 1 firefox version",
       "last 1 safari version"
     ]
-  }
+  },
+  "devDependencies": {
+    "@tailwindcss/postcss": "^4.1.6",
+    "postcss": "^8.5.3",
+    "tailwindcss": "^4.1.6"
+  },
+  "description": "This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).",
+  "main": "postcss.config.js",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/smaxxxyy/trading-journal.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/smaxxxyy/trading-journal/issues"
+  },
+  "homepage": "https://github.com/smaxxxyy/trading-journal#readme"
 }
