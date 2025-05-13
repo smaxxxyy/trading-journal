@@ -2,110 +2,115 @@
 
 :root {
   /* Default: Synthwave Neon Theme */
-  --color-neon-purple: #c084fc;
-  --color-neon-pink: #f472b6;
-  --color-neon-blue: #60a5fa;
-  --color-glass-bg: rgba(255, 255, 255, 0.1);
-  --color-glass-border: rgba(255, 255, 255, 0.2);
-  --color-bg-dark: #1e1b3a;
-  --color-text-primary: #f3f4f6;
-  --color-text-secondary: #e5e7eb;
-  --color-accent: var(--color-neon-purple);
+  --color-neon-purple: #7b2cbf;
+  --color-neon-pink: #e63946;
+  --color-neon-blue: #1d3557;
+  --color-glass-bg: rgba(0, 0, 0, 0.1);
+  --color-glass-border: rgba(0, 0, 0, 0.2);
+  --color-bg-dark: #000000;
+  --color-text-primary: #ffffff;
+  --color-text-secondary: #ccc;
+  --color-accent: var(--color-neon-pink);
   --color-button-from: var(--color-neon-purple);
   --color-button-to: var(--color-neon-blue);
 }
 
 /* Apple Light inspired */
 :root[data-theme="white"] {
-  --color-bg-dark: #f9fafb;
-  --color-glass-bg: rgba(0, 0, 0, 0.03);
-  --color-glass-border: rgba(0, 0, 0, 0.08);
-  --color-text-primary: #1c1c1e;
-  --color-text-secondary: #3a3a3c;
-  --color-accent: #0a84ff;
-  --color-button-from: #a1a1aa;
-  --color-button-to: #71717a;
+  --color-bg-dark: #ffffff;
+  --color-glass-bg: rgba(240, 240, 240, 0.7);
+  --color-glass-border: rgba(200, 200, 200, 0.8);
+  --color-text-primary: #333333;
+  --color-text-secondary: #666666;
+  --color-accent: #007aff;
+  --color-button-from: #aecbfa;
+  --color-button-to: #0066cc;
 }
 
-/* Dracula inspired */
+/* Neo Noir (Black) */
 :root[data-theme="black"] {
-  /* Dracula Theme */
-  --color-bg-dark: #282a36;
-  --color-glass-bg: rgba(40, 42, 54, 0.6);
-  --color-glass-border: rgba(255, 255, 255, 0.1);
-  --color-text-primary: #f8f8f2;
-  --color-text-secondary: #6272a4;
-  --color-accent: #bd93f9;
-  --color-button-from: #ff79c6;
-  --color-button-to: #8be9fd;
+  --color-bg-dark: #101010;
+  --color-glass-bg: rgba(20, 20, 20, 0.8);
+  --color-glass-border: rgba(50, 50, 50, 0.6);
+  --color-text-primary: #eaeaea;
+  --color-text-secondary: #a0a0a0;
+  --color-accent: #ff004d;
+  --color-button-from: #ff004d;
+  --color-button-to: #00e756;
 }
 
 /* GitHub Dark Dimmed inspired */
 :root[data-theme="grey"] {
-  --color-bg-dark: #22272e;
-  --color-glass-bg: rgba(255, 255, 255, 0.07);
+  --color-bg-dark: #2d333b;
+  --color-glass-bg: rgba(45, 51, 59, 0.6);
   --color-glass-border: rgba(255, 255, 255, 0.1);
   --color-text-primary: #adbac7;
   --color-text-secondary: #768390;
-  --color-accent: #539bf5;
+  --color-accent: #79b8ff;
   --color-button-from: #373e47;
   --color-button-to: #2d333b;
 }
 
+/* Cyberpunk 2077 (Subtle) */
 :root[data-theme="subtle"] {
-  --color-bg-dark: #f3f4f6;
-  --color-glass-bg: rgba(0, 0, 0, 0.05);
-  --color-glass-border: rgba(0, 0, 0, 0.1);
-  --color-text-primary: #374151;
-  --color-text-secondary: #6b7280;
-  --color-accent: #6b7280;
-  --color-button-from: #9ca3af;
-  --color-button-to: #6b7280;
+  --color-bg-dark: #0f0c29;
+  --color-glass-bg: rgba(15, 12, 41, 0.7);
+  --color-glass-border: rgba(255, 255, 0, 0.5);
+  --color-text-primary: #ffde00;
+  --color-text-secondary: #ff8c00;
+  --color-accent: #ff007f;
+  --color-button-from: #ff007f;
+  --color-button-to: #00cfff;
 }
 
+/* Calm Ocean */
 :root[data-theme="calm"] {
-  --color-bg-dark: #e0e7ff;
-  --color-glass-bg: rgba(255, 255, 255, 0.1);
-  --color-glass-border: rgba(255, 255, 255, 0.2);
-  --color-text-primary: #1e3a8a;
-  --color-text-secondary: #3b82f6;
-  --color-accent: #3b82f6;
-  --color-button-from: #60a5fa;
-  --color-button-to: #3b82f6;
+  --color-bg-dark: #e0f7fa;
+  --color-glass-bg: rgba(224, 247, 250, 0.7);
+  --color-glass-border: rgba(165, 214, 167, 0.8);
+  --color-text-primary: #004d40;
+  --color-text-secondary: #00796b;
+  --color-accent: #00bcd4;
+  --color-button-from: #4dd0e1;
+  --color-button-to: #00838f;
 }
 
+/* Synthwave Ocean */
 :root[data-theme="ocean"] {
-  --color-bg-dark: #1e3a8a;
-  --color-glass-bg: rgba(255, 255, 255, 0.1);
-  --color-glass-border: rgba(255, 255, 255, 0.2);
-  --color-text-primary: #e0f2fe;
-  --color-text-secondary: #93c5fd;
-  --color-accent: #93c5fd;
-  --color-button-from: #3b82f6;
-  --color-button-to: #1e40af;
+  --color-bg-dark: #001f3f;
+  --color-glass-bg: rgba(0, 31, 63, 0.8);
+  --color-glass-border: rgba(0, 116, 217, 0.5);
+  --color-text-primary: #ffffff;
+  --color-text-secondary: #7fdbff;
+  --color-accent: #0074d9;
+  --color-button-from: #39cccc;
+  --color-button-to: #001f3f;
 }
 
+/* Cyber Forest */
 :root[data-theme="forest"] {
-  --color-bg-dark: #14532d;
-  --color-glass-bg: rgba(255, 255, 255, 0.1);
-  --color-glass-border: rgba(255, 255, 255, 0.2);
-  --color-text-primary: #ecfccb;
-  --color-text-secondary: #bef264;
-  --color-accent: #bef264;
-  --color-button-from: #4d7c0f;
-  --color-button-to: #3f6212;
+  --color-bg-dark: #081c15;
+  --color-glass-bg: rgba(8, 28, 21, 0.8);
+  --color-glass-border: rgba(34, 139, 34, 0.5);
+  --color-text-primary: #98fb98;
+  --color-text-secondary: #2e8b57;
+  --color-accent: #32cd32;
+  --color-button-from: #00ff7f;
+  --color-button-to: #228b22;
 }
 
+/* Sunset Glow */
 :root[data-theme="sunset"] {
-  --color-bg-dark: #7c2d12;
-  --color-glass-bg: rgba(255, 255, 255, 0.1);
-  --color-glass-border: rgba(255, 255, 255, 0.2);
-  --color-text-primary: #fef3c7;
-  --color-text-secondary: #fdba74;
-  --color-accent: #fdba74;
-  --color-button-from: #f97316;
-  --color-button-to: #c2410c;
+  --color-bg-dark: #ff4500;
+  --color-glass-bg: rgba(255, 69, 0, 0.7);
+  --color-glass-border: rgba(255, 160, 122, 0.5);
+  --color-text-primary: #fffaf0;
+  --color-text-secondary: #fa8072;
+  --color-accent: #ff6347;
+  --color-button-from: #ff7f50;
+  --color-button-to: #ff4500;
 }
+
 
 /* ======= Base Styles ======= */
 body {
@@ -167,7 +172,7 @@ body {
 }
 
 input[type="checkbox"] {
-  @apply w-4 h-4 appearance-none border border-[var(--color-glass-border)] rounded-md bg-[var(--color-glass-bg)] focus:ring-2 focus:ring-[var(--color-accent)] transition-all duration-200;
+  @apply w-5 h-5 appearance-none border border-[var(--color-glass-border)] rounded-md bg-[var(--color-glass-bg)] focus:ring-2 focus:ring-[var(--color-accent)] transition-all duration-200;
 }
 
 input[type="checkbox"]:checked {
