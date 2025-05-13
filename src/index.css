@@ -114,3 +114,4 @@ body {
 .futuristic-card {
   @apply relative bg-[var(--color-glass-bg)] backdrop-blur-lg border border-[var(--color-glass-border)] rounded-xl shadow-xl overflow-hidden transition-all duration-300;
   box-shadow: 0
+  
