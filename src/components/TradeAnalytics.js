@@ -40,8 +40,8 @@ function TradeAnalytics({ trades, streakData, supabase, userId }) {
           {
             label: 'RR Ratio',
             data: rrRatios,
-            backgroundColor: 'rgba(168, 85, 247, 0.6)',
-            borderColor: '#a855f7',
+            backgroundColor: getComputedStyle(document.documentElement).getPropertyValue('--color-button-from').trim(),
+            borderColor: getComputedStyle(document.documentElement).getPropertyValue('--color-accent').trim(),
             borderWidth: 1,
           },
         ],
@@ -52,13 +52,34 @@ function TradeAnalytics({ trades, streakData, supabase, userId }) {
         scales: {
           y: {
             beginAtZero: true,
-            title: { display: true, text: 'Risk-Reward Ratio', color: '#e5e7eb' },
-            ticks: { color: '#e5e7eb' },
-            grid: { color: 'rgba(255, 255, 255, 0.2)' },
+            title: { 
+              display: true, 
+              text: 'Risk-Reward Ratio', 
+              color: getComputedStyle(document.documentElement).getPropertyValue('--color-text-primary').trim() 
+            },
+            ticks: { 
+              color: getComputedStyle(document.documentElement).getPropertyValue('--color-text-primary').trim() 
+            },
+            grid: { 
+              color: getComputedStyle(document.documentElement).getPropertyValue('--color-glass-border').trim() 
+            },
           },
-          x: { ticks: { color: '#e5e7eb' }, grid: { color: 'rgba(255, 255, 255, 0.2)' } },
+          x: { 
+            ticks: { 
+              color: getComputedStyle(document.documentElement).getPropertyValue('--color-text-primary').trim() 
+            }, 
+            grid: { 
+              color: getComputedStyle(document.documentElement).getPropertyValue('--color-glass-border').trim() 
+            } 
+          },
         },
-        plugins: { legend: { labels: { color: '#e5e7eb' } } },
+        plugins: { 
+          legend: { 
+            labels: { 
+              color: getComputedStyle(document.documentElement).getPropertyValue('--color-text-primary').trim() 
+            } 
+          } 
+        },
       },
     });
 
@@ -99,37 +120,37 @@ function TradeAnalytics({ trades, streakData, supabase, userId }) {
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5 }}
     >
-      <h3 className="text-xl font-bold text-[var(--color-neon-blue)] mb-4" aria-label="Trade Analytics">
+      <h3 className="text-xl font-bold mb-4 text-[var(--color-text-primary)]" aria-label="Trade Analytics">
         Trade Analytics
       </h3>
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6 text-sm">
         <div>
-          <p className="text-gray-100 font-medium">Total Trades</p>
-          <p className="text-[var(--color-neon-purple)] text-base">{trades.length}</p>
+          <p className="font-medium text-[var(--color-text-primary)]">Total Trades</p>
+          <p className="text-base text-[var(--color-text-secondary)]">{trades.length}</p>
         </div>
         <div>
-          <p className="text-gray-100 font-medium">Win Rate</p>
-          <p className="text-[var(--color-neon-purple)] text-base">{winRate}%</p>
+          <p className="font-medium text-[var(--color-text-primary)]">Win Rate</p>
+          <p className="text-base text-[var(--color-text-secondary)]">{winRate}%</p>
         </div>
         <div>
-          <p className="text-gray-100 font-medium">Profit/Loss</p>
-          <p className="text-[var(--color-neon-purple)] text-base">{profitLoss.toFixed(2)}</p>
+          <p className="font-medium text-[var(--color-text-primary)]">Profit/Loss</p>
+          <p className="text-base text-[var(--color-text-secondary)]">{profitLoss.toFixed(2)}</p>
         </div>
         <div>
-          <p className="text-gray-100 font-medium">Current Unbroken Trades</p>
-          <p className="text-[var(--color-neon-purple)] text-base">{streakData?.currentTrades || 0}</p>
+          <p className="font-medium text-[var(--color-text-primary)]">Current Unbroken Trades</p>
+          <p className="text-base text-[var(--color-text-secondary)]">{streakData?.currentTrades || 0}</p>
         </div>
         <div>
-          <p className="text-gray-100 font-medium">Current Unbroken Days</p>
-          <p className="text-[var(--color-neon-purple)] text-base">{streakData?.currentDays || 0}</p>
+          <p className="font-medium text-[var(--color-text-primary)]">Current Unbroken Days</p>
+          <p className="text-base text-[var(--color-text-secondary)]">{streakData?.currentDays || 0}</p>
         </div>
         <div>
-          <p className="text-gray-100 font-medium">Best Unbroken Trades</p>
-          <p className="text-[var(--color-neon-purple)] text-base">{records.best_unbroken_trades}</p>
+          <p className="font-medium text-[var(--color-text-primary)]">Best Unbroken Trades</p>
+          <p className="text-base text-[var(--color-text-secondary)]">{records.best_unbroken_trades}</p>
         </div>
         <div>
-          <p className="text-gray-100 font-medium">Best Unbroken Days</p>
-          <p className="text-[var(--color-neon-purple)] text-base">{records.best_unbroken_days}</p>
+          <p className="font-medium text-[var(--color-text-primary)]">Best Unbroken Days</p>
+          <p className="text-base text-[var(--color-text-secondary)]">{records.best_unbroken_days}</p>
         </div>
       </div>
       <div className="relative h-64">
