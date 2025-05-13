@@ -35,20 +35,13 @@ function Dashboard({ supabase }) {
         if (error) {
           throw new Error(error.message);
         }
-<<<<<<< HEAD
-        // Log raw trades data to inspect tags
         console.log('Raw trades data:', data);
-        // Ensure tags is always an array
         const sanitizedTrades = data.map(trade => ({
           ...trade,
           tags: Array.isArray(trade.tags) ? trade.tags : trade.tags ? [trade.tags] : [],
         }));
         setTrades(sanitizedTrades);
         console.log('Sanitized trades:', sanitizedTrades);
-=======
-        setTrades(data || []);
-        console.log('Trades fetched:', data);
->>>>>>> 5895c97ddbfeb5890b335c3fb95eab5890661873
       } catch (err) {
         console.error('Fetch error:', err);
         setError(`Failed to load trades: ${err.message}`);
@@ -70,18 +63,12 @@ function Dashboard({ supabase }) {
       if (error) {
         throw new Error(error.message);
       }
-<<<<<<< HEAD
-      // Sanitize tags
       const sanitizedTrades = data.map(trade => ({
         ...trade,
         tags: Array.isArray(trade.tags) ? trade.tags : trade.tags ? [trade.tags] : [],
       }));
       setTrades(sanitizedTrades);
       console.log('Trades refreshed:', sanitizedTrades);
-=======
-      setTrades(data || []);
-      console.log('Trades refreshed:', data);
->>>>>>> 5895c97ddbfeb5890b335c3fb95eab5890661873
     } catch (err) {
       console.error('Refresh trades error:', err);
       setError(`Failed to refresh trades: ${err.message}`);
@@ -99,18 +86,12 @@ function Dashboard({ supabase }) {
       if (error) {
         throw new Error(error.message);
       }
-<<<<<<< HEAD
-      // Sanitize tags
       const sanitizedTrades = data.map(trade => ({
         ...trade,
         tags: Array.isArray(trade.tags) ? trade.tags : trade.tags ? [trade.tags] : [],
       }));
       setTrades(sanitizedTrades);
       console.log('Trades reset:', sanitizedTrades);
-=======
-      setTrades(data || []);
-      console.log('Trades reset:', data);
->>>>>>> 5895c97ddbfeb5890b335c3fb95eab5890661873
     } catch (err) {
       console.error('Reset trades error:', err);
       setError(`Failed to reset trades: ${err.message}`);
@@ -135,11 +116,7 @@ function Dashboard({ supabase }) {
   };
 
   const filteredTrades = tagFilter
-<<<<<<< HEAD
     ? trades.filter(trade => trade.tags.includes(tagFilter))
-=======
-    ? trades.filter(trade => trade.tags?.includes(tagFilter))
->>>>>>> 5895c97ddbfeb5890b335c3fb95eab5890661873
     : trades;
 
   if (loading) {
@@ -252,7 +229,6 @@ function Dashboard({ supabase }) {
                     whileHover={{ y: -5 }}
                   >
                     <p className="text-gray-700 dark:text-gray-200 text-lg">
-<<<<<<< HEAD
                       <span className="font-semibold">Entry:</span> {trade.entry || 'N/A'}
                     </p>
                     <p className="text-gray-700 dark:text-gray-200 text-lg">
@@ -263,25 +239,12 @@ function Dashboard({ supabase }) {
                     </p>
                     <p className="text-gray-700 dark:text-gray-200 text-lg">
                       <span className="font-semibold">RR Ratio:</span> {trade.rr_ratio || 'N/A'}
-=======
-                      <span className="font-semibold">TP:</span> {trade.tp}
-                    </p>
-                    <p className="text-gray-700 dark:text-gray-200 text-lg">
-                      <span className="font-semibold">SL:</span> {trade.sl}
-                    </p>
-                    <p className="text-gray-700 dark:text-gray-200 text-lg">
-                      <span className="font-semibold">RR Ratio:</span> {trade.rr_ratio}
->>>>>>> 5895c97ddbfeb5890b335c3fb95eab5890661873
                     </p>
                     <p className="text-gray-700 dark:text-gray-200 text-lg">
                       <span className="font-semibold">Emotions:</span> {trade.emotions || 'None'}
                     </p>
                     <p className="text-gray-700 dark:text-gray-200 text-lg">
-<<<<<<< HEAD
                       <span className="font-semibold">Tags:</span> {trade.tags.length > 0 ? trade.tags.join(', ') : 'None'}
-=======
-                      <span className="font-semibold">Tags:</span> {trade.tags?.join(', ') || 'None'}
->>>>>>> 5895c97ddbfeb5890b335c3fb95eab5890661873
                     </p>
                     <p className="text-gray-700 dark:text-gray-200 text-lg">
                       <span className="font-semibold">Notes:</span> {trade.notes || 'None'}
