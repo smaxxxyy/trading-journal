@@ -8,6 +8,7 @@ function TradeForm({ supabase, userId, onTradeAdded }) {
   const [rrRatio, setRrRatio] = useState('');
   const [emotions, setEmotions] = useState('');
   const [notes, setNotes] = useState('');
+  const [tags, setTags] = useState('');
   const [screenshot, setScreenshot] = useState(null);
   const [error, setError] = useState(null);
 
@@ -63,6 +64,7 @@ function TradeForm({ supabase, userId, onTradeAdded }) {
         rr_ratio: parseFloat(rrRatio),
         emotions: sanitizeInput(emotions),
         notes: sanitizeInput(notes),
+        tags: tags ? tags.split(',').map(tag => tag.trim()) : [],
         screenshot_url: screenshotUrl,
         rule_broken: false,
       },
@@ -78,27 +80,28 @@ function TradeForm({ supabase, userId, onTradeAdded }) {
     setRrRatio('');
     setEmotions('');
     setNotes('');
+    setTags('');
     setScreenshot(null);
     onTradeAdded();
   };
 
   return (
     <motion.div
-      className="glass-card p-8 mb-8"
+      className="futuristic-card p-10 mb-10"
       initial={{ opacity: 0, y: 50 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.5 }}
+      transition={{ duration: 0.6 }}
     >
-      <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-6" aria-label="Log a Trade">
+      <h3 className="text-3xl font-bold text-gray-900 dark:text-white mb-8" aria-label="Log a Trade">
         Log a Trade
       </h3>
-      {error && <p className="text-red-500 mb-6" role="alert">{error}</p>}
+      {error && <p className="text-red-500 dark:text-red-400 mb-8" role="alert">{error}</p>}
       <input
         type="number"
         value={tp}
         onChange={(e) => setTp(e.target.value)}
         placeholder="Take Profit (TP)"
-        className="neo-input mb-4"
+        className="futuristic-input mb-6"
         step="0.01"
         aria-label="Take Profit input"
       />
@@ -107,16 +110,16 @@ function TradeForm({ supabase, userId, onTradeAdded }) {
         value={sl}
         onChange={(e) => setSl(e.target.value)}
         placeholder="Stop Loss (SL)"
-        className="neo-input mb-4"
+        className="futuristic-input mb-6"
         step="0.01"
         aria-label="Stop Loss input"
       />
       <input
         type="number"
         value={rrRatio}
-        onChange={(e) => setRpRatio(e.target.value)}
+        onChange={(e) => setRrRatio(e.target.value)}
         placeholder="Risk-Reward Ratio"
-        className="neo-input mb-4"
+        className="futuristic-input mb-6"
         step="0.01"
         aria-label="Risk-Reward Ratio input"
       />
@@ -125,28 +128,36 @@ function TradeForm({ supabase, userId, onTradeAdded }) {
         value={emotions}
         onChange={(e) => setEmotions(e.target.value)}
         placeholder="Emotions (e.g., Confident, Nervous)"
-        className="neo-input mb-4"
+        className="futuristic-input mb-6"
         aria-label="Emotions input"
+      />
+      <input
+        type="text"
+        value={tags}
+        onChange={(e) => setTags(e.target.value)}
+        placeholder="Tags (e.g., Scalping, Swing)"
+        className="futuristic-input mb-6"
+        aria-label="Tags input"
       />
       <textarea
         value={notes}
         onChange={(e) => setNotes(e.target.value)}
         placeholder="Notes about the trade"
-        className="neo-input mb-4 min-h-[120px]"
+        className="futuristic-input mb-6 min-h-[150px]"
         aria-label="Trade notes"
       />
       <input
         type="file"
         onChange={(e) => setScreenshot(e.target.files[0])}
         accept="image/png,image/jpeg"
-        className="neo-input mb-4 file:neo-button file:bg-gray-300 file:text-gray-900 file:dark:bg-gray-700 file:dark:text-white"
+        className="futuristic-input mb-6 file:futuristic-button file:from-gray-400 file:to-gray-500 file:text-white file:dark:from-gray-700 file:dark:to-gray-600"
         aria-label="Screenshot upload"
       />
       <motion.button
         onClick={handleSubmit}
-        className="neo-button bg-blue-600 dark:bg-purple-600 w-full"
-        whileHover={{ scale: 1.05 }}
-        whileTap={{ scale: 0.95 }}
+        className="futuristic-button w-full"
+        whileHover={{ scale: 1.1 }}
+        whileTap={{ scale: 0.9 }}
         aria-label="Add Trade button"
       >
         Add Trade

@@ -1,31 +1,65 @@
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
-import { useState, useEffect } from 'react';
-import { createClient } from '@supabase/supabase-js';
+import { useEffect, useState } from 'react';
+import { Routes, Route, useNavigate } from 'react-router-dom';
 import Login from './components/Login';
 import Dashboard from './components/Dashboard';
+import { motion } from 'framer-motion'; // Add this import
 
-const supabase = createClient(
-  'https://qdpbucpzewocsiwkmyhm.supabase.co',
-  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFkcGJ1Y3B6ZXdvY3Npd2tteWhtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDcwNzQyOTEsImV4cCI6MjA2MjY1MDI5MX0.PL1ZNMo0SIh7yG4SDNtl-rzoAG4tVT9xPIZnItZr-UI'
-);
-
-function App() {
-  const [session, setSession] = useState(null);
+function App({ supabase }) {
+  const [loading, setLoading] = useState(true);
+  const navigate = useNavigate();
 
   useEffect(() => {
-    supabase.auth.getSession().then(({ data: { session } }) => setSession(session));
-    supabase.auth.onAuthStateChange((_event, session) => setSession(session));
-  }, []);
+    const checkAuth = async () => {
+      try {
+        const { data: { user } } = await supabase.auth.getUser();
+        if (user) {
+          navigate('/');
+        } else {
+          navigate('/login');
+        }
+      } catch (error) {
+        console.error('Auth check error:', error);
+        navigate('/login');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    checkAuth();
+
+    const { data: authListener } = supabase.auth.onAuthStateChange((event, session) => {
+      if (event === 'SIGNED_IN') {
+        navigate('/');
+      } else if (event === 'SIGNED_OUT') {
+        navigate('/login');
+      }
+    });
+
+    return () => {
+      authListener.subscription?.unsubscribe();
+    };
+  }, [supabase, navigate]);
+
+  if (loading) {
+    return (
+      <div className="container py-20 text-center">
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.5 }}
+        >
+          <h2 className="text-3xl font-bold text-gray-900 dark:text-white">Loading...</h2>
+        </motion.div>
+      </div>
+    );
+  }
 
   return (
-    <Router>
-      <div className="min-h-screen bg-gray-100">
-        <Routes>
-          <Route path="/login" element={session ? <Navigate to="/" /> : <Login supabase={supabase} />} />
-          <Route path="/" element={session ? <Dashboard supabase={supabase} session={session} /> : <Navigate to="/login" />} />
-        </Routes>
-      </div>
-    </Router>
+    <Routes>
+      <Route path="/login" element={<Login supabase={supabase} />} />
+      <Route path="/" element={<Dashboard supabase={supabase} />} />
+      <Route path="*" element={<Login supabase={supabase} />} />
+    </Routes>
   );
 }
 

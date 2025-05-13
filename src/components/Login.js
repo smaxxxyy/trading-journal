@@ -27,23 +27,23 @@ function Login({ supabase }) {
   };
 
   return (
-    <div className="container py-16">
+    <div className="container py-20">
       <motion.div
-        className="glass-card p-8 max-w-lg mx-auto"
-        initial={{ opacity: 0, y: 50 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5 }}
+        className="futuristic-card p-10 max-w-lg mx-auto"
+        initial={{ opacity: 0, scale: 0.9 }}
+        animate={{ opacity: 1, scale: 1 }}
+        transition={{ duration: 0.6 }}
       >
-        <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-8 text-center" aria-label="Login or Sign Up">
+        <h2 className="text-4xl font-extrabold text-gray-900 dark:text-white mb-8 text-center" aria-label="Login or Sign Up">
           Trading Journal
         </h2>
-        {error && <p className="text-red-500 mb-6 text-center" role="alert">{error}</p>}
+        {error && <p className="text-red-500 dark:text-red-400 mb-6 text-center" role="alert">{error}</p>}
         <input
           type="email"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
           placeholder="Email"
-          className="neo-input mb-6"
+          className="futuristic-input mb-6"
           aria-label="Email input"
         />
         <input
@@ -51,24 +51,24 @@ function Login({ supabase }) {
           value={password}
           onChange={(e) => setPassword(e.target.value)}
           placeholder="Password"
-          className="neo-input mb-8"
+          className="futuristic-input mb-8"
           aria-label="Password input"
         />
         <div className="flex flex-col sm:flex-row gap-4 justify-center">
           <motion.button
             onClick={handleLogin}
-            className="neo-button bg-blue-600 dark:bg-purple-600"
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
+            className="futuristic-button"
+            whileHover={{ scale: 1.1 }}
+            whileTap={{ scale: 0.9 }}
             aria-label="Login button"
           >
             Login
           </motion.button>
           <motion.button
             onClick={handleSignUp}
-            className="neo-button bg-purple-600 dark:bg-blue-600"
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
+            className="futuristic-button"
+            whileHover={{ scale: 1.1 }}
+            whileTap={{ scale: 0.9 }}
             aria-label="Sign Up button"
           >
             Sign Up

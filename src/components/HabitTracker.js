@@ -14,22 +14,22 @@ function HabitTracker({ supabase, userId, trades, onReset }) {
 
   return (
     <motion.div
-      className="glass-card p-8 mb-8"
+      className="futuristic-card p-10 mb-10"
       initial={{ opacity: 0, y: 50 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.5 }}
+      transition={{ duration: 0.6 }}
     >
-      <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-6" aria-label="Habit Tracker">
+      <h3 className="text-3xl font-bold text-gray-900 dark:text-white mb-8" aria-label="Habit Tracker">
         Habit Tracker
       </h3>
-      <p className="text-lg text-gray-700 dark:text-gray-200 mb-6" aria-label="Trades since last rule break">
-        Trades Since Last Rule Break: <span className="font-bold text-blue-600 dark:text-purple-400">{streak}</span>
+      <p className="text-xl text-gray-700 dark:text-gray-200 mb-8" aria-label="Trades since last rule break">
+        Trades Since Last Rule Break: <span className="font-extrabold text-blue-600 dark:text-pink-400">{streak}</span>
       </p>
       <motion.button
         onClick={handleReset}
-        className="neo-button bg-red-600 dark:bg-red-700 w-full"
-        whileHover={{ scale: 1.05 }}
-        whileTap={{ scale: 0.95 }}
+        className="futuristic-button w-full from-red-500 to-red-600"
+        whileHover={{ scale: 1.1 }}
+        whileTap={{ scale: 0.9 }}
         aria-label="Reset Streak button"
       >
         Reset Streak (Rule Broken)
