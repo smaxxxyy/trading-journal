@@ -18,11 +18,12 @@ function Dashboard({ supabase }) {
   const [modalImage, setModalImage] = useState(null);
   const [selectedTrade, setSelectedTrade] = useState(null);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const [theme, setTheme] = useState(localStorage.getItem('theme') || 'neon');
+  const [theme, setTheme] = useState(() => localStorage.getItem('theme') || 'neon');
   const [prices, setPrices] = useState({ btc: 'Loading...', gold: 'Loading...' });
   const [livePrice, setLivePrice] = useState(null);
   const navigate = useNavigate();
 
+  // Ensure theme is applied immediately on mount
   useEffect(() => {
     document.documentElement.setAttribute('data-theme', theme);
     localStorage.setItem('theme', theme);
@@ -96,21 +97,29 @@ function Dashboard({ supabase }) {
     fetchPrices();
   }, [supabase, navigate]);
 
-  const fetchLivePrice = async (pair) => {
-    try {
-      if (pair.toUpperCase() === 'XAU/USD') {
-        const response = await fetch(`https://metals-api.com/api/latest?access_key=${process.env.METALS_API_KEY || 'your-api-key'}&base=USD&symbols=XAU`);
-        const data = await response.json();
-        return data.rates?.XAU ? (1 / data.rates.XAU).toFixed(2) : 'N/A';
-      } else {
-        const symbol = pair.toUpperCase().replace('/', '');
-        const response = await fetch(`https://api.binance.com/api/v3/ticker/price?symbol=${symbol}`);
-        const data = await response.json();
-        return data.price ? parseFloat(data.price).toFixed(2) : 'N/A';
+  const fetchLivePrice = async (pair, retries = 3) => {
+    for (let attempt = 1; attempt <= retries; attempt++) {
+      try {
+        if (pair.toUpperCase() === 'XAU/USD') {
+          const response = await fetch(`https://metals-api.com/api/latest?access_key=${process.env.METALS_API_KEY || 'your-api-key'}&base=USD&symbols=XAU`);
+          if (!response.ok) throw new Error('Failed to fetch XAU price');
+          const data = await response.json();
+          return data.rates?.XAU ? (1 / data.rates.XAU).toFixed(2) : 'N/A';
+        } else {
+          const symbol = pair.toUpperCase().replace('/', '');
+          const response = await fetch(`https://api.binance.com/api/v3/ticker/price?symbol=${symbol}`);
+          if (!response.ok) throw new Error('Failed to fetch price');
+          const data = await response.json();
+          return data.price ? parseFloat(data.price).toFixed(2) : 'N/A';
+        }
+      } catch (err) {
+        if (attempt === retries) {
+          console.error(`Live price fetch error after ${retries} attempts:`, err);
+          return 'Unavailable';
+        }
+        // Wait 2 seconds before retrying
+        await new Promise(resolve => setTimeout(resolve, 2000));
       }
-    } catch (err) {
-      console.error('Live price fetch error:', err);
-      return 'N/A';
     }
   };
 
@@ -426,7 +435,7 @@ function Dashboard({ supabase }) {
         <p>XAU/USD: ${prices.gold}</p>
       </div>
       {isMenuOpen && (
-        <div className="absolute top-16 right-4 left-auto futuristic-card holographic-border p-4 w-48 z-50">
+        <div className="absolute top-14 right-0 futuristic-card holographic-border p-4 w-48 z-50">
           <div className="flex flex-col gap-2 text-xs">
             <motion.button
               onClick={handleExport}
@@ -617,7 +626,7 @@ function Dashboard({ supabase }) {
                     </>
                   )}
                   <p className="font-medium">Position Size</p>
-                  <p>{selectedTrade.trade.position_size?.toFixed(2) || 'N/A'}</p>
+                  <p>{selectedTrade.trade.position_size?.toFixed(2) || 'N/A'} {selectedTrade.trade.position_unit}</p>
                   <p className="font-medium">Entry</p>
                   <p>{selectedTrade.trade.entry?.toFixed(2) || 'N/A'}</p>
                   <p className="font-medium">Stop Loss</p>
