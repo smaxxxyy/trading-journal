@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import axios from 'axios';
+import { motion } from 'framer-motion';
 
 function TradeForm({ supabase, userId, onTradeAdded }) {
   const [tp, setTp] = useState('');
@@ -82,17 +83,22 @@ function TradeForm({ supabase, userId, onTradeAdded }) {
   };
 
   return (
-    <div className="glass-card p-6 mb-6">
-      <h3 className="text-xl font-semibold text-gray-800 mb-4" aria-label="Log a Trade">
+    <motion.div
+      className="glass-card p-8 mb-8"
+      initial={{ opacity: 0, y: 50 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.5 }}
+    >
+      <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-6" aria-label="Log a Trade">
         Log a Trade
       </h3>
-      {error && <p className="text-red-500 mb-4" role="alert">{error}</p>}
+      {error && <p className="text-red-500 mb-6" role="alert">{error}</p>}
       <input
         type="number"
         value={tp}
         onChange={(e) => setTp(e.target.value)}
         placeholder="Take Profit (TP)"
-        className="modern-input mb-4"
+        className="neo-input mb-4"
         step="0.01"
         aria-label="Take Profit input"
       />
@@ -101,16 +107,16 @@ function TradeForm({ supabase, userId, onTradeAdded }) {
         value={sl}
         onChange={(e) => setSl(e.target.value)}
         placeholder="Stop Loss (SL)"
-        className="modern-input mb-4"
+        className="neo-input mb-4"
         step="0.01"
         aria-label="Stop Loss input"
       />
       <input
         type="number"
         value={rrRatio}
-        onChange={(e) => setRrRatio(e.target.value)}
+        onChange={(e) => setRpRatio(e.target.value)}
         placeholder="Risk-Reward Ratio"
-        className="modern-input mb-4"
+        className="neo-input mb-4"
         step="0.01"
         aria-label="Risk-Reward Ratio input"
       />
@@ -119,32 +125,33 @@ function TradeForm({ supabase, userId, onTradeAdded }) {
         value={emotions}
         onChange={(e) => setEmotions(e.target.value)}
         placeholder="Emotions (e.g., Confident, Nervous)"
-        className="modern-input mb-4"
+        className="neo-input mb-4"
         aria-label="Emotions input"
       />
       <textarea
         value={notes}
         onChange={(e) => setNotes(e.target.value)}
         placeholder="Notes about the trade"
-        className="modern-input mb-4 min-h-[100px]"
+        className="neo-input mb-4 min-h-[120px]"
         aria-label="Trade notes"
       />
       <input
         type="file"
         onChange={(e) => setScreenshot(e.target.files[0])}
         accept="image/png,image/jpeg"
-        className="modern-input mb-4 file:modern-button file:bg-gray-200 file:text-gray-700 file:hover:bg-gray-300"
+        className="neo-input mb-4 file:neo-button file:bg-gray-300 file:text-gray-900 file:dark:bg-gray-700 file:dark:text-white"
         aria-label="Screenshot upload"
       />
-      <button
-        type="submit"
+      <motion.button
         onClick={handleSubmit}
-        className="modern-button bg-blue-600 text-white hover:bg-blue-700 w-full"
+        className="neo-button bg-blue-600 dark:bg-purple-600 w-full"
+        whileHover={{ scale: 1.05 }}
+        whileTap={{ scale: 0.95 }}
         aria-label="Add Trade button"
       >
         Add Trade
-      </button>
-    </div>
+      </motion.button>
+    </motion.div>
   );
 }
 

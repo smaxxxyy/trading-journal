@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { motion } from 'framer-motion';
 
 function Login({ supabase }) {
   const [email, setEmail] = useState('');
@@ -26,18 +27,23 @@ function Login({ supabase }) {
   };
 
   return (
-    <div className="container py-12">
-      <div className="glass-card p-6 max-w-md mx-auto">
-        <h2 className="text-2xl font-bold text-gray-800 mb-6 text-center" aria-label="Login or Sign Up">
+    <div className="container py-16">
+      <motion.div
+        className="glass-card p-8 max-w-lg mx-auto"
+        initial={{ opacity: 0, y: 50 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5 }}
+      >
+        <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-8 text-center" aria-label="Login or Sign Up">
           Trading Journal
         </h2>
-        {error && <p className="text-red-500 mb-4 text-center" role="alert">{error}</p>}
+        {error && <p className="text-red-500 mb-6 text-center" role="alert">{error}</p>}
         <input
           type="email"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
           placeholder="Email"
-          className="modern-input mb-4"
+          className="neo-input mb-6"
           aria-label="Email input"
         />
         <input
@@ -45,26 +51,30 @@ function Login({ supabase }) {
           value={password}
           onChange={(e) => setPassword(e.target.value)}
           placeholder="Password"
-          className="modern-input mb-6"
+          className="neo-input mb-8"
           aria-label="Password input"
         />
         <div className="flex flex-col sm:flex-row gap-4 justify-center">
-          <button
+          <motion.button
             onClick={handleLogin}
-            className="modern-button bg-blue-600 text-white hover:bg-blue-700"
+            className="neo-button bg-blue-600 dark:bg-purple-600"
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
             aria-label="Login button"
           >
             Login
-          </button>
-          <button
+          </motion.button>
+          <motion.button
             onClick={handleSignUp}
-            className="modern-button bg-purple-600 text-white hover:bg-purple-700"
+            className="neo-button bg-purple-600 dark:bg-blue-600"
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
             aria-label="Sign Up button"
           >
             Sign Up
-          </button>
+          </motion.button>
         </div>
-      </div>
+      </motion.div>
     </div>
   );
 }

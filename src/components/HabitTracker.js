@@ -1,3 +1,5 @@
+import { motion } from 'framer-motion';
+
 function HabitTracker({ supabase, userId, trades, onReset }) {
   const streak = trades.filter((trade) => !trade.rule_broken).length;
 
@@ -11,21 +13,28 @@ function HabitTracker({ supabase, userId, trades, onReset }) {
   };
 
   return (
-    <div className="glass-card p-6 mb-6">
-      <h3 className="text-xl font-semibold text-gray-800 mb-4" aria-label="Habit Tracker">
+    <motion.div
+      className="glass-card p-8 mb-8"
+      initial={{ opacity: 0, y: 50 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.5 }}
+    >
+      <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-6" aria-label="Habit Tracker">
         Habit Tracker
       </h3>
-      <p className="text-lg text-gray-700 mb-4" aria-label="Trades since last rule break">
-        Trades Since Last Rule Break: <span className="font-bold text-blue-600">{streak}</span>
+      <p className="text-lg text-gray-700 dark:text-gray-200 mb-6" aria-label="Trades since last rule break">
+        Trades Since Last Rule Break: <span className="font-bold text-blue-600 dark:text-purple-400">{streak}</span>
       </p>
-      <button
+      <motion.button
         onClick={handleReset}
-        className="modern-button bg-red-600 text-white hover:bg-red-700 w-full"
+        className="neo-button bg-red-600 dark:bg-red-700 w-full"
+        whileHover={{ scale: 1.05 }}
+        whileTap={{ scale: 0.95 }}
         aria-label="Reset Streak button"
       >
         Reset Streak (Rule Broken)
-      </button>
-    </div>
+      </motion.button>
+    </motion.div>
   );
 }
 
