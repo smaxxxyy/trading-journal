@@ -23,7 +23,6 @@ function Dashboard({ supabase }) {
   const [livePrice, setLivePrice] = useState(null);
   const navigate = useNavigate();
 
-  // Ensure theme is applied immediately on mount
   useEffect(() => {
     document.documentElement.setAttribute('data-theme', theme);
     localStorage.setItem('theme', theme);
@@ -100,11 +99,12 @@ function Dashboard({ supabase }) {
   const fetchLivePrice = async (pair, retries = 3) => {
     for (let attempt = 1; attempt <= retries; attempt++) {
       try {
-        if (pair.toUpperCase() === 'XAU/USD') {
-          const response = await fetch(`https://metals-api.com/api/latest?access_key=${process.env.METALS_API_KEY || 'your-api-key'}&base=USD&symbols=XAU`);
-          if (!response.ok) throw new Error('Failed to fetch XAU price');
+        if (pair.toUpperCase().includes('/USD')) {
+          const symbol = pair.toUpperCase().replace('/USD', '');
+          const response = await fetch(`https://api.coingecko.com/api/v3/simple/price?ids=${symbol}&vs_currencies=usd`);
+          if (!response.ok) throw new Error('Failed to fetch price');
           const data = await response.json();
-          return data.rates?.XAU ? (1 / data.rates.XAU).toFixed(2) : 'N/A';
+          return data[symbol]?.usd?.toFixed(2) || 'N/A';
         } else {
           const symbol = pair.toUpperCase().replace('/', '');
           const response = await fetch(`https://api.binance.com/api/v3/ticker/price?symbol=${symbol}`);
@@ -117,7 +117,6 @@ function Dashboard({ supabase }) {
           console.error(`Live price fetch error after ${retries} attempts:`, err);
           return 'Unavailable';
         }
-        // Wait 2 seconds before retrying
         await new Promise(resolve => setTimeout(resolve, 2000));
       }
     }
@@ -128,13 +127,17 @@ function Dashboard({ supabase }) {
       const interval = setInterval(async () => {
         const price = await fetchLivePrice(selectedTrade.trade.pair);
         setLivePrice(price);
-      }, 60000); // Update every minute
+      }, 60000);
       return () => clearInterval(interval);
     }
   }, [selectedTrade]);
 
   const handleEditTrade = async (tradeId, updatedData) => {
     try {
+      const trade = trades.find(t => t.id === tradeId);
+      if (trade.status === 'in_progress') {
+        updatedData = { tp: updatedData.tp, sl: updatedData.sl }; // Only allow TP/SL edits
+      }
       const { error: tradeError } = await supabase
         .from('trades')
         .update(updatedData)
@@ -142,8 +145,8 @@ function Dashboard({ supabase }) {
         .eq('user_id', userId);
       if (tradeError) throw new Error(tradeError.message);
 
-      const updatedTrades = trades.map(trade =>
-        trade.id === tradeId ? { ...trade, ...updatedData } : trade
+      const updatedTrades = trades.map(t =>
+        t.id === tradeId ? { ...t, ...updatedData } : t
       );
       setTrades(updatedTrades);
       setSelectedTrade({
@@ -170,9 +173,7 @@ function Dashboard({ supabase }) {
       } else {
         currentTrades += 1;
         currentDays.add(tradeDate);
-        if (lastDate && tradeDate !== lastDate) {
-          currentDays.add(tradeDate);
-        }
+        if (lastDate && tradeDate !== lastDate) currentDays.add(tradeDate);
         maxTrades = Math.max(maxTrades, currentTrades);
         maxDays = Math.max(maxDays, currentDays.size);
       }
@@ -185,15 +186,8 @@ function Dashboard({ supabase }) {
   const handleTradeAdded = async () => {
     try {
       const [tradesData, habitsData] = await Promise.all([
-        supabase
-          .from('trades')
-          .select('*')
-          .eq('user_id', userId)
-          .order('created_at', { ascending: false }),
-        supabase
-          .from('habits')
-          .select('*')
-          .eq('user_id', userId),
+        supabase.from('trades').select('*').eq('user_id', userId).order('created_at', { ascending: false }),
+        supabase.from('habits').select('*').eq('user_id', userId),
       ]);
 
       if (tradesData.error) throw new Error(tradesData.error.message);
@@ -281,15 +275,10 @@ function Dashboard({ supabase }) {
     oneMonthAgo.setMonth(today.getMonth() - 1);
 
     let matchesTime = true;
-    if (historyFilter === 'today') {
-      matchesTime = tradeDate.toDateString() === startOfToday.toDateString();
-    } else if (historyFilter === 'weekly') {
-      matchesTime = tradeDate >= oneWeekAgo && tradeDate <= today;
-    } else if (historyFilter === 'monthly') {
-      matchesTime = tradeDate >= oneMonthAgo && tradeDate <= today;
-    } else if (historyFilter === 'all') {
-      matchesTime = true;
-    }
+    if (historyFilter === 'today') matchesTime = tradeDate.toDateString() === startOfToday.toDateString();
+    else if (historyFilter === 'weekly') matchesTime = tradeDate >= oneWeekAgo && tradeDate <= today;
+    else if (historyFilter === 'monthly') matchesTime = tradeDate >= oneMonthAgo && tradeDate <= today;
+    else if (historyFilter === 'all') matchesTime = true;
 
     const matchesTag = tagFilter ? trade.tags.includes(tagFilter) : true;
     const matchesOutcome = outcomeFilter ? trade.outcome === outcomeFilter : true;
@@ -301,9 +290,7 @@ function Dashboard({ supabase }) {
     const grouped = {};
     filteredTrades.forEach(trade => {
       const date = new Date(trade.created_at).toLocaleDateString();
-      if (!grouped[date]) {
-        grouped[date] = [];
-      }
+      if (!grouped[date]) grouped[date] = [];
       grouped[date].push(trade);
     });
 
@@ -320,11 +307,8 @@ function Dashboard({ supabase }) {
       const totalTrades = trades.length;
       const avgRr = trades.reduce((sum, trade) => sum + (trade.rr_ratio || 0), 0) / totalTrades || 0;
       let message = '';
-      if (outcomes.wins > outcomes.losses) {
-        message = 'Great job dominating the market today!';
-      } else if (outcomes.losses >= 3) {
-        message = 'Tough day, but every loss is a lesson. Keep refining your strategy!';
-      }
+      if (outcomes.wins > outcomes.losses) message = 'Great job dominating the market today!';
+      else if (outcomes.losses >= 3) message = 'Tough day, but every loss is a lesson. Keep refining your strategy!';
 
       return { date, trades, outcomes, totalTrades, avgRr: avgRr.toFixed(2), message };
     }).sort((a, b) => new Date(b.date) - new Date(a.date));
@@ -355,9 +339,7 @@ function Dashboard({ supabase }) {
         animate={{ opacity: 1, scale: 1 }}
         transition={{ duration: 0.3 }}
         whileHover={{ scale: 1.02 }}
-        style={{
-          transform: `perspective(1000px) rotateX(${mousePosition.y}deg) rotateY(${mousePosition.x}deg)`,
-        }}
+        style={{ transform: `perspective(1000px) rotateX(${mousePosition.y}deg) rotateY(${mousePosition.x}deg)` }}
         onMouseMove={handleMouseMove}
         onMouseLeave={() => setMousePosition({ x: 0, y: 0 })}
         onClick={() => setSelectedTrade({ trade, habit })}
@@ -553,35 +535,17 @@ function Dashboard({ supabase }) {
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.4 }}
                   >
-                    <h4 className="text-lg font-bold mb-3">
-                      {group.date}
-                    </h4>
+                    <h4 className="text-lg font-bold mb-3">{group.date}</h4>
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 mb-3 text-sm">
-                      <p>
-                        <span className="font-medium">Total Trades:</span> {group.totalTrades}
-                      </p>
-                      <p>
-                        <span className="font-medium">Wins:</span> {group.outcomes.wins}
-                      </p>
-                      <p>
-                        <span className="font-medium">Losses:</span> {group.outcomes.losses}
-                      </p>
-                      <p>
-                        <span className="font-medium">Breakevens:</span> {group.outcomes.breakevens}
-                      </p>
-                      <p>
-                        <span className="font-medium">Average RR:</span> {group.avgRr}
-                      </p>
+                      <p><span className="font-medium">Total Trades:</span> {group.totalTrades}</p>
+                      <p><span className="font-medium">Wins:</span> {group.outcomes.wins}</p>
+                      <p><span className="font-medium">Losses:</span> {group.outcomes.losses}</p>
+                      <p><span className="font-medium">Breakevens:</span> {group.outcomes.breakevens}</p>
+                      <p><span className="font-medium">Average RR:</span> {group.avgRr}</p>
                     </div>
-                    {group.message && (
-                      <p className="text-sm font-medium mb-3">
-                        {group.message}
-                      </p>
-                    )}
+                    {group.message && <p className="text-sm font-medium mb-3">{group.message}</p>}
                     <div className="grid grid-cols-1 gap-3">
-                      {group.trades.map(trade => (
-                        <TradeCard key={trade.id} trade={trade} />
-                      ))}
+                      {group.trades.map(trade => <TradeCard key={trade.id} trade={trade} />)}
                     </div>
                   </motion.div>
                 ))}
@@ -596,11 +560,7 @@ function Dashboard({ supabase }) {
               exit={{ opacity: 0 }}
               onClick={() => setModalImage(null)}
             >
-              <img
-                src={modalImage}
-                alt="Full trade screenshot"
-                className="max-w-[90%] max-h-[90%] rounded-2xl"
-              />
+              <img src={modalImage} alt="Full trade screenshot" className="max-w-[90%] max-h-[90%] rounded-2xl" />
             </motion.div>
           )}
           {selectedTrade && (
@@ -611,10 +571,7 @@ function Dashboard({ supabase }) {
               exit={{ opacity: 0 }}
               onClick={() => setSelectedTrade(null)}
             >
-              <div
-                className="futuristic-card holographic-border p-6 max-w-md w-full"
-                onClick={e => e.stopPropagation()}
-              >
+              <div className="futuristic-card holographic-border p-6 max-w-md w-full" onClick={e => e.stopPropagation()}>
                 <h3 className="text-xl font-bold mb-4">Trade Details</h3>
                 <div className="grid grid-cols-2 gap-2 text-xs">
                   <p className="font-medium">Pair</p>
@@ -629,10 +586,43 @@ function Dashboard({ supabase }) {
                   <p>{selectedTrade.trade.position_size?.toFixed(2) || 'N/A'} {selectedTrade.trade.position_unit}</p>
                   <p className="font-medium">Entry</p>
                   <p>{selectedTrade.trade.entry?.toFixed(2) || 'N/A'}</p>
-                  <p className="font-medium">Stop Loss</p>
-                  <p>{selectedTrade.trade.sl?.toFixed(2) || 'N/A'}</p>
-                  <p className="font-medium">Take Profit</p>
-                  <p>{selectedTrade.trade.tp?.toFixed(2) || 'N/A'}</p>
+                  {selectedTrade.trade.status === 'in_progress' && (
+                    <>
+                      <p className="font-medium">Take Profit</p>
+                      {selectedTrade.trade.tp.map((tpValue, index) => (
+                        <input
+                          key={index}
+                          type="number"
+                          value={tpValue}
+                          onChange={(e) => {
+                            const newTp = [...selectedTrade.trade.tp];
+                            newTp[index] = e.target.value;
+                            handleEditTrade(selectedTrade.trade.id, { tp: newTp });
+                          }}
+                          className="futuristic-input text-xs mt-1"
+                          step="0.01"
+                          aria-label={`Take Profit ${index + 1} edit`}
+                        />
+                      ))}
+                      <p className="font-medium">Stop Loss</p>
+                      <input
+                        type="number"
+                        value={selectedTrade.trade.sl}
+                        onChange={(e) => handleEditTrade(selectedTrade.trade.id, { sl: e.target.value })}
+                        className="futuristic-input text-xs mt-1"
+                        step="0.01"
+                        aria-label="Stop Loss edit"
+                      />
+                    </>
+                  )}
+                  {selectedTrade.trade.status !== 'in_progress' && (
+                    <>
+                      <p className="font-medium">Take Profit</p>
+                      <p>{selectedTrade.trade.tp.join(', ') || 'N/A'}</p>
+                      <p className="font-medium">Stop Loss</p>
+                      <p>{selectedTrade.trade.sl?.toFixed(2) || 'N/A'}</p>
+                    </>
+                  )}
                   <p className="font-medium">Direction</p>
                   <p>{selectedTrade.trade.direction || 'N/A'}</p>
                   <p className="font-medium">Status</p>
@@ -703,7 +693,7 @@ function Dashboard({ supabase }) {
 const determineOutcome = (trade) => {
   const { entry, tp, sl, direction } = trade;
   const entryPrice = parseFloat(entry);
-  const takeProfit = parseFloat(tp);
+  const takeProfit = parseFloat(tp[0]);
   const stopLoss = parseFloat(sl);
 
   if (direction === 'long') {
