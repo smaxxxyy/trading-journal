@@ -130,7 +130,8 @@ function TradeForm({ supabase, userId, onTradeAdded }) {
       const tradeData = {
         user_id: userId,
         entry: parseFloat(entry) || 0,
-        tp: tp.filter(t => t).map(t => parseFloat(t)) || [0],
+        tp: tp.length > 1 ? null : tp.filter(t => t).map(t => parseFloat(t))[0] || 0,
+        multiple_tps: tp.length > 1 ? tp.filter(t => t).map(t => parseFloat(t)) : null,
         sl: parseFloat(sl) || 0,
         rr_ratio: parseFloat(rrRatio) || 0,
         emotions: sanitizeInput(emotions) || '',
@@ -286,7 +287,7 @@ function TradeForm({ supabase, userId, onTradeAdded }) {
             list="pair-suggestions"
           />
           {pairSuggestions.length > 0 && isCrypto && (
-            <ul className="absolute z-10 w-full bg-[var(--color-glass-bg)] border border-[var(--color-glass-border)] rounded mt-1">
+            <ul className="absolute z-10 w-full bg-[var(--color-glass-bg)] border border-[var(--color-glass-border)] rounded mt-1 text-[var(--color-text-primary)]">
               {pairSuggestions.map((suggestion, index) => (
                 <li
                   key={index}
@@ -337,10 +338,10 @@ function TradeForm({ supabase, userId, onTradeAdded }) {
           <input
             key={index}
             type="number"
-            value={tpValue}
+            value={tpValue || ''}
             onChange={(e) => {
               const newTp = [...tp];
-              newTp[index] = e.target.value;
+              newTp[index] = e.target.value || '';
               setTp(newTp);
             }}
             placeholder={`Take Profit ${index + 1}`}
