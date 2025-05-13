@@ -20,7 +20,7 @@ function TradeForm({ supabase, userId, onTradeAdded }) {
   const [planFollowed, setPlanFollowed] = useState(false);
   const [wasGamble, setWasGamble] = useState(false);
   const [leverage, setLeverage] = useState(1);
-  const [direction, setDirection] = useState('');
+  const [direction, setDirection] = useState(''); // Will be auto-determined
   const [status, setStatus] = useState('');
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(false);
@@ -37,6 +37,9 @@ function TradeForm({ supabase, userId, onTradeAdded }) {
       } else {
         setRrRatio('');
       }
+      // Auto-determine direction
+      if (takeProfit > entryPrice && stopLoss < entryPrice) setDirection('long');
+      else if (takeProfit < entryPrice && stopLoss > entryPrice) setDirection('short');
     }
   }, [entry, tp, sl]);
 
@@ -100,7 +103,7 @@ function TradeForm({ supabase, userId, onTradeAdded }) {
     }
 
     if (!direction || !status) {
-      setError('Please select Direction and Status');
+      setError('Please select Status');
       setLoading(false);
       return;
     }
@@ -223,6 +226,10 @@ function TradeForm({ supabase, userId, onTradeAdded }) {
 
   const addTakeProfit = () => {
     if (tp.length < 5) setTp([...tp, '']); // Limit to 5 TPs
+  };
+
+  const setLeveragePreset = (value) => {
+    setLeverage(parseFloat(value));
   };
 
   return (
@@ -383,34 +390,34 @@ function TradeForm({ supabase, userId, onTradeAdded }) {
           aria-label="Risk-Reward Ratio input"
           disabled={loading}
         />
-        <div className="grid grid-cols-1">
-          <label className="block text-sm mb-1 text-[var(--color-text-primary)]">
-            Leverage: {leverage}x
-          </label>
+        <div className="grid grid-cols-2 gap-2 items-center">
           <input
-            type="range"
-            min="1"
-            max="2000"
+            type="number"
             value={leverage}
-            onChange={(e) => setLeverage(parseFloat(e.target.value))}
-            onTouchMove={(e) => e.preventDefault()} // Prevent scrolling on touch
-            className="w-full h-6 rounded-lg cursor-pointer bg-[var(--color-glass-bg)] accent-[var(--color-accent)]"
-            style={{ WebkitAppearance: 'none', appearance: 'none', outline: 'none' }}
+            onChange={(e) => setLeverage(parseFloat(e.target.value) || 1)}
+            placeholder="Leverage"
+            className="futuristic-input"
+            step="1"
+            min="1"
+            aria-label="Leverage input"
             disabled={loading}
-            aria-label="Leverage slider"
           />
+          <div className="flex gap-1">
+            {[25, 50, 75, 100, 125, 150, 200, 300, 400, 500, 800, 1000, 2000].map((preset) => (
+              <motion.button
+                key={preset}
+                type="button"
+                onClick={() => setLeveragePreset(preset)}
+                className="futuristic-button px-2 py-1 text-xs"
+                whileHover={{ scale: loading ? 1 : 1.05 }}
+                whileTap={{ scale: loading ? 1 : 0.95 }}
+                disabled={loading}
+              >
+                x{preset}
+              </motion.button>
+            ))}
+          </div>
         </div>
-        <select
-          value={direction}
-          onChange={(e) => setDirection(e.target.value)}
-          className="futuristic-select"
-          aria-label="Trade Direction input"
-          disabled={loading}
-        >
-          <option value="">Select Direction</option>
-          <option value="long">Long</option>
-          <option value="short">Short</option>
-        </select>
         <select
           value={status}
           onChange={(e) => setStatus(e.target.value)}
