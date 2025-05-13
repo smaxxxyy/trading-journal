@@ -402,21 +402,28 @@ function TradeForm({ supabase, userId, onTradeAdded }) {
             aria-label="Leverage input"
             disabled={loading}
           />
-          <div className="flex gap-1">
-            {[25, 50, 75, 100, 125, 150, 200, 300, 400, 500, 800, 1000, 2000].map((preset) => (
-              <motion.button
-                key={preset}
-                type="button"
-                onClick={() => setLeveragePreset(preset)}
-                className="futuristic-button px-2 py-1 text-xs"
-                whileHover={{ scale: loading ? 1 : 1.05 }}
-                whileTap={{ scale: loading ? 1 : 0.95 }}
-                disabled={loading}
-              >
-                x{preset}
-              </motion.button>
-            ))}
-          </div>
+          <select
+            value={leverage}
+            onChange={(e) => setLeveragePreset(e.target.value)}
+            className="futuristic-select"
+            aria-label="Leverage preset"
+            disabled={loading}
+          >
+            <option value={1}>Custom</option>
+            <option value={25}>x25</option>
+            <option value={50}>x50</option>
+            <option value={75}>x75</option>
+            <option value={100}>x100</option>
+            <option value={125}>x125</option>
+            <option value={150}>x150</option>
+            <option value={200}>x200</option>
+            <option value={300}>x300</option>
+            <option value={400}>x400</option>
+            <option value={500}>x500</option>
+            <option value={800}>x800</option>
+            <option value={1000}>x1000</option>
+            <option value={2000}>x2000</option>
+          </select>
         </div>
         <select
           value={status}
@@ -466,40 +473,49 @@ function TradeForm({ supabase, userId, onTradeAdded }) {
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
           <label className="flex items-center gap-4 p-2">
             <input
-              type="checkbox"
-              checked={hadPlan}
-              onChange={(e) => setHadPlan(e.target.checked)}
-              className="w-6 h-6 rounded focus:ring-2 focus:ring-[var(--color-accent)]"
-              aria-label="Had a Plan"
-              disabled={loading}
-            />
-            <span className="text-sm text-[var(--color-text-primary)]">Had a Plan</span>
-          </label>
-          <label className="flex items-center gap-4 p-2">
-            <input
-              type="checkbox"
-              checked={planFollowed}
-              onChange={(e) => {
-                setPlanFollowed(e.target.checked);
-                if (e.target.checked) setWasGamble(false);
+              type="radio"
+              name="planStatus"
+              checked={hadPlan && !wasGamble}
+              onChange={() => {
+                setHadPlan(true);
+                setWasGamble(false);
+                setPlanFollowed(true);
               }}
               className="w-6 h-6 rounded focus:ring-2 focus:ring-[var(--color-accent)]"
-              aria-label="Plan Followed"
-              disabled={loading || wasGamble}
+              aria-label="Had a Plan and Followed"
+              disabled={loading}
             />
-            <span className="text-sm text-[var(--color-text-primary)]">Plan Followed</span>
+            <span className="text-sm text-[var(--color-text-primary)]">Had Plan & Followed</span>
           </label>
           <label className="flex items-center gap-4 p-2">
             <input
-              type="checkbox"
+              type="radio"
+              name="planStatus"
+              checked={!hadPlan && !wasGamble}
+              onChange={() => {
+                setHadPlan(false);
+                setWasGamble(false);
+                setPlanFollowed(false);
+              }}
+              className="w-6 h-6 rounded focus:ring-2 focus:ring-[var(--color-accent)]"
+              aria-label="No Plan"
+              disabled={loading}
+            />
+            <span className="text-sm text-[var(--color-text-primary)]">No Plan</span>
+          </label>
+          <label className="flex items-center gap-4 p-2">
+            <input
+              type="radio"
+              name="planStatus"
               checked={wasGamble}
-              onChange={(e) => {
-                setWasGamble(e.target.checked);
-                if (e.target.checked) setPlanFollowed(false);
+              onChange={() => {
+                setWasGamble(true);
+                setHadPlan(false);
+                setPlanFollowed(false);
               }}
               className="w-6 h-6 rounded focus:ring-2 focus:ring-[var(--color-accent)]"
               aria-label="Was a Gamble"
-              disabled={loading || planFollowed}
+              disabled={loading}
             />
             <span className="text-sm text-[var(--color-text-primary)]">Was a Gamble</span>
           </label>
