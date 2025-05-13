@@ -642,7 +642,7 @@ function Dashboard({ supabase }) {
                   <p>{selectedTrade.trade.rr_ratio?.toFixed(2) || 'N/A'}</p>
                   <p className="font-medium">Leverage</p>
                   <p>{selectedTrade.trade.leverage?.toFixed(0)}x</p>
-                  <p className="font-medium">Profit</p>
+                  <p className="font-medium">Profit (PnL)</p>
                   <p>{selectedTrade.trade.profit?.toFixed(2) || 'N/A'}</p>
                   <p className="font-medium">Had Plan</p>
                   <p>{selectedTrade.habit?.had_plan ? 'Yes' : 'No'}</p>
@@ -668,11 +668,12 @@ function Dashboard({ supabase }) {
                 {selectedTrade.trade.status === 'in_progress' && !selectedTrade.trade.is_edited && (
                   <motion.button
                     onClick={() => {
-                      const outcome = determineOutcome(selectedTrade.trade);
+                      const outcome = determineOutcome(selectedTrade.trade, livePrice);
                       handleEditTrade(selectedTrade.trade.id, {
                         status: 'completed',
                         outcome,
                         is_edited: true,
+                        profit: calculateTradeProfit(selectedTrade.trade, livePrice),
                       });
                     }}
                     className="futuristic-button w-full mt-4"
@@ -699,20 +700,73 @@ function Dashboard({ supabase }) {
   );
 }
 
-const determineOutcome = (trade) => {
-  const { entry, tp, sl, direction } = trade;
+const determineOutcome = (trade, livePrice) => {
+  const { entry, tp, sl, direction, status } = trade;
   const entryPrice = parseFloat(entry);
   const takeProfit = parseFloat(tp);
   const stopLoss = parseFloat(sl);
+  const currentPrice = livePrice ? parseFloat(livePrice) : entryPrice;
 
-  if (direction === 'long') {
-    if (takeProfit > entryPrice) return 'Win';
-    if (stopLoss < entryPrice) return 'Loss';
-  } else if (direction === 'short') {
-    if (takeProfit < entryPrice) return 'Win';
-    if (stopLoss > entryPrice) return 'Loss';
+  if (status === 'in_progress' && livePrice) {
+    if (direction === 'long') {
+      if (currentPrice >= takeProfit) return 'Win';
+      if (currentPrice <= stopLoss) return 'Loss';
+    } else if (direction === 'short') {
+      if (currentPrice <= takeProfit) return 'Win';
+      if (currentPrice >= stopLoss) return 'Loss';
+    }
+  } else {
+    if (direction === 'long') {
+      if (takeProfit > entryPrice) return 'Win';
+      if (stopLoss < entryPrice) return 'Loss';
+    } else if (direction === 'short') {
+      if (takeProfit < entryPrice) return 'Win';
+      if (stopLoss > entryPrice) return 'Loss';
+    }
   }
   return 'Breakeven';
+};
+
+const calculateTradeProfit = (trade, livePrice) => {
+  const { entry, position_size, leverage, position_unit, is_crypto } = trade;
+  const entryPrice = parseFloat(entry);
+  const size = parseFloat(position_size);
+  const currentPrice = livePrice ? parseFloat(livePrice) : entryPrice;
+
+  if (is_crypto && position_unit === 'USD' && livePrice) {
+    const initialMargin = size / leverage;
+    const priceChange = (currentPrice - entryPrice) / entryPrice;
+    return ((priceChange * size * leverage) - initialMargin).toFixed(2);
+  } else if (!is_crypto && position_unit === 'Lots' && livePrice) {
+    const pipDifference = Math.abs(currentPrice - entryPrice) * 10000;
+    return (pipDifference * size * 10 * leverage).toFixed(2);
+  }
+  return trade.profit?.toFixed(2) || '0.00';
+};
+
+const calculateStreak = (trades) => {
+  let currentTrades = 0;
+  let maxTrades = 0;
+  let currentDays = new Set();
+  let maxDays = 0;
+  let lastDate = null;
+
+  trades.sort((a, b) => new Date(a.created_at) - new Date(b.created_at)).forEach(trade => {
+    const tradeDate = new Date(trade.created_at).toDateString();
+    if (trade.was_gamble) {
+      currentTrades = 0;
+      currentDays.clear();
+    } else {
+      currentTrades += 1;
+      currentDays.add(tradeDate);
+      if (lastDate && tradeDate !== lastDate) currentDays.add(tradeDate);
+      maxTrades = Math.max(maxTrades, currentTrades);
+      maxDays = Math.max(maxDays, currentDays.size);
+    }
+    lastDate = tradeDate;
+  });
+
+  return { currentTrades, currentDays: currentDays.size, maxTrades, maxDays };
 };
 
 export default Dashboard;
