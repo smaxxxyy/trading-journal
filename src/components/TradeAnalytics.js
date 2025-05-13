@@ -105,7 +105,7 @@ function TradeAnalytics({ trades, streakData, supabase, userId }) {
     const size = parseFloat(trade.position_size);
     const entry = parseFloat(trade.entry);
     let exitPrice;
-    if (trade.outcome === 'Win') exitPrice = parseFloat(trade.tp);
+    if (trade.outcome === 'Win') exitPrice = parseFloat(trade.tp || trade.multiple_tps?.[0]);
     else if (trade.outcome === 'Loss') exitPrice = parseFloat(trade.sl);
     else return acc;
     return acc + (exitPrice - entry) * size;
@@ -126,35 +126,37 @@ function TradeAnalytics({ trades, streakData, supabase, userId }) {
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6 text-sm">
         <div>
           <p className="font-medium text-[var(--color-text-primary)]">Total Trades</p>
-          <p className="text-base text-[var(--color-text-secondary)]">{trades.length}</p>
+          <p className="text-base text-[var(--color-text-secondary)]" aria-live="polite">{trades.length}</p>
         </div>
         <div>
           <p className="font-medium text-[var(--color-text-primary)]">Win Rate</p>
-          <p className="text-base text-[var(--color-text-secondary)]">{winRate}%</p>
+          <p className="text-base text-[var(--color-text-secondary)]" aria-live="polite">{winRate}%</p>
         </div>
         <div>
           <p className="font-medium text-[var(--color-text-primary)]">Profit/Loss</p>
-          <p className="text-base text-[var(--color-text-secondary)]">{profitLoss.toFixed(2)}</p>
+          <p className="text-base text-[var(--color-text-secondary)]" aria-live="polite">{profitLoss.toFixed(2)}</p>
         </div>
         <div>
           <p className="font-medium text-[var(--color-text-primary)]">Current Unbroken Trades</p>
-          <p className="text-base text-[var(--color-text-secondary)]">{streakData?.currentTrades || 0}</p>
+          <p className="text-base text-[var(--color-text-secondary)]" aria-live="polite">{streakData?.currentTrades || 0}</p>
         </div>
         <div>
           <p className="font-medium text-[var(--color-text-primary)]">Current Unbroken Days</p>
-          <p className="text-base text-[var(--color-text-secondary)]">{streakData?.currentDays || 0}</p>
+          <p className="text-base text-[var(--color-text-secondary)]" aria-live="polite">{streakData?.currentDays || 0}</p>
         </div>
         <div>
           <p className="font-medium text-[var(--color-text-primary)]">Best Unbroken Trades</p>
-          <p className="text-base text-[var(--color-text-secondary)]">{records.best_unbroken_trades}</p>
+          <p className="text-base text-[var(--color-text-secondary)]" aria-live="polite">{records.best_unbroken_trades}</p>
         </div>
         <div>
           <p className="font-medium text-[var(--color-text-primary)]">Best Unbroken Days</p>
-          <p className="text-base text-[var(--color-text-secondary)]">{records.best_unbroken_days}</p>
+          <p className="text-base text-[var(--color-text-secondary)]" aria-live="polite">{records.best_unbroken_days}</p>
         </div>
       </div>
       <div className="relative h-64">
-        <canvas ref={chartRef} aria-label="RR Ratio Chart"></canvas>
+        <canvas ref={chartRef} aria-label="Bar chart of Risk-Reward Ratios per trade">
+          <p>Your browser does not support canvas elements. This chart displays Risk-Reward Ratios for each trade.</p>
+        </canvas>
       </div>
     </motion.div>
   );
