@@ -6,21 +6,38 @@ function Login({ supabase }) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState(null);
+  const [isSubmitting, setIsSubmitting] = useState(false); // For button loading state
+  const [successMessage, setSuccessMessage] = useState(null);
   const navigate = useNavigate();
 
   const handleSignUp = async () => {
+    if (!email || !password) {
+      setError('Please enter both email and password.');
+      return;
+    }
+
+    setIsSubmitting(true);
     const { error } = await supabase.auth.signUp({ email, password });
     if (error) {
       setError(error.message);
+      setIsSubmitting(false);
     } else {
-      alert('Check your email for confirmation');
+      setSuccessMessage('Check your email for confirmation');
+      setIsSubmitting(false);
     }
   };
 
   const handleLogin = async () => {
+    if (!email || !password) {
+      setError('Please enter both email and password.');
+      return;
+    }
+
+    setIsSubmitting(true);
     const { error } = await supabase.auth.signInWithPassword({ email, password });
     if (error) {
       setError(error.message);
+      setIsSubmitting(false);
     } else {
       navigate('/');
     }
@@ -37,7 +54,13 @@ function Login({ supabase }) {
         <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-8 text-center" aria-label="Login or Sign Up">
           Trading Journal
         </h2>
+
+        {/* Success Message */}
+        {successMessage && <p className="text-green-500 mb-6 text-center">{successMessage}</p>}
+
+        {/* Error Message */}
         {error && <p className="text-red-500 mb-6 text-center" role="alert">{error}</p>}
+
         <input
           type="email"
           value={email}
@@ -57,21 +80,23 @@ function Login({ supabase }) {
         <div className="flex flex-col sm:flex-row gap-4 justify-center">
           <motion.button
             onClick={handleLogin}
-            className="neo-button bg-blue-600 dark:bg-purple-600"
+            className="neo-button bg-blue-600 dark:bg-purple-600 w-full sm:w-auto"
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
+            disabled={isSubmitting}
             aria-label="Login button"
           >
-            Login
+            {isSubmitting ? 'Logging in...' : 'Login'}
           </motion.button>
           <motion.button
             onClick={handleSignUp}
-            className="neo-button bg-purple-600 dark:bg-blue-600"
+            className="neo-button bg-purple-600 dark:bg-blue-600 w-full sm:w-auto"
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
+            disabled={isSubmitting}
             aria-label="Sign Up button"
           >
-            Sign Up
+            {isSubmitting ? 'Signing up...' : 'Sign Up'}
           </motion.button>
         </div>
       </motion.div>
