@@ -1,51 +1,54 @@
 @import 'tailwindcss';
 
 :root {
-  /* Default: Neon Theme */
-  --color-neon-purple: #a855f7;
-  --color-neon-pink: #ec4899;
-  --color-neon-blue: #3b82f6;
+  /* Default: Synthwave Neon Theme */
+  --color-neon-purple: #c084fc;
+  --color-neon-pink: #f472b6;
+  --color-neon-blue: #60a5fa;
   --color-glass-bg: rgba(255, 255, 255, 0.1);
   --color-glass-border: rgba(255, 255, 255, 0.2);
-  --color-bg-dark: #1f1a44;
-  --color-text-primary: #e5e7eb;
-  --color-text-secondary: #d1d5db;
+  --color-bg-dark: #1e1b3a;
+  --color-text-primary: #f3f4f6;
+  --color-text-secondary: #e5e7eb;
   --color-accent: var(--color-neon-purple);
   --color-button-from: var(--color-neon-purple);
   --color-button-to: var(--color-neon-blue);
 }
 
+/* Apple Light inspired */
 :root[data-theme="white"] {
-  --color-bg-dark: #ffffff;
-  --color-glass-bg: rgba(0, 0, 0, 0.05);
-  --color-glass-border: rgba(0, 0, 0, 0.1);
-  --color-text-primary: #1f2937;
-  --color-text-secondary: #4b5563;
-  --color-accent: #4b5563;
-  --color-button-from: #6b7280;
-  --color-button-to: #4b5563;
+  --color-bg-dark: #f9fafb;
+  --color-glass-bg: rgba(0, 0, 0, 0.03);
+  --color-glass-border: rgba(0, 0, 0, 0.08);
+  --color-text-primary: #1c1c1e;
+  --color-text-secondary: #3a3a3c;
+  --color-accent: #0a84ff;
+  --color-button-from: #a1a1aa;
+  --color-button-to: #71717a;
 }
 
+/* Dracula inspired */
 :root[data-theme="black"] {
-  --color-bg-dark: #1a1a1a;
-  --color-glass-bg: rgba(255, 255, 255, 0.05);
-  --color-glass-border: rgba(255, 255, 255, 0.1);
-  --color-text-primary: #e5e5e5;
-  --color-text-secondary: #b3b3b3;
-  --color-accent: #b3b3b3;
-  --color-button-from: #4b4b4b;
-  --color-button-to: #2d2d2d;
+  --color-bg-dark: #282a36;
+  --color-glass-bg: rgba(255, 255, 255, 0.06);
+  --color-glass-border: rgba(255, 255, 255, 0.15);
+  --color-text-primary: #f8f8f2;
+  --color-text-secondary: #6272a4;
+  --color-accent: #ff79c6;
+  --color-button-from: #bd93f9;
+  --color-button-to: #ff79c6;
 }
 
+/* GitHub Dark Dimmed inspired */
 :root[data-theme="grey"] {
-  --color-bg-dark: #2d3748;
-  --color-glass-bg: rgba(255, 255, 255, 0.1);
-  --color-glass-border: rgba(255, 255, 255, 0.2);
-  --color-text-primary: #d1d5db;
-  --color-text-secondary: #9ca3af;
-  --color-accent: #9ca3af;
-  --color-button-from: #4b5563;
-  --color-button-to: #374151;
+  --color-bg-dark: #22272e;
+  --color-glass-bg: rgba(255, 255, 255, 0.07);
+  --color-glass-border: rgba(255, 255, 255, 0.1);
+  --color-text-primary: #adbac7;
+  --color-text-secondary: #768390;
+  --color-accent: #539bf5;
+  --color-button-from: #373e47;
+  --color-button-to: #2d333b;
 }
 
 :root[data-theme="subtle"] {
