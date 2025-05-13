@@ -13,6 +13,7 @@ function TradeForm({ supabase, userId, onTradeAdded }) {
   const [screenshot, setScreenshot] = useState(null);
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(false);
+<<<<<<< HEAD
 
   // Auto-calculate RR Ratio
   useEffect(() => {
@@ -36,6 +37,8 @@ function TradeForm({ supabase, userId, onTradeAdded }) {
       setRrRatio('');
     }
   }, [entry, tp, sl]);
+=======
+>>>>>>> 5895c97ddbfeb5890b335c3fb95eab5890661873
 
   const sanitizeInput = (input) => input.replace(/[<>"'&]/g, '');
 
@@ -43,6 +46,7 @@ function TradeForm({ supabase, userId, onTradeAdded }) {
     e.preventDefault();
     setError(null);
     setLoading(true);
+<<<<<<< HEAD
 
     if (!userId) {
       setError('User not authenticated. Please log in again.');
@@ -52,6 +56,17 @@ function TradeForm({ supabase, userId, onTradeAdded }) {
 
     if (isNaN(tp) || isNaN(sl) || isNaN(entry) || (rrRatio && isNaN(rrRatio))) {
       setError('Entry, TP, SL, and RR Ratio must be valid numbers');
+=======
+
+    if (!userId) {
+      setError('User not authenticated. Please log in again.');
+      setLoading(false);
+      return;
+    }
+
+    if (isNaN(tp) || isNaN(sl) || isNaN(rrRatio)) {
+      setError('TP, SL, and RR Ratio must be numbers');
+>>>>>>> 5895c97ddbfeb5890b335c3fb95eab5890661873
       setLoading(false);
       return;
     }
@@ -93,7 +108,10 @@ function TradeForm({ supabase, userId, onTradeAdded }) {
     try {
       const tradeData = {
         user_id: userId,
+<<<<<<< HEAD
         entry: parseFloat(entry) || 0,
+=======
+>>>>>>> 5895c97ddbfeb5890b335c3fb95eab5890661873
         tp: parseFloat(tp) || 0,
         sl: parseFloat(sl) || 0,
         rr_ratio: parseFloat(rrRatio) || 0,
@@ -103,12 +121,21 @@ function TradeForm({ supabase, userId, onTradeAdded }) {
         rule_broken: false,
       };
 
+<<<<<<< HEAD
       // Ensure tags is an array
       if (tags.trim()) {
         const tagArray = tags.split(',').map(tag => tag.trim()).filter(tag => tag);
         tradeData.tags = tagArray;
       } else {
         tradeData.tags = [];
+=======
+      // Only include tags if non-empty and valid
+      if (tags.trim()) {
+        const tagArray = tags.split(',').map(tag => tag.trim()).filter(tag => tag);
+        if (tagArray.length > 0) {
+          tradeData.tags = tagArray;
+        }
+>>>>>>> 5895c97ddbfeb5890b335c3fb95eab5890661873
       }
 
       console.log('Submitting trade to Supabase:', tradeData);
@@ -122,7 +149,10 @@ function TradeForm({ supabase, userId, onTradeAdded }) {
       setTp('');
       setSl('');
       setRrRatio('');
+<<<<<<< HEAD
       setEntry('');
+=======
+>>>>>>> 5895c97ddbfeb5890b335c3fb95eab5890661873
       setEmotions('');
       setNotes('');
       setTags('');
@@ -157,6 +187,7 @@ function TradeForm({ supabase, userId, onTradeAdded }) {
           {error}
         </motion.p>
       )}
+<<<<<<< HEAD
       <input
         type="number"
         value={entry}
@@ -167,6 +198,8 @@ function TradeForm({ supabase, userId, onTradeAdded }) {
         aria-label="Entry Price input"
         disabled={loading}
       />
+=======
+>>>>>>> 5895c97ddbfeb5890b335c3fb95eab5890661873
       <input
         type="number"
         value={tp}
@@ -190,8 +223,13 @@ function TradeForm({ supabase, userId, onTradeAdded }) {
       <input
         type="number"
         value={rrRatio}
+<<<<<<< HEAD
         onChange={(e) => setRrRatio(e.target.value)}
         placeholder="Risk-Reward Ratio (auto-calculated)"
+=======
+        onChange={(e) => setSl(e.target.value)}
+        placeholder="Risk-Reward Ratio"
+>>>>>>> 5895c97ddbfeb5890b335c3fb95eab5890661873
         className="futuristic-input mb-6"
         step="0.01"
         aria-label="Risk-Reward Ratio input"
