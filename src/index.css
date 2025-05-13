@@ -6,17 +6,20 @@
 
 body {
   font-family: 'Inter', sans-serif;
-  @apply bg-gradient-to-br from-blue-100 via-indigo-100 to-purple-100 min-h-screen transition-colors duration-300 py-4 px-2;
+  @apply min-h-screen transition-colors duration-300 py-4 px-2;
+  background: linear-gradient(to bottom right, #93C5FD, #A78BFA, #D6A8FF); /* Light mode gradient */
 }
 
 .dark body {
-  @apply bg-gradient-to-br from-gray-900 via-gray-800 to-black text-white;
+  @apply text-white;
+  background: linear-gradient(to bottom right, #111827, #1F2937, #111827); /* Dark mode gradient */
 }
 
 /* Glassmorphism Card (Light/Dark) */
 .glass-card {
   @apply bg-white bg-opacity-20 backdrop-blur-lg border border-gray-200 rounded-2xl shadow-xl transition-all duration-300;
 }
+
 .dark .glass-card {
   @apply bg-gray-800 bg-opacity-30 border-gray-600;
 }
@@ -29,6 +32,7 @@ body {
 .neo-button {
   @apply px-6 py-3 rounded-xl font-semibold border-2 border-black bg-blue-500 text-white shadow-[4px_4px_0_0_rgba(0,0,0,1)] transition-all duration-200 hover:shadow-[6px_6px_0_0_rgba(0,0,0,1)] hover:translate-x-[-2px] hover:translate-y-[-2px];
 }
+
 .dark .neo-button {
   @apply bg-purple-600 border-white shadow-[4px_4px_0_0_rgba(255,255,255,0.8)] hover:shadow-[6px_6px_0_0_rgba(255,255,255,0.8)] border-2;
 }
@@ -47,8 +51,7 @@ body {
 }
 
 .neo-input:focus {
-  @apply focus:outline-none;
-  @apply transition-all duration-300;
+  @apply focus:outline-none transition-all duration-300;
 }
 
 /* Responsive Container */
@@ -68,15 +71,6 @@ body {
 
 ::-webkit-scrollbar-thumb:hover {
   background-color: rgba(255, 255, 255, 0.5);
-}
-
-/* Dark Mode Utility Classes */
-.dark .text-gray-900 {
-  @apply text-white;
-}
-
-.dark .bg-gradient-to-br {
-  @apply from-gray-900 via-gray-800 to-black;
 }
 
 /* Hover Effects for Inputs */
