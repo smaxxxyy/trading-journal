@@ -18,7 +18,11 @@ function Dashboard({ supabase }) {
   const [modalImage, setModalImage] = useState(null);
   const [selectedTrade, setSelectedTrade] = useState(null);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const [theme, setTheme] = useState(() => localStorage.getItem('theme') || 'neon');
+  const [theme, setTheme] = useState(() => {
+    const validThemes = ['neon', 'white', 'black', 'grey', 'subtle', 'calm', 'ocean', 'forest', 'sunset'];
+    const storedTheme = localStorage.getItem('theme');
+    return validThemes.includes(storedTheme) ? storedTheme : 'neon';
+  });
   const [prices, setPrices] = useState({ btc: 'Loading...', gold: 'Loading...' });
   const [livePrice, setLivePrice] = useState(null);
   const navigate = useNavigate();
@@ -80,7 +84,7 @@ function Dashboard({ supabase }) {
         const btcData = await btcResponse.json();
         const btcPrice = btcData.price ? parseFloat(btcData.price).toFixed(2) : 'N/A';
 
-        const goldResponse = await fetch(`https://metals-api.com/api/latest?access_key=${process.env.METALS_API_KEY || 'your-api-key'}&base=USD&symbols=XAU`);
+        const goldResponse = await fetch(`https://metals-api.com/api/latest?access_key=${process.env.REACT_APP_METALS_API_KEY || 'your-api-key'}&base=USD&symbols=XAU`);
         if (!goldResponse.ok) throw new Error('Failed to fetch XAU price');
         const goldData = await goldResponse.json();
         const goldPrice = goldData.rates?.XAU ? (1 / goldData.rates.XAU).toFixed(2) : 'N/A';
@@ -362,6 +366,7 @@ function Dashboard({ supabase }) {
             className="futuristic-button flex-1 text-xs py-1.5"
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
+            aria-label="View trade details"
           >
             View
           </motion.button>
@@ -370,6 +375,7 @@ function Dashboard({ supabase }) {
             className="futuristic-button from-red-500 to-red-600 flex-1 text-xs py-1.5"
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
+            aria-label="Delete trade"
           >
             Delete
           </motion.button>
@@ -400,30 +406,32 @@ function Dashboard({ supabase }) {
         animate={{ opacity: 1 }}
         transition={{ duration: 0.5 }}
       >
-        <h2 className="text-2xl font-extrabold" aria-label="Dashboard">
+        <h2 className="text-2xl font-extrabold" aria-label="Trading Journal Dashboard">
           Trading Journal
         </h2>
         <button
           onClick={() => setIsMenuOpen(!isMenuOpen)}
           className="p-2 rounded-lg bg-[var(--color-glass-bg)] border border-[var(--color-glass-border)]"
+          aria-label="Toggle menu"
         >
-          <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 12h16M4 18h16" />
           </svg>
         </button>
       </motion.div>
       <div className="mb-6 text-xs">
-        <p>BTC/USD: ${prices.btc}</p>
-        <p>XAU/USD: ${prices.gold}</p>
+        <p aria-live="polite">BTC/USD: ${prices.btc}</p>
+        <p aria-live="polite">XAU/USD: ${prices.gold}</p>
       </div>
       {isMenuOpen && (
-        <div className="absolute top-14 right-0 futuristic-card holographic-border p-4 w-48 z-50">
+        <div className="absolute top-14 right-0 futuristic-card holographic-border p-4 w-48 sm:w-56 max-h-[80vh] overflow-y-auto z-50">
           <div className="flex flex-col gap-2 text-xs">
             <motion.button
               onClick={handleExport}
               className="futuristic-button text-left py-2 px-3"
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
+              aria-label="Export trades to CSV"
             >
               Export Trades
             </motion.button>
@@ -432,6 +440,7 @@ function Dashboard({ supabase }) {
               className="futuristic-button from-red-500 to-red-600 text-left py-2 px-3"
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
+              aria-label="Log out"
             >
               Logout
             </motion.button>
@@ -441,6 +450,7 @@ function Dashboard({ supabase }) {
               value={historyFilter}
               onChange={(e) => { setHistoryFilter(e.target.value); setIsMenuOpen(false); }}
               className="futuristic-select text-xs py-2"
+              aria-label="Filter trade history"
             >
               <option value="today">Today</option>
               <option value="weekly">Weekly</option>
@@ -452,11 +462,17 @@ function Dashboard({ supabase }) {
               value={theme}
               onChange={(e) => { setTheme(e.target.value); setIsMenuOpen(false); }}
               className="futuristic-select text-xs py-2"
+              aria-label="Select theme"
             >
               <option value="neon">Neon</option>
               <option value="white">White</option>
               <option value="black">Black</option>
               <option value="grey">Grey</option>
+              <option value="subtle">Subtle</option>
+              <option value="calm">Calm</option>
+              <option value="ocean">Ocean</option>
+              <option value="forest">Forest</option>
+              <option value="sunset">Sunset</option>
             </select>
           </div>
         </div>
@@ -500,13 +516,13 @@ function Dashboard({ supabase }) {
                 onChange={(e) => setTagFilter(e.target.value)}
                 placeholder="Filter by tag (e.g., Scalping)"
                 className="futuristic-input"
-                aria-label="Tag filter input"
+                aria-label="Filter trades by tag"
               />
               <select
                 value={outcomeFilter}
                 onChange={(e) => setOutcomeFilter(e.target.value)}
                 className="futuristic-select"
-                aria-label="Outcome filter input"
+                aria-label="Filter trades by outcome"
               >
                 <option value="">All Outcomes</option>
                 <option value="Win">Win</option>
@@ -520,7 +536,7 @@ function Dashboard({ supabase }) {
                 placeholder="Min RR Ratio"
                 className="futuristic-input"
                 step="0.01"
-                aria-label="Min RR filter"
+                aria-label="Filter trades by minimum RR ratio"
               />
             </div>
             {dailyGroups.length === 0 ? (
@@ -571,7 +587,7 @@ function Dashboard({ supabase }) {
               exit={{ opacity: 0 }}
               onClick={() => setSelectedTrade(null)}
             >
-              <div className="futuristic-card holographic-border p-6 max-w-md w-full" onClick={e => e.stopPropagation()}>
+              <div className="futuristic-card holographic-border p-6 max-w-md w-full sm:max-w-lg" onClick={e => e.stopPropagation()}>
                 <h3 className="text-xl font-bold mb-4">Trade Details</h3>
                 <div className="grid grid-cols-2 gap-2 text-xs">
                   <p className="font-medium">Pair</p>
@@ -579,7 +595,7 @@ function Dashboard({ supabase }) {
                   {selectedTrade.trade.status === 'in_progress' && (
                     <>
                       <p className="font-medium">Current Price</p>
-                      <p>{livePrice ? `${selectedTrade.trade.pair}: $${livePrice}` : 'Fetching...'}</p>
+                      <p aria-live="polite">{livePrice ? `${selectedTrade.trade.pair}: $${livePrice}` : 'Fetching...'}</p>
                     </>
                   )}
                   <p className="font-medium">Position Size</p>
@@ -655,10 +671,10 @@ function Dashboard({ supabase }) {
                   {selectedTrade.trade.screenshot_url && (
                     <>
                       <p className="font-medium">Screenshot</p>
-                      <button onClick={() => setModalImage(selectedTrade.trade.screenshot_url)}>
+                      <button onClick={() => setModalImage(selectedTrade.trade.screenshot_url)} aria-label="View trade screenshot">
                         <img
                           src={selectedTrade.trade.screenshot_url}
-                          alt="Trade screenshot"
+                          alt="Trade screenshot thumbnail"
                           className="rounded-lg w-16 h-16 object-cover border border-[var(--color-glass-border)]"
                         />
                       </button>
@@ -667,18 +683,24 @@ function Dashboard({ supabase }) {
                 </div>
                 {selectedTrade.trade.status === 'in_progress' && !selectedTrade.trade.is_edited && (
                   <motion.button
-                    onClick={() => {
-                      const outcome = determineOutcome(selectedTrade.trade, livePrice);
-                      handleEditTrade(selectedTrade.trade.id, {
-                        status: 'completed',
-                        outcome,
-                        is_edited: true,
-                        profit: calculateTradeProfit(selectedTrade.trade, livePrice),
-                      });
+                    onClick={async () => {
+                      try {
+                        const outcome = determineOutcome(selectedTrade.trade, livePrice);
+                        const profit = calculateTradeProfit(selectedTrade.trade, livePrice, outcome);
+                        await handleEditTrade(selectedTrade.trade.id, {
+                          status: 'completed',
+                          outcome,
+                          is_edited: true,
+                          profit,
+                        });
+                      } catch (err) {
+                        setError(`Failed to mark trade as completed: ${err.message}`);
+                      }
                     }}
                     className="futuristic-button w-full mt-4"
                     whileHover={{ scale: 1.05 }}
                     whileTap={{ scale: 0.95 }}
+                    aria-label="Mark trade as completed"
                   >
                     Mark as Completed
                   </motion.button>
@@ -688,6 +710,7 @@ function Dashboard({ supabase }) {
                   className="futuristic-button w-full mt-1"
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
+                  aria-label="Close trade details"
                 >
                   Close
                 </motion.button>
@@ -701,72 +724,64 @@ function Dashboard({ supabase }) {
 }
 
 const determineOutcome = (trade, livePrice) => {
-  const { entry, tp, sl, direction, status } = trade;
+  const { entry, tp, multiple_tps, sl, direction, status } = trade;
   const entryPrice = parseFloat(entry);
-  const takeProfit = parseFloat(tp);
   const stopLoss = parseFloat(sl);
   const currentPrice = livePrice ? parseFloat(livePrice) : entryPrice;
+  const takeProfits = multiple_tps ? multiple_tps.map(tp => parseFloat(tp)) : [parseFloat(tp)];
 
   if (status === 'in_progress' && livePrice) {
     if (direction === 'long') {
-      if (currentPrice >= takeProfit) return 'Win';
+      if (takeProfits.some(tp => currentPrice >= tp)) return 'Win';
       if (currentPrice <= stopLoss) return 'Loss';
     } else if (direction === 'short') {
-      if (currentPrice <= takeProfit) return 'Win';
+      if (takeProfits.some(tp => currentPrice <= tp)) return 'Win';
       if (currentPrice >= stopLoss) return 'Loss';
     }
   } else {
     if (direction === 'long') {
-      if (takeProfit > entryPrice) return 'Win';
+      if (takeProfits.some(tp => tp > entryPrice)) return 'Win';
       if (stopLoss < entryPrice) return 'Loss';
     } else if (direction === 'short') {
-      if (takeProfit < entryPrice) return 'Win';
+      if (takeProfits.some(tp => tp < entryPrice)) return 'Win';
       if (stopLoss > entryPrice) return 'Loss';
     }
   }
   return 'Breakeven';
 };
 
-const calculateTradeProfit = (trade, livePrice) => {
-  const { entry, position_size, leverage, position_unit, is_crypto } = trade;
+const calculateTradeProfit = (trade, livePrice, outcome) => {
+  const { entry, position_size, leverage, position_unit, is_crypto, multiple_tps, tp, sl } = trade;
   const entryPrice = parseFloat(entry);
   const size = parseFloat(position_size);
-  const currentPrice = livePrice ? parseFloat(livePrice) : entryPrice;
+  let exitPrice;
 
-  if (is_crypto && position_unit === 'USD' && livePrice) {
-    const initialMargin = size / leverage;
-    const priceChange = (currentPrice - entryPrice) / entryPrice;
-    return ((priceChange * size * leverage) - initialMargin).toFixed(2);
-  } else if (!is_crypto && position_unit === 'Lots' && livePrice) {
-    const pipDifference = Math.abs(currentPrice - entryPrice) * 10000;
-    return (pipDifference * size * 10 * leverage).toFixed(2);
+  if (outcome === 'Win' && multiple_tps) {
+    exitPrice = parseFloat(multiple_tps[0]); // Use first TP for simplicity
+  } else if (outcome === 'Win' && tp) {
+    exitPrice = parseFloat(tp);
+  } else if (outcome === 'Loss' && sl) {
+    exitPrice = parseFloat(sl);
+  } else if (outcome === 'Breakeven') {
+    exitPrice = entryPrice;
+  } else {
+    exitPrice = livePrice ? parseFloat(livePrice) : entryPrice;
   }
-  return trade.profit?.toFixed(2) || '0.00';
-};
 
-const calculateStreak = (trades) => {
-  let currentTrades = 0;
-  let maxTrades = 0;
-  let currentDays = new Set();
-  let maxDays = 0;
-  let lastDate = null;
-
-  trades.sort((a, b) => new Date(a.created_at) - new Date(b.created_at)).forEach(trade => {
-    const tradeDate = new Date(trade.created_at).toDateString();
-    if (trade.was_gamble) {
-      currentTrades = 0;
-      currentDays.clear();
-    } else {
-      currentTrades += 1;
-      currentDays.add(tradeDate);
-      if (lastDate && tradeDate !== lastDate) currentDays.add(tradeDate);
-      maxTrades = Math.max(maxTrades, currentTrades);
-      maxDays = Math.max(maxDays, currentDays.size);
+  try {
+    if (is_crypto && position_unit === 'USD') {
+      const initialMargin = size / leverage;
+      const priceChange = (exitPrice - entryPrice) / entryPrice;
+      return ((priceChange * size * leverage) - initialMargin).toFixed(2);
+    } else if (!is_crypto && position_unit === 'Lots') {
+      const pipDifference = Math.abs(exitPrice - entryPrice) * 10000;
+      return (pipDifference * size * 10 * leverage).toFixed(2);
     }
-    lastDate = tradeDate;
-  });
-
-  return { currentTrades, currentDays: currentDays.size, maxTrades, maxDays };
+    return '0.00';
+  } catch (err) {
+    console.error('Profit calculation error:', err);
+    return '0.00';
+  }
 };
 
 export default Dashboard;
