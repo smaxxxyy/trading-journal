@@ -12,6 +12,7 @@ function TradeForm({ supabase, userId, onTradeAdded }) {
   const [tags, setTags] = useState('');
   const [outcome, setOutcome] = useState('');
   const [positionSize, setPositionSize] = useState('');
+  const [positionUnit, setPositionUnit] = useState('USD'); // New state for unit
   const [pair, setPair] = useState('');
   const [screenshot, setScreenshot] = useState(null);
   const [hadPlan, setHadPlan] = useState(false);
@@ -129,6 +130,7 @@ function TradeForm({ supabase, userId, onTradeAdded }) {
         screenshot_url: screenshotUrl,
         outcome: outcome || null,
         position_size: parseFloat(positionSize) || null,
+        position_unit: positionUnit, // Store the unit
         pair: sanitizeInput(pair) || null,
         tags: tags.trim() ? tags.split(',').map(tag => tag.trim()).filter(tag => tag) : [],
         leverage: parseFloat(leverage) || 1,
@@ -167,6 +169,7 @@ function TradeForm({ supabase, userId, onTradeAdded }) {
       setTags('');
       setOutcome('');
       setPositionSize('');
+      setPositionUnit('USD');
       setPair('');
       setScreenshot(null);
       setHadPlan(false);
@@ -214,16 +217,29 @@ function TradeForm({ supabase, userId, onTradeAdded }) {
           aria-label="Trading Pair input"
           disabled={loading}
         />
-        <input
-          type="number"
-          value={positionSize}
-          onChange={(e) => setPositionSize(e.target.value)}
-          placeholder="Position Size"
-          className="futuristic-input"
-          step="0.01"
-          aria-label="Position Size input"
-          disabled={loading}
-        />
+        <div className="grid grid-cols-2 gap-2">
+          <input
+            type="number"
+            value={positionSize}
+            onChange={(e) => setPositionSize(e.target.value)}
+            placeholder="Position Size"
+            className="futuristic-input"
+            step="0.01"
+            aria-label="Position Size input"
+            disabled={loading}
+          />
+          <select
+            value={positionUnit}
+            onChange={(e) => setPositionUnit(e.target.value)}
+            className="futuristic-select"
+            aria-label="Position Unit input"
+            disabled={loading}
+          >
+            <option value="USD">USD</option>
+            <option value="Lots">Lots</option>
+            <option value="Coin Size">Coin Size</option>
+          </select>
+        </div>
         <input
           type="number"
           value={entry}
@@ -265,7 +281,7 @@ function TradeForm({ supabase, userId, onTradeAdded }) {
           disabled={loading}
         />
         <div className="grid grid-cols-1">
-          <label className="block text-sm mb-1">
+          <label className="block text-sm mb-1 text-[var(--color-text-primary)]">
             Leverage: {leverage}x
           </label>
           <input
@@ -274,8 +290,9 @@ function TradeForm({ supabase, userId, onTradeAdded }) {
             max="2000"
             value={leverage}
             onChange={(e) => setLeverage(parseFloat(e.target.value))}
-            className="w-full h-2 rounded-lg"
+            className="w-full h-2 rounded-lg cursor-pointer"
             disabled={loading}
+            aria-label="Leverage slider"
           />
         </div>
         <select
@@ -335,18 +352,18 @@ function TradeForm({ supabase, userId, onTradeAdded }) {
           disabled={loading}
         />
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-          <label className="flex items-center gap-3">
+          <label className="flex items-center gap-2">
             <input
               type="checkbox"
               checked={hadPlan}
               onChange={(e) => setHadPlan(e.target.checked)}
-              className="rounded focus:ring-opacity-50"
+              className="w-4 h-4 rounded focus:ring-2 focus:ring-[var(--color-accent)]"
               aria-label="Had a Plan"
               disabled={loading}
             />
-            <span className="text-sm">Had a Plan</span>
+            <span className="text-sm text-[var(--color-text-primary)]">Had a Plan</span>
           </label>
-          <label className="flex items-center gap-3">
+          <label className="flex items-center gap-2">
             <input
               type="checkbox"
               checked={planFollowed}
@@ -354,13 +371,13 @@ function TradeForm({ supabase, userId, onTradeAdded }) {
                 setPlanFollowed(e.target.checked);
                 if (e.target.checked) setWasGamble(false);
               }}
-              className="rounded focus:ring-opacity-50"
+              className="w-4 h-4 rounded focus:ring-2 focus:ring-[var(--color-accent)]"
               aria-label="Plan Followed"
               disabled={loading || wasGamble}
             />
-            <span className="text-sm">Plan Followed</span>
+            <span className="text-sm text-[var(--color-text-primary)]">Plan Followed</span>
           </label>
-          <label className="flex items-center gap-3">
+          <label className="flex items-center gap-2">
             <input
               type="checkbox"
               checked={wasGamble}
@@ -368,11 +385,11 @@ function TradeForm({ supabase, userId, onTradeAdded }) {
                 setWasGamble(e.target.checked);
                 if (e.target.checked) setPlanFollowed(false);
               }}
-              className="rounded focus:ring-opacity-50"
+              className="w-4 h-4 rounded focus:ring-2 focus:ring-[var(--color-accent)]"
               aria-label="Was a Gamble"
               disabled={loading || planFollowed}
             />
-            <span className="text-sm">Was a Gamble</span>
+            <span className="text-sm text-[var(--color-text-primary)]">Was a Gamble</span>
           </label>
         </div>
         <motion.button
