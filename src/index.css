@@ -6,103 +6,38 @@
 
 body {
   font-family: 'Inter', sans-serif;
-  @apply min-h-screen transition-colors duration-300 py-4 px-2;
-  background: linear-gradient(to bottom right, #93C5FD, #A78BFA, #D6A8FF); /* Light mode gradient */
+  @apply bg-gradient-to-br from-blue-100 via-indigo-100 to-purple-100 min-h-screen transition-colors duration-300;
 }
 
 .dark body {
-  @apply text-white;
-  background: linear-gradient(to bottom right, #111827, #1F2937, #111827); /* Dark mode gradient */
+  @apply bg-gradient-to-br from-gray-900 via-gray-800 to-black text-white;
 }
 
 /* Glassmorphism Card (Light/Dark) */
 .glass-card {
   @apply bg-white bg-opacity-20 backdrop-blur-lg border border-gray-200 rounded-2xl shadow-xl transition-all duration-300;
 }
-
 .dark .glass-card {
-  @apply bg-gray-800 bg-opacity-30 border-gray-600;
-}
-
-.glass-card:hover {
-  @apply shadow-2xl transform scale-105;
+  @apply bg-gray-800 bg-opacity-30 border-gray-700;
 }
 
 /* Neobrutalist Button */
 .neo-button {
   @apply px-6 py-3 rounded-xl font-semibold border-2 border-black bg-blue-500 text-white shadow-[4px_4px_0_0_rgba(0,0,0,1)] transition-all duration-200 hover:shadow-[6px_6px_0_0_rgba(0,0,0,1)] hover:translate-x-[-2px] hover:translate-y-[-2px];
 }
-
 .dark .neo-button {
-  @apply bg-purple-600 border-white shadow-[4px_4px_0_0_rgba(255,255,255,0.8)] hover:shadow-[6px_6px_0_0_rgba(255,255,255,0.8)] border-2;
-}
-
-.neo-button:focus {
-  @apply focus:outline-none ring-2 ring-blue-500;
+  @apply bg-purple-600 border-white shadow-[4px_4px_0_0_rgba(255,255,255,0.8)] hover:shadow-[6px_6px_0_0_rgba(255,255,255,0.8)];
 }
 
 /* Modern Input */
 .neo-input {
   @apply w-full p-4 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-400 focus:border-blue-500 bg-white bg-opacity-40 transition-all duration-200;
 }
-
 .dark .neo-input {
   @apply border-gray-600 bg-gray-900 bg-opacity-50 focus:ring-purple-500 focus:border-purple-500 text-white;
-}
-
-.neo-input:focus {
-  @apply focus:outline-none transition-all duration-300;
 }
 
 /* Responsive Container */
 .container {
   @apply max-w-5xl mx-auto px-4 sm:px-6 lg:px-8;
-}
-
-/* Custom Scrollbars */
-::-webkit-scrollbar {
-  width: 8px;
-}
-
-::-webkit-scrollbar-thumb {
-  background-color: rgba(255, 255, 255, 0.2);
-  border-radius: 4px;
-}
-
-::-webkit-scrollbar-thumb:hover {
-  background-color: rgba(255, 255, 255, 0.5);
-}
-
-/* Hover Effects for Inputs */
-.neo-input:hover {
-  @apply border-blue-500;
-}
-
-/* Button Hover Effects */
-.neo-button:hover {
-  @apply shadow-lg transform scale-105;
-}
-
-/* Card Shadows on Active */
-.glass-card:active {
-  @apply shadow-[8px_8px_0_0_rgba(0,0,0,1)];
-}
-
-/* Focus Styles for Inputs and Buttons */
-.neo-input:focus, .neo-button:focus {
-  @apply focus:outline-none ring-2 ring-blue-500;
-}
-
-/* Error State for Inputs */
-.neo-input.error {
-  @apply border-red-500 bg-red-50;
-}
-
-/* Increased Spacing and Padding */
-body {
-  @apply px-4 sm:px-6 lg:px-8;
-}
-
-.container {
-  @apply px-4 sm:px-6 lg:px-10;
 }
