@@ -12,12 +12,14 @@ function TradeForm({ supabase, userId, onTradeAdded }) {
   const [tags, setTags] = useState('');
   const [outcome, setOutcome] = useState('');
   const [positionSize, setPositionSize] = useState('');
-  const [positionUnit, setPositionUnit] = useState('');
   const [pair, setPair] = useState('');
   const [screenshot, setScreenshot] = useState(null);
   const [hadPlan, setHadPlan] = useState(false);
   const [planFollowed, setPlanFollowed] = useState(false);
   const [wasGamble, setWasGamble] = useState(false);
+  const [leverage, setLeverage] = useState(1);
+  const [direction, setDirection] = useState('');
+  const [status, setStatus] = useState('');
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(false);
 
@@ -37,7 +39,39 @@ function TradeForm({ supabase, userId, onTradeAdded }) {
     }
   }, [entry, tp, sl]);
 
+  useEffect(() => {
+    if (status === 'completed' && direction && entry && tp && sl) {
+      const entryPrice = parseFloat(entry);
+      const takeProfit = parseFloat(tp);
+      const stopLoss = parseFloat(sl);
+      if (direction === 'long') {
+        if (takeProfit > entryPrice) setOutcome('Win');
+        else if (stopLoss < entryPrice) setOutcome('Loss');
+        else setOutcome('Breakeven');
+      } else if (direction === 'short') {
+        if (takeProfit < entryPrice) setOutcome('Win');
+        else if (stopLoss > entryPrice) setOutcome('Loss');
+        else setOutcome('Breakeven');
+      }
+    } else if (status === 'in_progress') {
+      setOutcome('In Progress');
+    }
+  }, [status, direction, entry, tp, sl]);
+
   const sanitizeInput = (input) => input.replace(/[<>"'&]/g, '');
+
+  const calculateProfit = () => {
+    if (!positionSize || !entry || !leverage || !outcome) return null;
+    const margin = parseFloat(positionSize) / leverage;
+    const size = parseFloat(positionSize);
+    let exitPrice;
+    if (outcome === 'Win' && tp) exitPrice = parseFloat(tp);
+    else if (outcome === 'Loss' && sl) exitPrice = parseFloat(sl);
+    else if (outcome === 'Breakeven') exitPrice = parseFloat(entry);
+    else return null;
+    const priceChange = (exitPrice - parseFloat(entry)) / parseFloat(entry);
+    return (priceChange * size * leverage - margin).toFixed(2);
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -52,6 +86,12 @@ function TradeForm({ supabase, userId, onTradeAdded }) {
 
     if (isNaN(tp) || isNaN(sl) || isNaN(entry) || (rrRatio && isNaN(rrRatio)) || (positionSize && isNaN(positionSize))) {
       setError('Entry, TP, SL, RR Ratio, and Position Size must be valid numbers');
+      setLoading(false);
+      return;
+    }
+
+    if (!direction || !status) {
+      setError('Please select Direction and Status');
       setLoading(false);
       return;
     }
@@ -77,6 +117,7 @@ function TradeForm({ supabase, userId, onTradeAdded }) {
     }
 
     try {
+      const profit = calculateProfit();
       const tradeData = {
         user_id: userId,
         entry: parseFloat(entry) || 0,
@@ -86,12 +127,15 @@ function TradeForm({ supabase, userId, onTradeAdded }) {
         emotions: sanitizeInput(emotions) || '',
         notes: sanitizeInput(notes) || '',
         screenshot_url: screenshotUrl,
-        rule_broken: wasGamble,
         outcome: outcome || null,
         position_size: parseFloat(positionSize) || null,
-        position_unit: positionUnit || null,
         pair: sanitizeInput(pair) || null,
         tags: tags.trim() ? tags.split(',').map(tag => tag.trim()).filter(tag => tag) : [],
+        leverage: parseFloat(leverage) || 1,
+        profit: profit ? parseFloat(profit) : null,
+        direction: direction || null,
+        status: status || null,
+        is_edited: false,
       };
 
       const { data, error: supabaseError } = await supabase.from('trades').insert([tradeData]).select();
@@ -123,12 +167,14 @@ function TradeForm({ supabase, userId, onTradeAdded }) {
       setTags('');
       setOutcome('');
       setPositionSize('');
-      setPositionUnit('');
       setPair('');
       setScreenshot(null);
       setHadPlan(false);
       setPlanFollowed(false);
       setWasGamble(false);
+      setLeverage(1);
+      setDirection('');
+      setStatus('');
       onTradeAdded();
     } catch (err) {
       setError(`Failed to save trade: ${err.message}`);
@@ -145,7 +191,7 @@ function TradeForm({ supabase, userId, onTradeAdded }) {
       transition={{ duration: 0.6, ease: 'easeOut' }}
       whileHover={{ scale: 1.02 }}
     >
-      <h3 className="text-2xl font-bold text-[var(--color-neon-blue)] mb-6" aria-label="Log a Trade">
+      <h3 className="text-2xl font-bold mb-6" aria-label="Log a Trade">
         Log a Trade
       </h3>
       {error && (
@@ -166,6 +212,16 @@ function TradeForm({ supabase, userId, onTradeAdded }) {
           placeholder="Trading Pair (e.g., BTC/USD)"
           className="futuristic-input"
           aria-label="Trading Pair input"
+          disabled={loading}
+        />
+        <input
+          type="number"
+          value={positionSize}
+          onChange={(e) => setPositionSize(e.target.value)}
+          placeholder="Position Size"
+          className="futuristic-input"
+          step="0.01"
+          aria-label="Position Size input"
           disabled={loading}
         />
         <input
@@ -208,30 +264,42 @@ function TradeForm({ supabase, userId, onTradeAdded }) {
           aria-label="Risk-Reward Ratio input"
           disabled={loading}
         />
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <div className="grid grid-cols-1">
+          <label className="block text-sm mb-1">
+            Leverage: {leverage}x
+          </label>
           <input
-            type="number"
-            value={positionSize}
-            onChange={(e) => setPositionSize(e.target.value)}
-            placeholder="Position Size"
-            className="futuristic-input"
-            step="0.01"
-            aria-label="Position Size input"
+            type="range"
+            min="1"
+            max="2000"
+            value={leverage}
+            onChange={(e) => setLeverage(parseFloat(e.target.value))}
+            className="w-full h-2 rounded-lg"
             disabled={loading}
           />
-          <select
-            value={positionUnit}
-            onChange={(e) => setPositionUnit(e.target.value)}
-            className="futuristic-select"
-            aria-label="Position Unit input"
-            disabled={loading}
-          >
-            <option value="">Unit</option>
-            <option value="Lots">Lots</option>
-            <option value="USD">USD</option>
-            <option value="Coin Value">Coin Value</option>
-          </select>
         </div>
+        <select
+          value={direction}
+          onChange={(e) => setDirection(e.target.value)}
+          className="futuristic-select"
+          aria-label="Trade Direction input"
+          disabled={loading}
+        >
+          <option value="">Select Direction</option>
+          <option value="long">Long</option>
+          <option value="short">Short</option>
+        </select>
+        <select
+          value={status}
+          onChange={(e) => setStatus(e.target.value)}
+          className="futuristic-select"
+          aria-label="Trade Status input"
+          disabled={loading}
+        >
+          <option value="">Select Status</option>
+          <option value="completed">Completed</option>
+          <option value="in_progress">In Progress</option>
+        </select>
         <input
           type="text"
           value={emotions}
@@ -254,7 +322,7 @@ function TradeForm({ supabase, userId, onTradeAdded }) {
           value={notes}
           onChange={(e) => setNotes(e.target.value)}
           placeholder="Notes about the trade"
-          className="futuristic-input min-h-[120px] scrollbar-thin scrollbar-thumb-[var(--color-neon-purple)] scrollbar-track-[var(--color-glass-bg)]"
+          className="futuristic-input min-h-[120px] scrollbar-thin"
           aria-label="Trade notes"
           disabled={loading}
         />
@@ -272,59 +340,51 @@ function TradeForm({ supabase, userId, onTradeAdded }) {
               type="checkbox"
               checked={hadPlan}
               onChange={(e) => setHadPlan(e.target.checked)}
-              className="h-5 w-5 text-[var(--color-neon-purple)] rounded border-gray-300 focus:ring-[var(--color-neon-purple)] focus:ring-opacity-50 scale-125"
+              className="rounded focus:ring-opacity-50"
               aria-label="Had a Plan"
               disabled={loading}
             />
-            <span className="text-gray-100 text-sm">Had a Plan</span>
+            <span className="text-sm">Had a Plan</span>
           </label>
           <label className="flex items-center gap-3">
             <input
               type="checkbox"
               checked={planFollowed}
-              onChange={(e) => setPlanFollowed(e.target.checked)}
-              className="h-5 w-5 text-[var(--color-neon-purple)] rounded border-gray-300 focus:ring-[var(--color-neon-purple)] focus:ring-opacity-50 scale-125"
+              onChange={(e) => {
+                setPlanFollowed(e.target.checked);
+                if (e.target.checked) setWasGamble(false);
+              }}
+              className="rounded focus:ring-opacity-50"
               aria-label="Plan Followed"
-              disabled={loading}
+              disabled={loading || wasGamble}
             />
-            <span className="text-gray-100 text-sm">Plan Followed</span>
+            <span className="text-sm">Plan Followed</span>
           </label>
           <label className="flex items-center gap-3">
             <input
               type="checkbox"
               checked={wasGamble}
-              onChange={(e) => setWasGamble(e.target.checked)}
-              className="h-5 w-5 text-[var(--color-neon-purple)] rounded border-gray-300 focus:ring-[var(--color-neon-purple)] focus:ring-opacity-50 scale-125"
+              onChange={(e) => {
+                setWasGamble(e.target.checked);
+                if (e.target.checked) setPlanFollowed(false);
+              }}
+              className="rounded focus:ring-opacity-50"
               aria-label="Was a Gamble"
-              disabled={loading}
+              disabled={loading || planFollowed}
             />
-            <span className="text-gray-100 text-sm">Was a Gamble</span>
+            <span className="text-sm">Was a Gamble</span>
           </label>
         </div>
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <select
-            value={outcome}
-            onChange={(e) => setOutcome(e.target.value)}
-            className="futuristic-select"
-            aria-label="Trade Outcome input"
-            disabled={loading}
-          >
-            <option value="">Select Outcome</option>
-            <option value="Win">Win</option>
-            <option value="Loss">Loss</option>
-            <option value="Breakeven">Breakeven</option>
-          </select>
-          <motion.button
-            type="submit"
-            className="futuristic-button"
-            whileHover={{ scale: loading ? 1 : 1.05 }}
-            whileTap={{ scale: loading ? 1 : 0.95 }}
-            aria-label="Add Trade button"
-            disabled={loading}
-          >
-            {loading ? 'Saving...' : 'Add Trade'}
-          </motion.button>
-        </div>
+        <motion.button
+          type="submit"
+          className="futuristic-button w-full"
+          whileHover={{ scale: loading ? 1 : 1.05 }}
+          whileTap={{ scale: loading ? 1 : 0.95 }}
+          aria-label="Add Trade button"
+          disabled={loading}
+        >
+          {loading ? 'Saving...' : 'Add Trade'}
+        </motion.button>
       </form>
     </motion.div>
   );

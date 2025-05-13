@@ -1,16 +1,55 @@
 @import 'tailwindcss';
 
-@theme {
+:root {
+  /* Default: Neon Theme */
   --color-neon-purple: #a855f7;
   --color-neon-pink: #ec4899;
   --color-neon-blue: #3b82f6;
   --color-glass-bg: rgba(255, 255, 255, 0.1);
   --color-glass-border: rgba(255, 255, 255, 0.2);
   --color-bg-dark: #1f1a44;
+  --color-text-primary: #e5e7eb;
+  --color-text-secondary: #d1d5db;
+  --color-accent: var(--color-neon-purple);
+  --color-button-from: var(--color-neon-purple);
+  --color-button-to: var(--color-neon-blue);
+}
+
+:root[data-theme="white"] {
+  --color-bg-dark: #ffffff;
+  --color-glass-bg: rgba(0, 0, 0, 0.05);
+  --color-glass-border: rgba(0, 0, 0, 0.1);
+  --color-text-primary: #1f2937;
+  --color-text-secondary: #4b5563;
+  --color-accent: #4b5563;
+  --color-button-from: #6b7280;
+  --color-button-to: #4b5563;
+}
+
+:root[data-theme="black"] {
+  --color-bg-dark: #1a1a1a;
+  --color-glass-bg: rgba(255, 255, 255, 0.05);
+  --color-glass-border: rgba(255, 255, 255, 0.1);
+  --color-text-primary: #e5e5e5;
+  --color-text-secondary: #b3b3b3;
+  --color-accent: #b3b3b3;
+  --color-button-from: #4b4b4b;
+  --color-button-to: #2d2d2d;
+}
+
+:root[data-theme="grey"] {
+  --color-bg-dark: #2d3748;
+  --color-glass-bg: rgba(255, 255, 255, 0.1);
+  --color-glass-border: rgba(255, 255, 255, 0.2);
+  --color-text-primary: #d1d5db;
+  --color-text-secondary: #9ca3af;
+  --color-accent: #9ca3af;
+  --color-button-from: #4b5563;
+  --color-button-to: #374151;
 }
 
 body {
-  @apply bg-gradient-to-br from-[var(--color-bg-dark)] via-[var(--color-bg-dark)] to-[var(--color-bg-dark)] text-gray-100 min-h-screen font-sans;
+  @apply bg-gradient-to-br from-[var(--color-bg-dark)] via-[var(--color-bg-dark)] to-[var(--color-bg-dark)] text-[var(--color-text-primary)] min-h-screen font-sans;
 }
 
 .container {
@@ -19,13 +58,13 @@ body {
 
 .futuristic-card {
   @apply relative bg-[var(--color-glass-bg)] backdrop-blur-lg border border-[var(--color-glass-border)] rounded-xl shadow-xl overflow-hidden transition-all duration-300;
-  box-shadow: 0 4px 20px rgba(163, 85, 247, 0.2);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
 }
 
 .futuristic-card::before {
   content: '';
   @apply absolute inset-0 opacity-0 transition-opacity duration-300;
-  background: linear-gradient(135deg, var(--color-neon-purple), var(--color-neon-pink), var(--color-neon-blue));
+  background: linear-gradient(135deg, var(--color-button-from), var(--color-button-to));
   animation: pulse 6s ease-in-out infinite;
 }
 
@@ -34,15 +73,15 @@ body {
 }
 
 .futuristic-input {
-  @apply w-full bg-[var(--color-glass-bg)] backdrop-blur-md border border-[var(--color-glass-border)] rounded-xl px-4 py-3 text-gray-100 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[var(--color-neon-purple)] transition-all duration-300;
+  @apply w-full bg-[var(--color-glass-bg)] backdrop-blur-md border border-[var(--color-glass-border)] rounded-xl px-4 py-3 text-[var(--color-text-primary)] placeholder-[var(--color-text-secondary)] focus:outline-none focus:ring-2 focus:ring-[var(--color-accent)] transition-all duration-300;
 }
 
 .futuristic-select {
-  @apply w-full bg-[var(--color-glass-bg)] backdrop-blur-md border border-[var(--color-glass-border)] rounded-xl px-4 py-3 text-gray-100 appearance-none focus:outline-none focus:ring-2 focus:ring-[var(--color-neon-purple)] transition-all duration-300;
+  @apply w-full bg-[var(--color-glass-bg)] backdrop-blur-md border border-[var(--color-glass-border)] rounded-xl px-4 py-3 text-[var(--color-text-primary)] appearance-none focus:outline-none focus:ring-2 focus:ring-[var(--color-accent)] transition-all duration-300;
 }
 
 .futuristic-button {
-  @apply relative bg-gradient-to-r from-[var(--color-neon-purple)] to-[var(--color-neon-blue)] text-gray-100 font-medium px-6 py-3 rounded-xl hover:shadow-[0_0_15px_rgba(168,85,247,0.5)] transition-all duration-300 overflow-hidden;
+  @apply relative bg-gradient-to-r from-[var(--color-button-from)] to-[var(--color-button-to)] text-[var(--color-text-primary)] font-medium px-6 py-3 rounded-xl hover:shadow-[0_0_15px_rgba(0,0,0,0.3)] transition-all duration-300 overflow-hidden;
 }
 
 .futuristic-button::after {
@@ -55,7 +94,7 @@ body {
 }
 
 .futuristic-file-input {
-  @apply w-full bg-[var(--color-glass-bg)] backdrop-blur-md border border-[var(--color-glass-border)] rounded-xl px-4 py-3 text-gray-100 file:bg-gradient-to-r file:from-[var(--color-neon-purple)] file:to-[var(--color-neon-blue)] file:text-gray-100 file:font-medium file:px-4 file:py-2 file:rounded-xl file:border-0 file:cursor-pointer focus:outline-none focus:ring-2 focus:ring-[var(--color-neon-purple)] transition-all duration-300;
+  @apply w-full bg-[var(--color-glass-bg)] backdrop-blur-md border border-[var(--color-glass-border)] rounded-xl px-4 py-3 text-[var(--color-text-primary)] file:bg-gradient-to-r file:from-[var(--color-button-from)] file:to-[var(--color-button-to)] file:text-[var(--color-text-primary)] file:font-medium file:px-4 file:py-2 file:rounded-xl file:border-0 file:cursor-pointer focus:outline-none focus:ring-2 focus:ring-[var(--color-accent)] transition-all duration-300;
 }
 
 .holographic-border {
@@ -64,7 +103,24 @@ body {
 
 .holographic-border::before {
   content: '';
-  @apply absolute -inset-1 bg-gradient-to-r from-[var(--color-neon-purple)] via-[var(--color-neon-pink)] to-[var(--color-neon-blue)] opacity-50 animate-[pulse_4s_ease-in-out_infinite];
+  @apply absolute -inset-1 bg-gradient-to-r from-[var(--color-button-from)] via-[var(--color-text-secondary)] to-[var(--color-button-to)] opacity-50 animate-[pulse_4s_ease-in-out_infinite];
+}
+
+input[type="checkbox"] {
+  @apply w-3 h-3 appearance-none border border-[var(--color-glass-border)] rounded-sm bg-[var(--color-glass-bg)] checked:bg-gradient-to-r checked:from-[var(--color-button-from)] checked:to-[var(--color-button-to)] focus:ring-2 focus:ring-[var(--color-accent)] transition-all duration-200;
+}
+
+input[type="range"] {
+  @apply w-full h-2 rounded-lg appearance-none cursor-pointer;
+  background: linear-gradient(to right, var(--color-button-from), var(--color-button-to));
+}
+
+input[type="range"]::-webkit-slider-thumb {
+  @apply appearance-none w-5 h-5 rounded-full bg-[var(--color-accent)] border border-[var(--color-glass-border)] shadow-[0_0_8px_var(--color-accent)] cursor-pointer transition-all duration-200;
+}
+
+input[type="range"]::-moz-range-thumb {
+  @apply w-5 h-5 rounded-full bg-[var(--color-accent)] border border-[var(--color-glass-border)] shadow-[0_0_8px_var(--color-accent)] cursor-pointer transition-all duration-200;
 }
 
 @keyframes pulse {
@@ -78,7 +134,7 @@ body {
 }
 
 ::-webkit-scrollbar-thumb {
-  background: var(--color-neon-purple);
+  background: var(--color-accent);
   border-radius: 9999px;
 }
 
@@ -87,5 +143,5 @@ body {
 }
 
 ::placeholder {
-  color: theme('colors.gray.400');
+  color: var(--color-text-secondary);
 }
