@@ -29,14 +29,15 @@
 
 /* Dracula inspired */
 :root[data-theme="black"] {
+  /* Dracula Theme */
   --color-bg-dark: #282a36;
-  --color-glass-bg: rgba(255, 255, 255, 0.06);
-  --color-glass-border: rgba(255, 255, 255, 0.15);
+  --color-glass-bg: rgba(40, 42, 54, 0.6);
+  --color-glass-border: rgba(255, 255, 255, 0.1);
   --color-text-primary: #f8f8f2;
   --color-text-secondary: #6272a4;
-  --color-accent: #ff79c6;
-  --color-button-from: #bd93f9;
-  --color-button-to: #ff79c6;
+  --color-accent: #bd93f9;
+  --color-button-from: #ff79c6;
+  --color-button-to: #8be9fd;
 }
 
 /* GitHub Dark Dimmed inspired */
