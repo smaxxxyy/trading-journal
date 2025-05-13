@@ -1,43 +1,27 @@
-import { useState, useEffect } from 'react';
+function HabitTracker({ supabase, userId, trades, onReset }) {
+  const streak = trades.filter((trade) => !trade.rule_broken).length;
 
-function HabitTracker({ supabase, userId }) {
-  const [streak, setStreak] = useState(0);
-
-  useEffect(() => {
-    const fetchStreak = async () => {
-      const { data, error } = await supabase
-        .from('trades')
-        .select('rule_broken, created_at')
-        .eq('user_id', userId)
-        .order('created_at', { ascending: false });
-
-      if (!error) {
-        let currentStreak = 0;
-        for (const trade of data) {
-          if (trade.rule_broken) break;
-          currentStreak++;
-        }
-        setStreak(currentStreak);
-      }
-    };
-    fetchStreak();
-  }, [supabase, userId]);
-
-  const resetStreak = async () => {
-    await supabase
-      .from('trades')
-      .insert([{ user_id: userId, rule_broken: true, created_at: new Date().toISOString() }]);
-    setStreak(0);
+  const handleReset = async () => {
+    const { error } = await supabase.from('trades').insert([
+      { user_id: userId, rule_broken: true },
+    ]);
+    if (!error) {
+      onReset();
+    }
   };
 
   return (
-    <div className="bg-white p-4 rounded shadow-md mb-4">
-      <h3 className="text-xl mb-2" aria-label="Trades Since Last Rule Break">Trades Since Last Rule Break</h3>
-      <p className="text-3xl" aria-label={`Current streak: ${streak} trades`}>{streak}</p>
+    <div className="glass-card p-6 mb-6">
+      <h3 className="text-xl font-semibold text-gray-800 mb-4" aria-label="Habit Tracker">
+        Habit Tracker
+      </h3>
+      <p className="text-lg text-gray-700 mb-4" aria-label="Trades since last rule break">
+        Trades Since Last Rule Break: <span className="font-bold text-blue-600">{streak}</span>
+      </p>
       <button
-        onClick={resetStreak}
-        className="mt-4 bg-red-500 text-white p-2 rounded hover:bg-red-600"
-        aria-label="Reset streak due to rule break"
+        onClick={handleReset}
+        className="modern-button bg-red-600 text-white hover:bg-red-700 w-full"
+        aria-label="Reset Streak button"
       >
         Reset Streak (Rule Broken)
       </button>

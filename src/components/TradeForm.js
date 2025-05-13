@@ -82,15 +82,17 @@ function TradeForm({ supabase, userId, onTradeAdded }) {
   };
 
   return (
-    <form onSubmit={handleSubmit} className="bg-white p-4 rounded shadow-md mb-4">
-      <h3 className="text-xl mb-2" aria-label="Log a Trade">Log a Trade</h3>
+    <div className="glass-card p-6 mb-6">
+      <h3 className="text-xl font-semibold text-gray-800 mb-4" aria-label="Log a Trade">
+        Log a Trade
+      </h3>
       {error && <p className="text-red-500 mb-4" role="alert">{error}</p>}
       <input
         type="number"
         value={tp}
         onChange={(e) => setTp(e.target.value)}
         placeholder="Take Profit (TP)"
-        className="w-full p-2 mb-2 border rounded"
+        className="modern-input mb-4"
         step="0.01"
         aria-label="Take Profit input"
       />
@@ -99,7 +101,7 @@ function TradeForm({ supabase, userId, onTradeAdded }) {
         value={sl}
         onChange={(e) => setSl(e.target.value)}
         placeholder="Stop Loss (SL)"
-        className="w-full p-2 mb-2 border rounded"
+        className="modern-input mb-4"
         step="0.01"
         aria-label="Stop Loss input"
       />
@@ -108,7 +110,7 @@ function TradeForm({ supabase, userId, onTradeAdded }) {
         value={rrRatio}
         onChange={(e) => setRrRatio(e.target.value)}
         placeholder="Risk-Reward Ratio"
-        className="w-full p-2 mb-2 border rounded"
+        className="modern-input mb-4"
         step="0.01"
         aria-label="Risk-Reward Ratio input"
       />
@@ -117,27 +119,32 @@ function TradeForm({ supabase, userId, onTradeAdded }) {
         value={emotions}
         onChange={(e) => setEmotions(e.target.value)}
         placeholder="Emotions (e.g., Confident, Nervous)"
-        className="w-full p-2 mb-2 border rounded"
+        className="modern-input mb-4"
         aria-label="Emotions input"
       />
       <textarea
         value={notes}
         onChange={(e) => setNotes(e.target.value)}
         placeholder="Notes about the trade"
-        className="w-full p-2 mb-2 border rounded"
+        className="modern-input mb-4 min-h-[100px]"
         aria-label="Trade notes"
       />
       <input
         type="file"
         onChange={(e) => setScreenshot(e.target.files[0])}
         accept="image/png,image/jpeg"
-        className="w-full p-2 mb-2"
+        className="modern-input mb-4 file:modern-button file:bg-gray-200 file:text-gray-700 file:hover:bg-gray-300"
         aria-label="Screenshot upload"
       />
-      <button type="submit" className="bg-blue-500 text-white p-2 rounded hover:bg-blue-600" aria-label="Add Trade button">
+      <button
+        type="submit"
+        onClick={handleSubmit}
+        className="modern-button bg-blue-600 text-white hover:bg-blue-700 w-full"
+        aria-label="Add Trade button"
+      >
         Add Trade
       </button>
-    </form>
+    </div>
   );
 }
 
