@@ -27,23 +27,35 @@ function Login({ supabase }) {
   };
 
   return (
-    <div className="container py-20">
+    <div className="container py-10">
       <motion.div
-        className="futuristic-card p-10 max-w-lg mx-auto"
-        initial={{ opacity: 0, scale: 0.9 }}
+        className="futuristic-card holographic-border p-6 max-w-sm mx-auto"
+        initial={{ opacity: 0, scale: 0.95 }}
         animate={{ opacity: 1, scale: 1 }}
-        transition={{ duration: 0.6 }}
+        transition={{ duration: 0.5 }}
       >
-        <h2 className="text-4xl font-extrabold text-gray-900 dark:text-white mb-8 text-center" aria-label="Login or Sign Up">
+        <h2
+          className="text-xl font-bold text-[var(--color-neon-purple)] mb-4 text-center"
+          aria-label="Login or Sign Up"
+        >
           Trading Journal
         </h2>
-        {error && <p className="text-red-500 dark:text-red-400 mb-6 text-center" role="alert">{error}</p>}
+        {error && (
+          <motion.p
+            className="text-red-400 mb-4 text-sm text-center"
+            role="alert"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+          >
+            {error}
+          </motion.p>
+        )}
         <input
           type="email"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
           placeholder="Email"
-          className="futuristic-input mb-6"
+          className="futuristic-input mb-4"
           aria-label="Email input"
         />
         <input
@@ -51,15 +63,15 @@ function Login({ supabase }) {
           value={password}
           onChange={(e) => setPassword(e.target.value)}
           placeholder="Password"
-          className="futuristic-input mb-8"
+          className="futuristic-input mb-4"
           aria-label="Password input"
         />
-        <div className="flex flex-col sm:flex-row gap-4 justify-center">
+        <div className="flex flex-col gap-3">
           <motion.button
             onClick={handleLogin}
             className="futuristic-button"
-            whileHover={{ scale: 1.1 }}
-            whileTap={{ scale: 0.9 }}
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
             aria-label="Login button"
           >
             Login
@@ -67,8 +79,8 @@ function Login({ supabase }) {
           <motion.button
             onClick={handleSignUp}
             className="futuristic-button"
-            whileHover={{ scale: 1.1 }}
-            whileTap={{ scale: 0.9 }}
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
             aria-label="Sign Up button"
           >
             Sign Up

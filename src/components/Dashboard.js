@@ -49,6 +49,14 @@ function Dashboard({ supabase }) {
           tags: Array.isArray(trade.tags) ? trade.tags : trade.tags ? [trade.tags] : [],
         })));
         setHabits(habitsData.data);
+
+        const streakData = calculateStreak(tradesData.data);
+        await supabase.from('user_records').upsert({
+          user_id: user.id,
+          best_unbroken_trades: streakData.maxTrades,
+          best_unbroken_days: streakData.maxDays,
+          updated_at: new Date().toISOString(),
+        });
       } catch (err) {
         setError(`Failed to load data: ${err.message}`);
       } finally {
@@ -57,6 +65,33 @@ function Dashboard({ supabase }) {
     };
     fetchUserAndData();
   }, [supabase, navigate]);
+
+  const calculateStreak = (trades) => {
+    let currentTrades = 0;
+    let maxTrades = 0;
+    let currentDays = new Set();
+    let maxDays = 0;
+    let lastDate = null;
+
+    trades.sort((a, b) => new Date(a.created_at) - new Date(b.created_at)).forEach(trade => {
+      const tradeDate = new Date(trade.created_at).toDateString();
+      if (trade.rule_broken) {
+        currentTrades = 0;
+        currentDays.clear();
+      } else {
+        currentTrades += 1;
+        currentDays.add(tradeDate);
+        if (lastDate && tradeDate !== lastDate) {
+          currentDays.add(tradeDate);
+        }
+        maxTrades = Math.max(maxTrades, currentTrades);
+        maxDays = Math.max(maxDays, currentDays.size);
+      }
+      lastDate = tradeDate;
+    });
+
+    return { currentTrades, currentDays: currentDays.size, maxTrades, maxDays };
+  };
 
   const handleTradeAdded = async () => {
     try {
@@ -80,6 +115,14 @@ function Dashboard({ supabase }) {
         tags: Array.isArray(trade.tags) ? trade.tags : trade.tags ? [trade.tags] : [],
       })));
       setHabits(habitsData.data);
+
+      const streakData = calculateStreak(tradesData.data);
+      await supabase.from('user_records').upsert({
+        user_id: userId,
+        best_unbroken_trades: streakData.maxTrades,
+        best_unbroken_days: streakData.maxDays,
+        updated_at: new Date().toISOString(),
+      });
     } catch (err) {
       setError(`Failed to refresh data: ${err.message}`);
     }
@@ -96,6 +139,14 @@ function Dashboard({ supabase }) {
       if (error) throw new Error(error.message);
       setTrades(trades.filter(trade => trade.id !== tradeId));
       setHabits(habits.filter(habit => habit.trade_id !== tradeId));
+
+      const streakData = calculateStreak(trades.filter(trade => trade.id !== tradeId));
+      await supabase.from('user_records').upsert({
+        user_id: userId,
+        best_unbroken_trades: streakData.maxTrades,
+        best_unbroken_days: streakData.maxDays,
+        updated_at: new Date().toISOString(),
+      });
     } catch (err) {
       setError(`Failed to delete trade: ${err.message}`);
     }
@@ -171,6 +222,7 @@ function Dashboard({ supabase }) {
   };
 
   const dailyGroups = groupTradesByDay();
+  const streakData = calculateStreak(trades);
 
   const TradeCard = ({ trade }) => {
     const habit = habits.find(h => h.trade_id === trade.id);
@@ -189,82 +241,49 @@ function Dashboard({ supabase }) {
     return (
       <motion.div
         ref={cardRef}
-        className="futuristic-card holographic-border p-6"
-        initial={{ opacity: 0, scale: 0.9 }}
+        className="futuristic-card holographic-border p-4 flex flex-col gap-2 text-sm min-h-[180px]"
+        initial={{ opacity: 0, scale: 0.95 }}
         animate={{ opacity: 1, scale: 1 }}
-        whileHover={{ scale: 1.05 }}
+        transition={{ duration: 0.4 }}
+        whileHover={{ scale: 1.02 }}
         style={{
           transform: `perspective(1000px) rotateX(${mousePosition.y}deg) rotateY(${mousePosition.x}deg)`,
         }}
         onMouseMove={handleMouseMove}
         onMouseLeave={() => setMousePosition({ x: 0, y: 0 })}
       >
-        <p className="text-gray-100 text-lg">
-          <span className="font-semibold">Pair:</span> {trade.pair || 'N/A'}
-        </p>
-        <p className="text-gray-100 text-lg">
-          <span className="font-semibold">Entry:</span> {trade.entry || 'N/A'}
-        </p>
-        <p className="text-gray-100 text-lg">
-          <span className="font-semibold">TP:</span> {trade.tp || 'N/A'}
-        </p>
-        <p className="text-gray-100 text-lg">
-          <span className="font-semibold">SL:</span> {trade.sl || 'N/A'}
-        </p>
-        <p className="text-gray-100 text-lg">
-          <span className="font-semibold">RR Ratio:</span> {trade.rr_ratio || 'N/A'}
-        </p>
-        <p className="text-gray-100 text-lg">
-          <span className="font-semibold">Position Size:</span> {trade.position_size || 'N/A'} {trade.position_unit || ''}
-        </p>
-        <p className="text-gray-100 text-lg">
-          <span className="font-semibold">Outcome:</span> {trade.outcome || 'N/A'}
-        </p>
-        <p className="text-gray-100 text-lg">
-          <span className="font-semibold">Emotions:</span> {trade.emotions || 'None'}
-        </p>
-        <p className="text-gray-100 text-lg">
-          <span className="font-semibold">Tags:</span> {trade.tags.length > 0 ? trade.tags.join(', ') : 'None'}
-        </p>
-        <p className="text-gray-100 text-lg">
-          <span className="font-semibold">Notes:</span> {trade.notes || 'None'}
-        </p>
-        <p className="text-gray-100 text-lg">
-          <span className="font-semibold">Had Plan:</span> {habit?.had_plan ? 'Yes' : 'No'}
-        </p>
-        <p className="text-gray-100 text-lg">
-          <span className="font-semibold">Plan Followed:</span> {habit?.plan_followed ? 'Yes' : 'No'}
-        </p>
-        <p className="text-gray-100 text-lg">
-          <span className="font-semibold">Was Gamble:</span> {habit?.was_gamble ? 'Yes' : 'No'}
-        </p>
-        <p className="text-gray-100 text-lg">
-          <span className="font-semibold">Streak:</span> {habit?.streak || 0} trades
-        </p>
+        <div className="flex justify-between">
+          <p className="text-gray-100 font-medium">{trade.pair || 'N/A'}</p>
+          <p className="text-[var(--color-neon-blue)]">{trade.outcome || 'N/A'}</p>
+        </div>
+        <p className="text-gray-100">RR: {trade.rr_ratio?.toFixed(2) || 'N/A'}</p>
+        <p className="text-gray-100">Plan: {habit?.had_plan ? 'Yes' : 'No'}</p>
+        <p className="text-gray-100">Followed: {habit?.plan_followed ? 'Yes' : 'No'}</p>
+        <p className="text-gray-100">Gamble: {habit?.was_gamble ? 'Yes' : 'No'}</p>
         {trade.screenshot_url && (
           <button
             onClick={() => setModalImage(trade.screenshot_url)}
-            className="mt-4"
+            className="mt-2"
             aria-label="View trade screenshot"
           >
             <img
               src={trade.screenshot_url}
               alt="Trade screenshot thumbnail"
-              className="rounded-xl w-24 h-24 object-cover border-2 border-gray-200"
+              className="rounded-lg w-10 h-10 object-cover border border-[var(--color-glass-border)]"
             />
           </button>
         )}
         {trade.rule_broken && (
-          <p className="text-red-400 font-semibold mt-4 text-lg">Rule Broken</p>
+          <p className="text-red-400 font-medium mt-2">Rule Broken</p>
         )}
         <motion.button
           onClick={() => handleDeleteTrade(trade.id)}
-          className="futuristic-button from-red-500 to-red-600 mt-4 w-full"
-          whileHover={{ scale: 1.1 }}
-          whileTap={{ scale: 0.9 }}
+          className="futuristic-button from-red-500 to-red-600 mt-2 text-sm py-2"
+          whileHover={{ scale: 1.05 }}
+          whileTap={{ scale: 0.95 }}
           aria-label="Delete trade button"
         >
-          Delete Trade
+          Delete
         </motion.button>
       </motion.div>
     );
@@ -272,43 +291,43 @@ function Dashboard({ supabase }) {
 
   if (loading) {
     return (
-      <div className="container py-20 text-center">
+      <div className="container py-8 text-center">
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ duration: 0.5 }}
         >
-          <h2 className="text-3xl font-bold text-gray-100">Loading...</h2>
+          <h2 className="text-2xl font-bold text-gray-100">Loading...</h2>
         </motion.div>
       </div>
     );
   }
 
   return (
-    <div className="container py-20">
+    <div className="container py-8">
       <motion.div
-        className="flex flex-col sm:flex-row justify-between items-center mb-12 gap-4"
+        className="flex flex-col sm:flex-row justify-between items-center mb-6 gap-4"
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
-        transition={{ duration: 0.6 }}
+        transition={{ duration: 0.5 }}
       >
-        <h2 className="text-5xl font-extrabold text-[var(--neon-purple)]" aria-label="Dashboard">
+        <h2 className="text-2xl font-extrabold text-[var(--color-neon-purple)]" aria-label="Dashboard">
           Trading Journal
         </h2>
-        <div className="flex flex-col sm:flex-row gap-4">
+        <div className="flex flex-col sm:flex-row gap-3">
           <motion.button
             onClick={handleExport}
             className="futuristic-button"
-            whileHover={{ scale: 1.1 }}
-            whileTap={{ scale: 0.9 }}
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
           >
             Export Trades
           </motion.button>
           <motion.button
             onClick={handleLogout}
             className="futuristic-button from-red-500 to-red-600"
-            whileHover={{ scale: 1.1 }}
-            whileTap={{ scale: 0.9 }}
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
           >
             Logout
           </motion.button>
@@ -316,37 +335,37 @@ function Dashboard({ supabase }) {
       </motion.div>
       {error && (
         <motion.div
-          className="futuristic-card p-6 mb-10"
+          className="futuristic-card p-4 mb-6"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
         >
-          <p className="text-red-400 text-lg" role="alert">{error}</p>
+          <p className="text-red-400 text-sm" role="alert">{error}</p>
         </motion.div>
       )}
       {!userId ? (
         <motion.div
-          className="futuristic-card p-6 mb-10"
+          className="futuristic-card p-4 mb-6"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
         >
-          <p className="text-red-400 text-lg" role="alert">
+          <p className="text-red-400 text-sm" role="alert">
             User not authenticated. Please log in.
           </p>
         </motion.div>
       ) : (
         <>
           <TradeForm supabase={supabase} userId={userId} onTradeAdded={handleTradeAdded} />
-          <TradeAnalytics trades={trades} />
+          <TradeAnalytics trades={trades} streakData={streakData} supabase={supabase} userId={userId} />
           <motion.div
-            className="futuristic-card holographic-border p-10"
-            initial={{ opacity: 0, y: 50 }}
+            className="futuristic-card holographic-border p-6"
+            initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6 }}
+            transition={{ duration: 0.5 }}
           >
-            <h3 className="text-3xl font-bold text-[var(--neon-blue)] mb-8" aria-label="Trade History">
+            <h3 className="text-xl font-bold text-[var(--color-neon-blue)] mb-4" aria-label="Trade History">
               Trade History
             </h3>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8 justify-center">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-4">
               <input
                 type="text"
                 value={tagFilter}
@@ -358,7 +377,7 @@ function Dashboard({ supabase }) {
               <select
                 value={outcomeFilter}
                 onChange={(e) => setOutcomeFilter(e.target.value)}
-                className="futuristic-select w-32"
+                className="futuristic-select"
                 aria-label="Outcome filter input"
               >
                 <option value="">All Outcomes</option>
@@ -391,43 +410,43 @@ function Dashboard({ supabase }) {
               />
             </div>
             {dailyGroups.length === 0 ? (
-              <p className="text-gray-100 text-lg text-center">No trades match the filter.</p>
+              <p className="text-gray-100 text-sm text-center">No trades match the filter.</p>
             ) : (
-              <div className="space-y-8">
+              <div className="space-y-4">
                 {dailyGroups.map(group => (
                   <motion.div
                     key={group.date}
-                    className="futuristic-card holographic-border p-6"
-                    initial={{ opacity: 0, y: 20 }}
+                    className="futuristic-card holographic-border p-4"
+                    initial={{ opacity: 0, y: 10 }}
                     animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.5 }}
+                    transition={{ duration: 0.4 }}
                   >
-                    <h4 className="text-2xl font-bold text-[var(--neon-purple)] mb-4">
+                    <h4 className="text-lg font-bold text-[var(--color-neon-purple)] mb-3">
                       {group.date}
                     </h4>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
-                      <p className="text-gray-100 text-lg">
-                        <span className="font-semibold">Total Trades:</span> {group.totalTrades}
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 mb-3 text-sm">
+                      <p className="text-gray-100">
+                        <span className="font-medium">Total Trades:</span> {group.totalTrades}
                       </p>
-                      <p className="text-gray-100 text-lg">
-                        <span className="font-semibold">Wins:</span> {group.outcomes.wins}
+                      <p className="text-gray-100">
+                        <span className="font-medium">Wins:</span> {group.outcomes.wins}
                       </p>
-                      <p className="text-gray-100 text-lg">
-                        <span className="font-semibold">Losses:</span> {group.outcomes.losses}
+                      <p className="text-gray-100">
+                        <span className="font-medium">Losses:</span> {group.outcomes.losses}
                       </p>
-                      <p className="text-gray-100 text-lg">
-                        <span className="font-semibold">Breakevens:</span> {group.outcomes.breakevens}
+                      <p className="text-gray-100">
+                        <span className="font-medium">Breakevens:</span> {group.outcomes.breakevens}
                       </p>
-                      <p className="text-gray-100 text-lg">
-                        <span className="font-semibold">Average RR:</span> {group.avgRr}
+                      <p className="text-gray-100">
+                        <span className="font-medium">Average RR:</span> {group.avgRr}
                       </p>
                     </div>
                     {group.message && (
-                      <p className="text-[var(--neon-blue)] text-lg font-semibold mb-4">
+                      <p className="text-[var(--color-neon-blue)] text-sm font-medium mb-3">
                         {group.message}
                       </p>
                     )}
-                    <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 justify-center">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
                       {group.trades.map(trade => (
                         <TradeCard key={trade.id} trade={trade} />
                       ))}
@@ -448,7 +467,7 @@ function Dashboard({ supabase }) {
               <img
                 src={modalImage}
                 alt="Full trade screenshot"
-                className="max-w-[90%] max-h-[90%] rounded-xl"
+                className="max-w-[90%] max-h-[90%] rounded-2xl"
               />
             </motion.div>
           )}

@@ -1,10 +1,26 @@
-import { useEffect, useRef } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import Chart from 'chart.js/auto';
 import { motion } from 'framer-motion';
 
-function TradeAnalytics({ trades }) {
+function TradeAnalytics({ trades, streakData, supabase, userId }) {
   const chartRef = useRef(null);
   const chartInstanceRef = useRef(null);
+  const [records, setRecords] = useState({ best_unbroken_trades: 0, best_unbroken_days: 0 });
+
+  useEffect(() => {
+    const fetchRecords = async () => {
+      if (userId) {
+        const { data, error } = await supabase
+          .from('user_records')
+          .select('best_unbroken_trades, best_unbroken_days')
+          .eq('user_id', userId)
+          .single();
+        if (error) console.error('Error fetching records:', error);
+        else if (data) setRecords(data);
+      }
+    };
+    fetchRecords();
+  }, [supabase, userId]);
 
   useEffect(() => {
     if (!trades || trades.length === 0) return;
@@ -24,8 +40,8 @@ function TradeAnalytics({ trades }) {
           {
             label: 'RR Ratio',
             data: rrRatios,
-            backgroundColor: 'rgba(163, 85, 247, 0.6)',
-            borderColor: 'rgba(163, 85, 247, 1)',
+            backgroundColor: 'rgba(168, 85, 247, 0.6)',
+            borderColor: '#a855f7',
             borderWidth: 1,
           },
         ],
@@ -34,10 +50,15 @@ function TradeAnalytics({ trades }) {
         responsive: true,
         maintainAspectRatio: false,
         scales: {
-          y: { beginAtZero: true, title: { display: true, text: 'Risk-Reward Ratio', color: '#fff' }, ticks: { color: '#fff' }, grid: { color: 'rgba(255, 255, 255, 0.2)' } },
-          x: { ticks: { color: '#fff' }, grid: { color: 'rgba(255, 255, 255, 0.2)' } },
+          y: {
+            beginAtZero: true,
+            title: { display: true, text: 'Risk-Reward Ratio', color: '#e5e7eb' },
+            ticks: { color: '#e5e7eb' },
+            grid: { color: 'rgba(255, 255, 255, 0.2)' },
+          },
+          x: { ticks: { color: '#e5e7eb' }, grid: { color: 'rgba(255, 255, 255, 0.2)' } },
         },
-        plugins: { legend: { labels: { color: '#fff' } } },
+        plugins: { legend: { labels: { color: '#e5e7eb' } } },
       },
     });
 
@@ -65,7 +86,7 @@ function TradeAnalytics({ trades }) {
     let exitPrice;
     if (trade.outcome === 'Win') exitPrice = parseFloat(trade.tp);
     else if (trade.outcome === 'Loss') exitPrice = parseFloat(trade.sl);
-    else return acc; // Breakeven = 0 profit/loss
+    else return acc;
     return acc + (exitPrice - entry) * size;
   }, 0);
 
@@ -73,36 +94,45 @@ function TradeAnalytics({ trades }) {
 
   return (
     <motion.div
-      className="futuristic-card holographic-border p-10 mb-10"
-      initial={{ opacity: 0, y: 50 }}
+      className="futuristic-card holographic-border p-6 mb-6"
+      initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.6 }}
-      whileHover={{ scale: 1.02 }}
+      transition={{ duration: 0.5 }}
     >
-      <h3 className="text-3xl font-bold text-[var(--neon-blue)] mb-8" aria-label="Trade Analytics">
+      <h3 className="text-xl font-bold text-[var(--color-neon-blue)] mb-4" aria-label="Trade Analytics">
         Trade Analytics
       </h3>
-      <div className="mb-8 grid grid-cols-1 sm:grid-cols-2 gap-4">
-        <p className="text-white text-lg">
-          <span className="font-semibold">Total Trades:</span> {trades.length}
-        </p>
-        <p className="text-white text-lg">
-          <span className="font-semibold">Wins:</span> {outcomes.wins}
-        </p>
-        <p className="text-white text-lg">
-          <span className="font-semibold">Losses:</span> {outcomes.losses}
-        </p>
-        <p className="text-white text-lg">
-          <span className="font-semibold">Breakevens:</span> {outcomes.breakevens}
-        </p>
-        <p className="text-white text-lg">
-          <span className="font-semibold">Win Rate:</span> {winRate}%
-        </p>
-        <p className="text-white text-lg">
-          <span className="font-semibold">Profit/Loss:</span> {profitLoss.toFixed(2)}
-        </p>
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6 text-sm">
+        <div>
+          <p className="text-gray-100 font-medium">Total Trades</p>
+          <p className="text-[var(--color-neon-purple)] text-base">{trades.length}</p>
+        </div>
+        <div>
+          <p className="text-gray-100 font-medium">Win Rate</p>
+          <p className="text-[var(--color-neon-purple)] text-base">{winRate}%</p>
+        </div>
+        <div>
+          <p className="text-gray-100 font-medium">Profit/Loss</p>
+          <p className="text-[var(--color-neon-purple)] text-base">{profitLoss.toFixed(2)}</p>
+        </div>
+        <div>
+          <p className="text-gray-100 font-medium">Current Unbroken Trades</p>
+          <p className="text-[var(--color-neon-purple)] text-base">{streakData?.currentTrades || 0}</p>
+        </div>
+        <div>
+          <p className="text-gray-100 font-medium">Current Unbroken Days</p>
+          <p className="text-[var(--color-neon-purple)] text-base">{streakData?.currentDays || 0}</p>
+        </div>
+        <div>
+          <p className="text-gray-100 font-medium">Best Unbroken Trades</p>
+          <p className="text-[var(--color-neon-purple)] text-base">{records.best_unbroken_trades}</p>
+        </div>
+        <div>
+          <p className="text-gray-100 font-medium">Best Unbroken Days</p>
+          <p className="text-[var(--color-neon-purple)] text-base">{records.best_unbroken_days}</p>
+        </div>
       </div>
-      <div className="relative h-96">
+      <div className="relative h-64">
         <canvas ref={chartRef} aria-label="RR Ratio Chart"></canvas>
       </div>
     </motion.div>

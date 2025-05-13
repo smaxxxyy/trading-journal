@@ -139,18 +139,18 @@ function TradeForm({ supabase, userId, onTradeAdded }) {
 
   return (
     <motion.div
-      className="futuristic-card holographic-border"
-      initial={{ opacity: 0, y: 50 }}
+      className="futuristic-card holographic-border p-6 mb-8"
+      initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.6 }}
-      whileHover={{ scale: 1.02, rotateX: 5, rotateY: 5 }}
+      transition={{ duration: 0.6, ease: 'easeOut' }}
+      whileHover={{ scale: 1.02 }}
     >
-      <h3 className="text-3xl font-bold text-[var(--neon-blue)] mb-8" aria-label="Log a Trade">
+      <h3 className="text-2xl font-bold text-[var(--color-neon-blue)] mb-6" aria-label="Log a Trade">
         Log a Trade
       </h3>
       {error && (
         <motion.p
-          className="text-red-400 mb-8"
+          className="text-red-400 mb-6 text-sm"
           role="alert"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
@@ -158,170 +158,174 @@ function TradeForm({ supabase, userId, onTradeAdded }) {
           {error}
         </motion.p>
       )}
-      <input
-        type="text"
-        value={pair}
-        onChange={(e) => setPair(e.target.value)}
-        placeholder="Trading Pair (e.g., BTC/USD)"
-        className="futuristic-input mb-6"
-        aria-label="Trading Pair input"
-        disabled={loading}
-      />
-      <input
-        type="number"
-        value={entry}
-        onChange={(e) => setEntry(e.target.value)}
-        placeholder="Entry Price"
-        className="futuristic-input mb-6"
-        step="0.01"
-        aria-label="Entry Price input"
-        disabled={loading}
-      />
-      <input
-        type="number"
-        value={tp}
-        onChange={(e) => setTp(e.target.value)}
-        placeholder="Take Profit (TP)"
-        className="futuristic-input mb-6"
-        step="0.01"
-        aria-label="Take Profit input"
-        disabled={loading}
-      />
-      <input
-        type="number"
-        value={sl}
-        onChange={(e) => setSl(e.target.value)}
-        placeholder="Stop Loss (SL)"
-        className="futuristic-input mb-6"
-        step="0.01"
-        aria-label="Stop Loss input"
-        disabled={loading}
-      />
-      <input
-        type="number"
-        value={rrRatio}
-        onChange={(e) => setRrRatio(e.target.value)}
-        placeholder="Risk-Reward Ratio (auto-calculated)"
-        className="futuristic-input mb-6"
-        step="0.01"
-        aria-label="Risk-Reward Ratio input"
-        disabled={loading}
-      />
-      <div className="flex gap-4 mb-6">
+      <form onSubmit={handleSubmit} className="space-y-4">
         <input
-          type="number"
-          value={positionSize}
-          onChange={(e) => setPositionSize(e.target.value)}
-          placeholder="Position Size"
-          className="futuristic-input flex-1"
-          step="0.01"
-          aria-label="Position Size input"
+          type="text"
+          value={pair}
+          onChange={(e) => setPair(e.target.value)}
+          placeholder="Trading Pair (e.g., BTC/USD)"
+          className="futuristic-input"
+          aria-label="Trading Pair input"
           disabled={loading}
         />
-        <select
-          value={positionUnit}
-          onChange={(e) => setPositionUnit(e.target.value)}
-          className="futuristic-select w-32" // Reduced width
-          aria-label="Position Unit input"
+        <input
+          type="number"
+          value={entry}
+          onChange={(e) => setEntry(e.target.value)}
+          placeholder="Entry Price"
+          className="futuristic-input"
+          step="0.01"
+          aria-label="Entry Price input"
           disabled={loading}
-        >
-          <option value="">Unit</option>
-          <option value="Lots">Lots</option>
-          <option value="USD">USD</option>
-          <option value="Coin Value">Coin Value</option>
-        </select>
-      </div>
-      <select
-        value={outcome}
-        onChange={(e) => setOutcome(e.target.value)}
-        className="futuristic-select mb-6"
-        aria-label="Trade Outcome input"
-        disabled={loading}
-      >
-        <option value="">Select Outcome</option>
-        <option value="Win">Win</option>
-        <option value="Loss">Loss</option>
-        <option value="Breakeven">Breakeven</option>
-      </select>
-      <input
-        type="text"
-        value={emotions}
-        onChange={(e) => setEmotions(e.target.value)}
-        placeholder="Emotions (e.g., Confident)"
-        className="futuristic-input mb-6"
-        aria-label="Emotions input"
-        disabled={loading}
-      />
-      <input
-        type="text"
-        value={tags}
-        onChange={(e) => setTags(e.target.value)}
-        placeholder="Tags (e.g., Scalping, Swing)"
-        className="futuristic-input mb-6"
-        aria-label="Tags input"
-        disabled={loading}
-      />
-      <textarea
-        value={notes}
-        onChange={(e) => setNotes(e.target.value)}
-        placeholder="Notes about the trade"
-        className="futuristic-input mb-6 min-h-[150px] scrollbar-thin scrollbar-thumb-[var(--neon-purple)] scrollbar-track-[var(--glass-bg)]"
-        aria-label="Trade notes"
-        disabled={loading}
-      />
-      <input
-        type="file"
-        onChange={(e) => setScreenshot(e.target.files[0])}
-        accept="image/png,image/jpeg"
-        className="futuristic-file-input mb-6"
-        aria-label="Screenshot upload"
-        disabled={loading}
-      />
-      <div className="space-y-4 mb-6">
-        <div className="flex items-center gap-4">
+        />
+        <input
+          type="number"
+          value={tp}
+          onChange={(e) => setTp(e.target.value)}
+          placeholder="Take Profit (TP)"
+          className="futuristic-input"
+          step="0.01"
+          aria-label="Take Profit input"
+          disabled={loading}
+        />
+        <input
+          type="number"
+          value={sl}
+          onChange={(e) => setSl(e.target.value)}
+          placeholder="Stop Loss (SL)"
+          className="futuristic-input"
+          step="0.01"
+          aria-label="Stop Loss input"
+          disabled={loading}
+        />
+        <input
+          type="number"
+          value={rrRatio}
+          onChange={(e) => setRrRatio(e.target.value)}
+          placeholder="Risk-Reward Ratio (auto-calculated)"
+          className="futuristic-input"
+          step="0.01"
+          aria-label="Risk-Reward Ratio input"
+          disabled={loading}
+        />
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <input
-            type="checkbox"
-            checked={hadPlan}
-            onChange={(e) => setHadPlan(e.target.checked)}
-            className="h-6 w-6 text-[var(--neon-purple)] rounded border-gray-300 focus:ring-[var(--neon-purple)]"
-            aria-label="Had a Plan"
+            type="number"
+            value={positionSize}
+            onChange={(e) => setPositionSize(e.target.value)}
+            placeholder="Position Size"
+            className="futuristic-input"
+            step="0.01"
+            aria-label="Position Size input"
             disabled={loading}
           />
-          <p className="text-white text-lg">Had a Plan</p>
-        </div>
-        <div className="flex items-center gap-4">
-          <input
-            type="checkbox"
-            checked={planFollowed}
-            onChange={(e) => setPlanFollowed(e.target.checked)}
-            className="h-6 w-6 text-[var(--neon-purple)] rounded border-gray-300 focus:ring-[var(--neon-purple)]"
-            aria-label="Plan Followed"
+          <select
+            value={positionUnit}
+            onChange={(e) => setPositionUnit(e.target.value)}
+            className="futuristic-select"
+            aria-label="Position Unit input"
             disabled={loading}
-          />
-          <p className="text-white text-lg">Plan Followed</p>
+          >
+            <option value="">Unit</option>
+            <option value="Lots">Lots</option>
+            <option value="USD">USD</option>
+            <option value="Coin Value">Coin Value</option>
+          </select>
         </div>
-        <div className="flex items-center gap-4">
-          <input
-            type="checkbox"
-            checked={wasGamble}
-            onChange={(e) => setWasGamble(e.target.checked)}
-            className="h-6 w-6 text-[var(--neon-purple)] rounded border-gray-300 focus:ring-[var(--neon-purple)]"
-            aria-label="Was a Gamble"
+        <input
+          type="text"
+          value={emotions}
+          onChange={(e) => setEmotions(e.target.value)}
+          placeholder="Emotions (e.g., Confident)"
+          className="futuristic-input"
+          aria-label="Emotions input"
+          disabled={loading}
+        />
+        <input
+          type="text"
+          value={tags}
+          onChange={(e) => setTags(e.target.value)}
+          placeholder="Tags (e.g., Scalping, Swing)"
+          className="futuristic-input"
+          aria-label="Tags input"
+          disabled={loading}
+        />
+        <textarea
+          value={notes}
+          onChange={(e) => setNotes(e.target.value)}
+          placeholder="Notes about the trade"
+          className="futuristic-input min-h-[120px] scrollbar-thin scrollbar-thumb-[var(--color-neon-purple)] scrollbar-track-[var(--color-glass-bg)]"
+          aria-label="Trade notes"
+          disabled={loading}
+        />
+        <input
+          type="file"
+          onChange={(e) => setScreenshot(e.target.files[0])}
+          accept="image/png,image/jpeg"
+          className="futuristic-file-input"
+          aria-label="Screenshot upload"
+          disabled={loading}
+        />
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          <label className="flex items-center gap-3">
+            <input
+              type="checkbox"
+              checked={hadPlan}
+              onChange={(e) => setHadPlan(e.target.checked)}
+              className="h-5 w-5 text-[var(--color-neon-purple)] rounded border-gray-300 focus:ring-[var(--color-neon-purple)] focus:ring-opacity-50 scale-125"
+              aria-label="Had a Plan"
+              disabled={loading}
+            />
+            <span className="text-gray-100 text-sm">Had a Plan</span>
+          </label>
+          <label className="flex items-center gap-3">
+            <input
+              type="checkbox"
+              checked={planFollowed}
+              onChange={(e) => setPlanFollowed(e.target.checked)}
+              className="h-5 w-5 text-[var(--color-neon-purple)] rounded border-gray-300 focus:ring-[var(--color-neon-purple)] focus:ring-opacity-50 scale-125"
+              aria-label="Plan Followed"
+              disabled={loading}
+            />
+            <span className="text-gray-100 text-sm">Plan Followed</span>
+          </label>
+          <label className="flex items-center gap-3">
+            <input
+              type="checkbox"
+              checked={wasGamble}
+              onChange={(e) => setWasGamble(e.target.checked)}
+              className="h-5 w-5 text-[var(--color-neon-purple)] rounded border-gray-300 focus:ring-[var(--color-neon-purple)] focus:ring-opacity-50 scale-125"
+              aria-label="Was a Gamble"
+              disabled={loading}
+            />
+            <span className="text-gray-100 text-sm">Was a Gamble</span>
+          </label>
+        </div>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <select
+            value={outcome}
+            onChange={(e) => setOutcome(e.target.value)}
+            className="futuristic-select"
+            aria-label="Trade Outcome input"
             disabled={loading}
-          />
-          <p className="text-white text-lg">Was a Gamble</p>
+          >
+            <option value="">Select Outcome</option>
+            <option value="Win">Win</option>
+            <option value="Loss">Loss</option>
+            <option value="Breakeven">Breakeven</option>
+          </select>
+          <motion.button
+            type="submit"
+            className="futuristic-button"
+            whileHover={{ scale: loading ? 1 : 1.05 }}
+            whileTap={{ scale: loading ? 1 : 0.95 }}
+            aria-label="Add Trade button"
+            disabled={loading}
+          >
+            {loading ? 'Saving...' : 'Add Trade'}
+          </motion.button>
         </div>
-      </div>
-      <motion.button
-        onClick={handleSubmit}
-        className="futuristic-button w-full"
-        whileHover={{ scale: loading ? 1 : 1.1 }}
-        whileTap={{ scale: loading ? 1 : 0.9 }}
-        aria-label="Add Trade button"
-        disabled={loading}
-      >
-        {loading ? 'Saving...' : 'Add Trade'}
-      </motion.button>
+      </form>
     </motion.div>
   );
 }
