@@ -1,46 +1,49 @@
 @import 'tailwindcss';
 
+/* ======= Global Neon Base ======= */
 :root {
-  /* Default: Neon Theme */
-  --color-neon-purple: #a855f7;
-  --color-neon-pink: #ec4899;
-  --color-neon-blue: #3b82f6;
-  --color-glass-bg: rgba(255, 255, 255, 0.1);
-  --color-glass-border: rgba(255, 255, 255, 0.2);
-  --color-bg-dark: #1f1a44;
-  --color-text-primary: #e5e7eb;
-  --color-text-secondary: #d1d5db;
+  --color-neon-purple: #c084fc;
+  --color-neon-pink: #f472b6;
+  --color-neon-blue: #60a5fa;
+  --color-glass-bg: rgba(255, 255, 255, 0.08);
+  --color-glass-border: rgba(255, 255, 255, 0.18);
+  --color-bg-dark: #0f0f1c;
+  --color-text-primary: #f4f4f5;
+  --color-text-secondary: #a1a1aa;
   --color-accent: var(--color-neon-purple);
   --color-button-from: var(--color-neon-purple);
   --color-button-to: var(--color-neon-blue);
 }
 
+/* ======= Light Theme ======= */
 :root[data-theme="white"] {
-  --color-bg-dark: #ffffff;
+  --color-bg-dark: #f9fafb;
   --color-glass-bg: rgba(0, 0, 0, 0.05);
   --color-glass-border: rgba(0, 0, 0, 0.1);
-  --color-text-primary: #1f2937;
-  --color-text-secondary: #4b5563;
-  --color-accent: #4b5563;
-  --color-button-from: #6b7280;
-  --color-button-to: #4b5563;
+  --color-text-primary: #111827;
+  --color-text-secondary: #6b7280;
+  --color-accent: #6b7280;
+  --color-button-from: #9ca3af;
+  --color-button-to: #6b7280;
 }
 
+/* ======= Dark Theme ======= */
 :root[data-theme="black"] {
-  --color-bg-dark: #1a1a1a;
-  --color-glass-bg: rgba(255, 255, 255, 0.05);
-  --color-glass-border: rgba(255, 255, 255, 0.1);
+  --color-bg-dark: #0d1117;
+  --color-glass-bg: rgba(255, 255, 255, 0.04);
+  --color-glass-border: rgba(255, 255, 255, 0.08);
   --color-text-primary: #e5e5e5;
-  --color-text-secondary: #b3b3b3;
-  --color-accent: #b3b3b3;
-  --color-button-from: #4b4b4b;
-  --color-button-to: #2d2d2d;
+  --color-text-secondary: #9ca3af;
+  --color-accent: #6366f1;
+  --color-button-from: #1f2937;
+  --color-button-to: #111827;
 }
 
+/* ======= Grey Theme ======= */
 :root[data-theme="grey"] {
-  --color-bg-dark: #2d3748;
-  --color-glass-bg: rgba(255, 255, 255, 0.1);
-  --color-glass-border: rgba(255, 255, 255, 0.2);
+  --color-bg-dark: #1f2937;
+  --color-glass-bg: rgba(255, 255, 255, 0.05);
+  --color-glass-border: rgba(255, 255, 255, 0.15);
   --color-text-primary: #d1d5db;
   --color-text-secondary: #9ca3af;
   --color-accent: #9ca3af;
@@ -48,10 +51,11 @@
   --color-button-to: #374151;
 }
 
+/* ======= Subtle Theme ======= */
 :root[data-theme="subtle"] {
   --color-bg-dark: #f3f4f6;
-  --color-glass-bg: rgba(0, 0, 0, 0.05);
-  --color-glass-border: rgba(0, 0, 0, 0.1);
+  --color-glass-bg: rgba(0, 0, 0, 0.06);
+  --color-glass-border: rgba(0, 0, 0, 0.12);
   --color-text-primary: #374151;
   --color-text-secondary: #6b7280;
   --color-accent: #6b7280;
@@ -59,60 +63,69 @@
   --color-button-to: #6b7280;
 }
 
+/* ======= Calm Theme ======= */
 :root[data-theme="calm"] {
-  --color-bg-dark: #e0e7ff;
-  --color-glass-bg: rgba(255, 255, 255, 0.1);
-  --color-glass-border: rgba(255, 255, 255, 0.2);
+  --color-bg-dark: #eef2ff;
+  --color-glass-bg: rgba(0, 0, 0, 0.04);
+  --color-glass-border: rgba(0, 0, 0, 0.1);
   --color-text-primary: #1e3a8a;
   --color-text-secondary: #3b82f6;
   --color-accent: #3b82f6;
-  --color-button-from: #60a5fa;
+  --color-button-from: #93c5fd;
   --color-button-to: #3b82f6;
 }
 
+/* ======= Ocean Theme ======= */
 :root[data-theme="ocean"] {
-  --color-bg-dark: #1e3a8a;
-  --color-glass-bg: rgba(255, 255, 255, 0.1);
-  --color-glass-border: rgba(255, 255, 255, 0.2);
+  --color-bg-dark: #0f172a;
+  --color-glass-bg: rgba(255, 255, 255, 0.06);
+  --color-glass-border: rgba(255, 255, 255, 0.12);
   --color-text-primary: #e0f2fe;
   --color-text-secondary: #93c5fd;
-  --color-accent: #93c5fd;
-  --color-button-from: #3b82f6;
-  --color-button-to: #1e40af;
+  --color-accent: #38bdf8;
+  --color-button-from: #38bdf8;
+  --color-button-to: #0ea5e9;
 }
 
+/* ======= Forest Theme ======= */
 :root[data-theme="forest"] {
-  --color-bg-dark: #14532d;
-  --color-glass-bg: rgba(255, 255, 255, 0.1);
-  --color-glass-border: rgba(255, 255, 255, 0.2);
-  --color-text-primary: #ecfccb;
-  --color-text-secondary: #bef264;
-  --color-accent: #bef264;
+  --color-bg-dark: #064e3b;
+  --color-glass-bg: rgba(255, 255, 255, 0.06);
+  --color-glass-border: rgba(255, 255, 255, 0.12);
+  --color-text-primary: #d9f99d;
+  --color-text-secondary: #a3e635;
+  --color-accent: #65a30d;
   --color-button-from: #4d7c0f;
   --color-button-to: #3f6212;
 }
 
+/* ======= Sunset Theme ======= */
 :root[data-theme="sunset"] {
   --color-bg-dark: #7c2d12;
-  --color-glass-bg: rgba(255, 255, 255, 0.1);
-  --color-glass-border: rgba(255, 255, 255, 0.2);
+  --color-glass-bg: rgba(255, 255, 255, 0.08);
+  --color-glass-border: rgba(255, 255, 255, 0.16);
   --color-text-primary: #fef3c7;
   --color-text-secondary: #fdba74;
-  --color-accent: #fdba74;
-  --color-button-from: #f97316;
-  --color-button-to: #c2410c;
+  --color-accent: #fb923c;
+  --color-button-from: #fb923c;
+  --color-button-to: #ea580c;
 }
 
+/* ======= Base Styles ======= */
 body {
-  @apply bg-gradient-to-br from-[var(--color-bg-dark)] via-[var(--color-bg-dark)] to-[var(--color-bg-dark)] text-[var(--color-text-primary)] min-h-screen font-sans;
+  @apply bg-gradient-to-br from-[var(--color-bg-dark)] to-[var(--color-bg-dark)] text-[var(--color-text-primary)] min-h-screen font-sans;
 }
 
 .container {
   @apply max-w-7xl mx-auto px-4 sm:px-6 lg:px-8;
 }
 
+/* ======= GLASSMORPHIC CARD ======= */
 .futuristic-card {
-  @apply relative bg-[var(--color-glass-bg)] backdrop-blur-lg border border-[var(--color-glass-border)] rounded-xl shadow-xl overflow-hidden transition-all duration-300;
-  box-shadow: 0;
-  }
-  
+  @apply relative border rounded-xl overflow-hidden transition-all duration-300 shadow-2xl;
+  background: var(--color-glass-bg);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid var(--color-glass-border);
+  box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+}
