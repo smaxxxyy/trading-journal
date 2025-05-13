@@ -48,6 +48,61 @@
   --color-button-to: #374151;
 }
 
+:root[data-theme="subtle"] {
+  --color-bg-dark: #f3f4f6;
+  --color-glass-bg: rgba(0, 0, 0, 0.05);
+  --color-glass-border: rgba(0, 0, 0, 0.1);
+  --color-text-primary: #374151;
+  --color-text-secondary: #6b7280;
+  --color-accent: #6b7280;
+  --color-button-from: #9ca3af;
+  --color-button-to: #6b7280;
+}
+
+:root[data-theme="calm"] {
+  --color-bg-dark: #e0e7ff;
+  --color-glass-bg: rgba(255, 255, 255, 0.1);
+  --color-glass-border: rgba(255, 255, 255, 0.2);
+  --color-text-primary: #1e3a8a;
+  --color-text-secondary: #3b82f6;
+  --color-accent: #3b82f6;
+  --color-button-from: #60a5fa;
+  --color-button-to: #3b82f6;
+}
+
+:root[data-theme="ocean"] {
+  --color-bg-dark: #1e3a8a;
+  --color-glass-bg: rgba(255, 255, 255, 0.1);
+  --color-glass-border: rgba(255, 255, 255, 0.2);
+  --color-text-primary: #e0f2fe;
+  --color-text-secondary: #93c5fd;
+  --color-accent: #93c5fd;
+  --color-button-from: #3b82f6;
+  --color-button-to: #1e40af;
+}
+
+:root[data-theme="forest"] {
+  --color-bg-dark: #14532d;
+  --color-glass-bg: rgba(255, 255, 255, 0.1);
+  --color-glass-border: rgba(255, 255, 255, 0.2);
+  --color-text-primary: #ecfccb;
+  --color-text-secondary: #bef264;
+  --color-accent: #bef264;
+  --color-button-from: #4d7c0f;
+  --color-button-to: #3f6212;
+}
+
+:root[data-theme="sunset"] {
+  --color-bg-dark: #7c2d12;
+  --color-glass-bg: rgba(255, 255, 255, 0.1);
+  --color-glass-border: rgba(255, 255, 255, 0.2);
+  --color-text-primary: #fef3c7;
+  --color-text-secondary: #fdba74;
+  --color-accent: #fdba74;
+  --color-button-from: #f97316;
+  --color-button-to: #c2410c;
+}
+
 body {
   @apply bg-gradient-to-br from-[var(--color-bg-dark)] via-[var(--color-bg-dark)] to-[var(--color-bg-dark)] text-[var(--color-text-primary)] min-h-screen font-sans;
 }
@@ -58,90 +113,4 @@ body {
 
 .futuristic-card {
   @apply relative bg-[var(--color-glass-bg)] backdrop-blur-lg border border-[var(--color-glass-border)] rounded-xl shadow-xl overflow-hidden transition-all duration-300;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
-}
-
-.futuristic-card::before {
-  content: '';
-  @apply absolute inset-0 opacity-0 transition-opacity duration-300;
-  background: linear-gradient(135deg, var(--color-button-from), var(--color-button-to));
-  animation: pulse 6s ease-in-out infinite;
-}
-
-.futuristic-card:hover::before {
-  @apply opacity-10;
-}
-
-.futuristic-input {
-  @apply w-full bg-[var(--color-glass-bg)] backdrop-blur-md border border-[var(--color-glass-border)] rounded-xl px-4 py-3 text-[var(--color-text-primary)] placeholder-[var(--color-text-secondary)] focus:outline-none focus:ring-2 focus:ring-[var(--color-accent)] transition-all duration-300;
-}
-
-.futuristic-select {
-  @apply w-full bg-[var(--color-glass-bg)] backdrop-blur-md border border-[var(--color-glass-border)] rounded-xl px-4 py-3 text-[var(--color-text-primary)] appearance-none focus:outline-none focus:ring-2 focus:ring-[var(--color-accent)] transition-all duration-300;
-}
-
-.futuristic-button {
-  @apply relative bg-gradient-to-r from-[var(--color-button-from)] to-[var(--color-button-to)] text-[var(--color-text-primary)] font-medium px-6 py-3 rounded-xl hover:shadow-[0_0_15px_rgba(0,0,0,0.3)] transition-all duration-300 overflow-hidden;
-}
-
-.futuristic-button::after {
-  content: '';
-  @apply absolute inset-0 bg-white opacity-0 transition-opacity duration-200;
-}
-
-.futuristic-button:hover::after {
-  @apply opacity-10;
-}
-
-.futuristic-file-input {
-  @apply w-full bg-[var(--color-glass-bg)] backdrop-blur-md border border-[var(--color-glass-border)] rounded-xl px-4 py-3 text-[var(--color-text-primary)] file:bg-gradient-to-r file:from-[var(--color-button-from)] file:to-[var(--color-button-to)] file:text-[var(--color-text-primary)] file:font-medium file:px-4 file:py-2 file:rounded-xl file:border-0 file:cursor-pointer focus:outline-none focus:ring-2 focus:ring-[var(--color-accent)] transition-all duration-300;
-}
-
-.holographic-border {
-  @apply relative;
-}
-
-.holographic-border::before {
-  content: '';
-  @apply absolute -inset-1 bg-gradient-to-r from-[var(--color-button-from)] via-[var(--color-text-secondary)] to-[var(--color-button-to)] opacity-50 animate-[pulse_4s_ease-in-out_infinite];
-}
-
-input[type="checkbox"] {
-  @apply w-3 h-3 appearance-none border border-[var(--color-glass-border)] rounded-sm bg-[var(--color-glass-bg)] checked:bg-gradient-to-r checked:from-[var(--color-button-from)] checked:to-[var(--color-button-to)] focus:ring-2 focus:ring-[var(--color-accent)] transition-all duration-200;
-}
-
-input[type="range"] {
-  @apply w-full h-2 rounded-lg appearance-none cursor-pointer;
-  background: linear-gradient(to right, var(--color-button-from), var(--color-button-to));
-}
-
-input[type="range"]::-webkit-slider-thumb {
-  @apply appearance-none w-5 h-5 rounded-full bg-[var(--color-accent)] border border-[var(--color-glass-border)] shadow-[0_0_8px_var(--color-accent)] cursor-pointer transition-all duration-200;
-}
-
-input[type="range"]::-moz-range-thumb {
-  @apply w-5 h-5 rounded-full bg-[var(--color-accent)] border border-[var(--color-glass-border)] shadow-[0_0_8px_var(--color-accent)] cursor-pointer transition-all duration-200;
-}
-
-@keyframes pulse {
-  0%, 100% { opacity: 0; }
-  50% { opacity: 0.1; }
-}
-
-::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
-}
-
-::-webkit-scrollbar-thumb {
-  background: var(--color-accent);
-  border-radius: 9999px;
-}
-
-::-webkit-scrollbar-track {
-  background: var(--color-glass-bg);
-}
-
-::placeholder {
-  color: var(--color-text-secondary);
-}
+  box-shadow: 0
