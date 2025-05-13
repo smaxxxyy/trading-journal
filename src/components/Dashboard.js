@@ -57,13 +57,13 @@ function Dashboard({ supabase }) {
   return (
     <div className={`container py-16 ${darkMode ? 'dark' : ''}`}>
       <div className="flex justify-between items-center mb-10">
-        <h2 className="text-4xl font-bold text-gray-900 dark:text-white" aria-label="Dashboard">
+        <h2 className="text-4xl font-bold text-gray-100 dark:text-white" aria-label="Dashboard">
           Trading Journal
         </h2>
         <div className="flex gap-4">
           <motion.button
             onClick={() => setDarkMode(!darkMode)}
-            className="neo-button bg-gray-600 dark:bg-gray-500"
+            className="neo-button bg-gray-300 dark:bg-gray-500"
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
           >
@@ -71,7 +71,7 @@ function Dashboard({ supabase }) {
           </motion.button>
           <motion.button
             onClick={handleLogout}
-            className="neo-button bg-red-600 dark:bg-red-700"
+            className="neo-button bg-red-300 dark:bg-red-450"
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
             aria-label="Logout button"
@@ -88,11 +88,11 @@ function Dashboard({ supabase }) {
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
       >
-        <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-6" aria-label="Trade History">
+        <h3 className="text-2xl font-bold text-gray-100 dark:text-white mb-6" aria-label="Trade History">
           Trade History
         </h3>
         {trades.length === 0 ? (
-          <p className="text-gray-600 dark:text-gray-300">No trades yet.</p>
+          <p className="text-gray-300 dark:text-gray-300">No trades yet.</p>
         ) : (
           <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
             {trades.map((trade) => (
