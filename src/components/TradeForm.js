@@ -3,7 +3,7 @@ import axios from 'axios';
 import { motion } from 'framer-motion';
 
 function TradeForm({ supabase, userId, onTradeAdded }) {
-  const [tp, setTp] = useState(['']); // Array for multiple TPs
+  const [tp, setTp] = useState(['']);
   const [sl, setSl] = useState('');
   const [rrRatio, setRrRatio] = useState('');
   const [entry, setEntry] = useState('');
@@ -12,7 +12,7 @@ function TradeForm({ supabase, userId, onTradeAdded }) {
   const [tags, setTags] = useState('');
   const [outcome, setOutcome] = useState('');
   const [positionSize, setPositionSize] = useState('');
-  const [positionUnit, setPositionUnit] = useState('USD'); // Default to USD for Crypto
+  const [positionUnit, setPositionUnit] = useState('USD');
   const [pair, setPair] = useState('');
   const [pairSuggestions, setPairSuggestions] = useState([]);
   const [screenshot, setScreenshot] = useState(null);
@@ -20,11 +20,11 @@ function TradeForm({ supabase, userId, onTradeAdded }) {
   const [planFollowed, setPlanFollowed] = useState(false);
   const [wasGamble, setWasGamble] = useState(false);
   const [leverage, setLeverage] = useState(1);
-  const [direction, setDirection] = useState(''); // Will be auto-determined
+  const [direction, setDirection] = useState('');
   const [status, setStatus] = useState('');
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(false);
-  const [isCrypto, setIsCrypto] = useState(true); // Toggle for Crypto/Forex
+  const [isCrypto, setIsCrypto] = useState(true);
 
   useEffect(() => {
     if (entry && tp[0] && sl) {
@@ -37,7 +37,6 @@ function TradeForm({ supabase, userId, onTradeAdded }) {
       } else {
         setRrRatio('');
       }
-      // Auto-determine direction
       if (takeProfit > entryPrice && stopLoss < entryPrice) setDirection('long');
       else if (takeProfit < entryPrice && stopLoss > entryPrice) setDirection('short');
     }
@@ -79,8 +78,8 @@ function TradeForm({ supabase, userId, onTradeAdded }) {
       const priceChange = (exitPrice - entryPrice) / entryPrice;
       return ((priceChange * size * leverage) - initialMargin).toFixed(2);
     } else if (!isCrypto && positionUnit === 'Lots') {
-      const pipDifference = Math.abs(exitPrice - entryPrice) * 10000; // Forex pip calculation
-      return (pipDifference * size * 10 * leverage).toFixed(2); // 1 lot = 100,000 units, $10 per pip
+      const pipDifference = Math.abs(exitPrice - entryPrice) * 10000;
+      return (pipDifference * size * 10 * leverage).toFixed(2);
     }
     return null;
   };
@@ -96,12 +95,26 @@ function TradeForm({ supabase, userId, onTradeAdded }) {
       return;
     }
 
+    if (!pair) {
+      setError('Trading pair is required');
+      setLoading(false);
+      return;
+    }
+    if (!positionSize || parseFloat(positionSize) <= 0) {
+      setError('Position size must be a positive number');
+      setLoading(false);
+      return;
+    }
     if (isNaN(tp[0]) || isNaN(sl) || isNaN(entry) || (rrRatio && isNaN(rrRatio)) || (positionSize && isNaN(positionSize))) {
       setError('Entry, TP, SL, RR Ratio, and Position Size must be valid numbers');
       setLoading(false);
       return;
     }
-
+    if (parseFloat(sl) === parseFloat(entry)) {
+      setError('Stop Loss cannot equal Entry Price');
+      setLoading(false);
+      return;
+    }
     if (!direction || !status) {
       setError('Please select Status');
       setLoading(false);
@@ -210,7 +223,7 @@ function TradeForm({ supabase, userId, onTradeAdded }) {
         `https://api.coingecko.com/api/v3/search?query=${encodeURIComponent(query)}`
       );
       const suggestions = response.data.coins.map(coin => coin.symbol.toUpperCase() + '/USD');
-      setPairSuggestions(suggestions.slice(0, 5)); // Limit to 5 suggestions
+      setPairSuggestions(suggestions.slice(0, 5));
     } catch (err) {
       console.error('Error fetching pair suggestions:', err);
       setPairSuggestions([]);
@@ -225,7 +238,7 @@ function TradeForm({ supabase, userId, onTradeAdded }) {
   };
 
   const addTakeProfit = () => {
-    if (tp.length < 5) setTp([...tp, '']); // Limit to 5 TPs
+    if (tp.length < 5) setTp([...tp, '']);
   };
 
   const setLeveragePreset = (value) => {
@@ -247,6 +260,7 @@ function TradeForm({ supabase, userId, onTradeAdded }) {
         <motion.p
           className="text-red-400 mb-6 text-sm"
           role="alert"
+          id="form-error"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
         >
@@ -265,6 +279,7 @@ function TradeForm({ supabase, userId, onTradeAdded }) {
             }}
             className={`futuristic-button px-3 py-1 text-xs ${isCrypto ? 'bg-[var(--color-button-from)]' : ''}`}
             disabled={loading}
+            aria-label="Select Crypto trading"
           >
             Crypto
           </button>
@@ -278,6 +293,7 @@ function TradeForm({ supabase, userId, onTradeAdded }) {
             }}
             className={`futuristic-button px-3 py-1 text-xs ${!isCrypto ? 'bg-[var(--color-button-from)]' : ''}`}
             disabled={loading}
+            aria-label="Select Forex trading"
           >
             Forex
           </button>
@@ -288,13 +304,14 @@ function TradeForm({ supabase, userId, onTradeAdded }) {
             value={pair}
             onChange={handlePairChange}
             placeholder={isCrypto ? "Search Crypto Pair (e.g., BTC/USD)" : "Enter Forex Pair (e.g., EUR/USD)"}
-            className="futuristic-input w-full"
+            className="futuristic-input-solid w-full"
             aria-label="Trading Pair input"
-            disabled={loading || !isCrypto}
+            aria-describedby={error ? 'form-error' : undefined}
+            disabled={loading}
             list="pair-suggestions"
           />
           {pairSuggestions.length > 0 && isCrypto && (
-            <ul className="absolute z-10 w-full bg-[var(--color-glass-bg)] border border-[var(--color-glass-border)] rounded mt-1 text-[var(--color-text-primary)]">
+            <ul className="absolute z-10 w-full bg-[var(--color-bg-dark)] border border-[var(--color-glass-border)] rounded mt-1 text-[var(--color-text-primary)]">
               {pairSuggestions.map((suggestion, index) => (
                 <li
                   key={index}
@@ -303,6 +320,8 @@ function TradeForm({ supabase, userId, onTradeAdded }) {
                     setPair(suggestion);
                     setPairSuggestions([]);
                   }}
+                  role="option"
+                  aria-selected={pair === suggestion}
                 >
                   {suggestion}
                 </li>
@@ -319,11 +338,12 @@ function TradeForm({ supabase, userId, onTradeAdded }) {
             className="futuristic-input"
             step="0.01"
             aria-label="Position Size input"
+            aria-describedby={error ? 'form-error' : undefined}
             disabled={loading}
           />
           <select
             value={positionUnit}
-            disabled={true} // Fixed to USD for Crypto, Lots for Forex
+            disabled={true}
             className="futuristic-select"
             aria-label="Position Unit input"
           >
@@ -339,6 +359,7 @@ function TradeForm({ supabase, userId, onTradeAdded }) {
           className="futuristic-input"
           step="0.01"
           aria-label="Entry Price input"
+          aria-describedby={error ? 'form-error' : undefined}
           disabled={loading}
         />
         {tp.map((tpValue, index) => (
@@ -355,6 +376,7 @@ function TradeForm({ supabase, userId, onTradeAdded }) {
             className="futuristic-input"
             step="0.01"
             aria-label={`Take Profit ${index + 1} input`}
+            aria-describedby={error ? 'form-error' : undefined}
             disabled={loading}
           />
         ))}
@@ -366,6 +388,7 @@ function TradeForm({ supabase, userId, onTradeAdded }) {
             whileHover={{ scale: loading ? 1 : 1.05 }}
             whileTap={{ scale: loading ? 1 : 0.95 }}
             disabled={loading}
+            aria-label="Add another Take Profit level"
           >
             Add Take Profit
           </motion.button>
@@ -378,6 +401,7 @@ function TradeForm({ supabase, userId, onTradeAdded }) {
           className="futuristic-input"
           step="0.01"
           aria-label="Stop Loss input"
+          aria-describedby={error ? 'form-error' : undefined}
           disabled={loading}
         />
         <input
@@ -470,7 +494,7 @@ function TradeForm({ supabase, userId, onTradeAdded }) {
           aria-label="Screenshot upload"
           disabled={loading}
         />
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 gap-4">
           <label className="flex items-center gap-4 p-2">
             <input
               type="radio"
@@ -481,7 +505,12 @@ function TradeForm({ supabase, userId, onTradeAdded }) {
                 setWasGamble(false);
                 setPlanFollowed(true);
               }}
-              className="w-6 h-6 rounded focus:ring-2 focus:ring-[var(--color-accent)]"
+              onTouchStart={() => {
+                setHadPlan(true);
+                setWasGamble(false);
+                setPlanFollowed(true);
+              }}
+              className="min-w-8 min-h-8 rounded focus:ring-2 focus:ring-[var(--color-accent)]"
               aria-label="Had a Plan and Followed"
               disabled={loading}
             />
@@ -497,7 +526,12 @@ function TradeForm({ supabase, userId, onTradeAdded }) {
                 setWasGamble(false);
                 setPlanFollowed(false);
               }}
-              className="w-6 h-6 rounded focus:ring-2 focus:ring-[var(--color-accent)]"
+              onTouchStart={() => {
+                setHadPlan(false);
+                setWasGamble(false);
+                setPlanFollowed(false);
+              }}
+              className="min-w-8 min-h-8 rounded focus:ring-2 focus:ring-[var(--color-accent)]"
               aria-label="No Plan"
               disabled={loading}
             />
@@ -513,7 +547,12 @@ function TradeForm({ supabase, userId, onTradeAdded }) {
                 setHadPlan(false);
                 setPlanFollowed(false);
               }}
-              className="w-6 h-6 rounded focus:ring-2 focus:ring-[var(--color-accent)]"
+              onTouchStart={() => {
+                setWasGamble(true);
+                setHadPlan(false);
+                setPlanFollowed(false);
+              }}
+              className="min-w-8 min-h-8 rounded focus:ring-2 focus:ring-[var(--color-accent)]"
               aria-label="Was a Gamble"
               disabled={loading}
             />
