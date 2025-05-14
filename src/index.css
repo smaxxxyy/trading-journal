@@ -106,7 +106,7 @@
   --color-glass-border: linear-gradient(45deg, rgba(249, 115, 22, 0.4), rgba(234, 88, 12, 0.4));
   --color-text-primary: #fef3c7; /* Warm yellow */
   --color-text-secondary: #fdba74; /* Bright orange */
-  --color-accent: #ea580c; /* Vivid orange accent */
+  --color-accent: #ea580c; /* Vivocating orange accent */
   --color-button-from: #ea580c;
   --color-button-to: #c2410c;
 }
@@ -183,10 +183,9 @@ body {
 .futuristic-card {
   @apply bg-[var(--color-glass-bg)] backdrop-blur-lg rounded-2xl shadow-lg border border-[var(--color-glass-border)];
   transition: transform 0.3s ease, box-shadow 0.3s ease;
-  /* Alternative: Solid Background (Uncomment to replace glassmorphism)
-  --color-glass-bg: rgba(255, 255, 255, 0.3); /* Adjust opacity as needed */
-  backdrop-filter: none;
-  */
+  /* Alternative: Solid Background (Uncomment to replace glassmorphism) */
+  /* background: rgba(255, 255, 255, 0.3); /* Adjust opacity as needed */
+  /* backdrop-filter: none; */
 }
 
 .futuristic-card:hover {
@@ -225,10 +224,9 @@ body {
 
 .futuristic-input {
   @apply w-full px-3 py-2 bg-[var(--color-glass-bg)] border border-[var(--color-glass-border)] rounded-lg text-[var(--color-text-primary)] placeholder-[var(--color-text-secondary)] focus:outline-none focus:ring-2 focus:ring-[var(--color-accent)] backdrop-blur-lg;
-  /* Alternative: Solid Background (Uncomment to replace glassmorphism)
-  background: rgba(255, 255, 255, 0.3);
-  backdrop-filter: none;
-  */
+  /* Alternative: Solid Background (Uncomment to replace glassmorphism) */
+  /* background: rgba(255, 255, 255, 0.3); */
+  /* backdrop-filter: none; */
 }
 
 .futuristic-input-solid {
@@ -241,18 +239,16 @@ body {
   background-repeat: no-repeat;
   background-position: right 0.75rem center;
   background-size: 1.5em;
-  /* Alternative: Solid Background (Uncomment to replace glassmorphism)
-  background: rgba(255, 255, 255, 0.3);
-  backdrop-filter: none;
-  */
+  /* Alternative: Solid Background (Uncomment to replace glassmorphism) */
+  /* background: rgba(255, 255, 255, 0.3); */
+  /* backdrop-filter: none; */
 }
 
 .futuristic-file-input {
   @apply w-full px-3 py-2 bg-[var(--color-glass-bg)] border border-[var(--color-glass-border)] rounded-lg text-[var(--color-text-primary)] file:mr-4 file:py-1 file:px-3 file:rounded file:border-0 file:bg-[var(--color-button-from)] file:text-white file:cursor-pointer backdrop-blur-lg;
-  /* Alternative: Solid Background (Uncomment to replace glassmorphism)
-  background: rgba(255, 255, 255, 0.3);
-  backdrop-filter: none;
-  */
+  /* Alternative: Solid Background (Uncomment to replace glassmorphism) */
+  /* background: rgba(255, 255, 255, 0.3); */
+  /* backdrop-filter: none; */
 }
 
 input[type="checkbox"] {
@@ -261,10 +257,9 @@ input[type="checkbox"] {
   background-color: var(--color-glass-bg);
   cursor: pointer;
   transition: background-color 0.2s ease;
-  /* Alternative: Solid Background (Uncomment to replace glassmorphism)
-  background: rgba(255, 255, 255, 0.3);
-  backdrop-filter: none;
-  */
+  /* Alternative: Solid Background (Uncomment to replace glassmorphism) */
+  /* background: rgba(255, 255, 255, 0.3); */
+  /* backdrop-filter: none; */
 }
 
 input[type="checkbox"]:checked {
