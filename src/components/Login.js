@@ -10,24 +10,22 @@ function Login({ supabase }) {
 
   const handleSignUp = async () => {
     setError(null);
-    const { data, error } = await supabase.auth.signUp({ email, password });
-    if (error) {
-      setError(error.message);
-    } else {
-      const { user } = data;
-      if (user) {
-        // Create user record in users table with default role
-        const { error: userError } = await supabase
-          .from('users')
-          .insert([{ id: user.id, role: 'user', created_at: new Date().toISOString() }]);
-        if (userError) {
-          setError(`Failed to create user profile: ${userError.message}`);
-        } else {
-          alert('Check your email for confirmation');
-        }
+    try {
+      const { data, error } = await supabase.auth.signUp({ email, password, options: { data: { full_name: '', avatar: '' } } });
+      if (error) {
+        console.error('Signup error details:', error); // Log the full error object
+        setError(error.message);
       } else {
-        setError('No user data returned after signup');
+        const { user } = data;
+        if (user) {
+          alert('Check your email for confirmation');
+        } else {
+          setError('No user data returned after signup');
+        }
       }
+    } catch (err) {
+      console.error('Unexpected signup error:', err);
+      setError('Unexpected error during signup');
     }
   };
 
