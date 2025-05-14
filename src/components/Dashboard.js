@@ -4,6 +4,7 @@ import TradeForm from './TradeForm';
 import TradeAnalytics from './TradeAnalytics';
 import Papa from 'papaparse';
 import { motion } from 'framer-motion';
+import toast, { Toaster } from 'react-hot-toast';
 
 function Dashboard({ supabase }) {
   const [userId, setUserId] = useState(null);
@@ -25,12 +26,49 @@ function Dashboard({ supabase }) {
   });
   const [prices, setPrices] = useState({ btc: 'Loading...', gold: 'Loading...' });
   const [livePrice, setLivePrice] = useState(null);
+  const [userRole, setUserRole] = useState(null);
+  const [broadcastSignals, setBroadcastSignals] = useState([]);
+  const [signalFilter, setSignalFilter] = useState('all');
+  const [isSignalsOpen, setIsSignalsOpen] = useState(false);
+  const [searchTerm, setSearchTerm] = useState(''); // Added missing state
+  const [pairSuggestions, setPairSuggestions] = useState([]); // Added missing state
+  const [pairName, setPairName] = useState(''); // Added missing state
+  const [message, setMessage] = useState(''); // Added missing state
+  const [tp, setTp] = useState(''); // Added missing state
+  const [sl, setSl] = useState(''); // Added missing state
+  const [entryRangeLower, setEntryRangeLower] = useState(''); // Added missing state
+  const [entryRangeUpper, setEntryRangeUpper] = useState(''); // Added missing state
+  const [type, setType] = useState(''); // Added missing state
   const navigate = useNavigate();
 
   useEffect(() => {
     document.documentElement.setAttribute('data-theme', theme);
     localStorage.setItem('theme', theme);
   }, [theme]);
+
+  useEffect(() => {
+    const fetchPairs = async () => {
+      if (searchTerm.length < 2) {
+        setPairSuggestions([]);
+        return;
+      }
+      try {
+        const response = await fetch('https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&per_page=10&page=1');
+        if (!response.ok) throw new Error('Failed to fetch pairs from CoinGecko');
+        const data = await response.json();
+        const pairs = data.map(coin => ({
+          id: coin.id,
+          name: `${coin.symbol.toUpperCase()}/USD`,
+        }));
+        setPairSuggestions(pairs.filter(pair =>
+          pair.name.toLowerCase().includes(searchTerm.toLowerCase())
+        ));
+      } catch (err) {
+        console.error('Error fetching pairs from CoinGecko:', err);
+      }
+    };
+    fetchPairs();
+  }, [searchTerm]);
 
   useEffect(() => {
     const fetchUserAndData = async () => {
@@ -41,8 +79,9 @@ function Dashboard({ supabase }) {
           return;
         }
         setUserId(user.id);
+        console.log('Your User ID:', user.id);
 
-        const [tradesData, habitsData] = await Promise.all([
+        const [tradesData, habitsData, signalsData] = await Promise.all([
           supabase
             .from('trades')
             .select('*')
@@ -52,16 +91,32 @@ function Dashboard({ supabase }) {
             .from('habits')
             .select('*')
             .eq('user_id', user.id),
+          supabase
+            .from('broadcast_signals')
+            .select('*')
+            .order('created_at', { ascending: false }),
         ]);
 
         if (tradesData.error) throw new Error(tradesData.error.message);
         if (habitsData.error) throw new Error(habitsData.error.message);
+        if (signalsData.error) throw new Error(signalsData.error.message);
 
         setTrades(tradesData.data.map(trade => ({
           ...trade,
           tags: Array.isArray(trade.tags) ? trade.tags : trade.tags ? [trade.tags] : [],
         })));
         setHabits(habitsData.data);
+        setBroadcastSignals(signalsData.data);
+
+        const { data: userData, error: userError } = await supabase
+          .from('users')
+          .select('role')
+          .eq('id', user.id)
+          .maybeSingle();
+        if (userError || !userData) {
+          throw new Error('Failed to fetch user role: ' + (userError?.message || 'No user data found'));
+        }
+        setUserRole(userData.role);
 
         const streakData = calculateStreak(tradesData.data);
         await supabase.from('user_records').upsert({
@@ -84,7 +139,6 @@ function Dashboard({ supabase }) {
         const btcData = await btcResponse.json();
         const btcPrice = btcData.price ? parseFloat(btcData.price).toFixed(2) : 'N/A';
 
-        // Note: Replace 'your-api-key' with process.env.REACT_APP_METALS_API_KEY in production
         const goldResponse = await fetch(`https://metals-api.com/api/latest?access_key=${process.env.REACT_APP_METALS_API_KEY || 'your-api-key'}&base=USD&symbols=XAU`);
         if (!goldResponse.ok) throw new Error('Failed to fetch XAU price');
         const goldData = await goldResponse.json();
@@ -100,6 +154,69 @@ function Dashboard({ supabase }) {
     fetchUserAndData();
     fetchPrices();
   }, [supabase, navigate]);
+
+  useEffect(() => {
+    const subscription = supabase
+      .channel('broadcast_signals')
+      .on(
+        'postgres_changes',
+        { event: 'INSERT', schema: 'public', table: 'broadcast_signals' },
+        (payload) => {
+          setBroadcastSignals((prev) => [payload.new, ...prev]);
+          toast.success(`New Trading Signal: ${payload.new.message}`, { duration: 5000 });
+          if (Notification.permission === 'granted') {
+            new Notification('New Trading Signal', {
+              body: payload.new.message,
+              icon: '/path-to-icon.png',
+            });
+          }
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(subscription);
+    };
+  }, []);
+
+  useEffect(() => {
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('/service-worker.js')
+        .then((registration) => {
+          console.log('Service Worker registered:', registration);
+        })
+        .catch((error) => {
+          console.error('Service Worker registration failed:', error);
+        });
+    }
+
+    if (Notification.permission !== 'granted' && Notification.permission !== 'denied') {
+      Notification.requestPermission().then((permission) => {
+        if (permission === 'granted') {
+          console.log('Notification permission granted');
+        }
+      });
+    }
+  }, []);
+
+  useEffect(() => {
+    if (selectedTrade?.trade?.status === 'in_progress') {
+      const fetchInitialPrice = async () => {
+        setLivePrice('Fetching...');
+        const price = await fetchLivePrice(selectedTrade.trade.pair);
+        setLivePrice(price);
+      };
+      fetchInitialPrice();
+
+      const interval = setInterval(async () => {
+        const price = await fetchLivePrice(selectedTrade.trade.pair);
+        setLivePrice(price);
+      }, 60000);
+      return () => clearInterval(interval);
+    } else {
+      setLivePrice(null);
+    }
+  }, [selectedTrade]);
 
   const fetchLivePrice = async (pair, retries = 3) => {
     const delay = ms => new Promise(resolve => setTimeout(resolve, ms));
@@ -120,7 +237,6 @@ function Dashboard({ supabase }) {
         }
       } catch (err) {
         if (attempt === retries) {
-          // Fallback to Binance WebSocket for crypto pairs
           if (pair.toUpperCase().includes('/USD') || pair.includes('/')) {
             try {
               const symbol = pair.toUpperCase().replace('/', '').toLowerCase();
@@ -138,7 +254,7 @@ function Dashboard({ supabase }) {
                 setTimeout(() => {
                   ws.close();
                   resolve('Unavailable');
-                }, 5000); // Timeout after 5s
+                }, 5000);
               });
             } catch (wsErr) {
               console.error('WebSocket price fetch error:', wsErr);
@@ -147,63 +263,45 @@ function Dashboard({ supabase }) {
           }
           return 'Unavailable';
         }
-        await delay(2000 * Math.pow(2, attempt)); // Exponential backoff
+        await delay(2000 * Math.pow(2, attempt));
       }
     }
   };
 
-  useEffect(() => {
-    if (selectedTrade?.trade?.status === 'in_progress') {
-      const fetchInitialPrice = async () => {
-        setLivePrice('Fetching...');
-        const price = await fetchLivePrice(selectedTrade.trade.pair);
-        setLivePrice(price);
-      };
-      fetchInitialPrice();
-
-      const interval = setInterval(async () => {
-        const price = await fetchLivePrice(selectedTrade.trade.pair);
-        setLivePrice(price);
-      }, 60000); // Update every minute
-      return () => clearInterval(interval);
-    } else {
-      setLivePrice(null);
+  const handleEditTrade = async (tradeId, updatedData) => {
+    try {
+      const trade = trades.find(t => t.id === tradeId);
+      if (trade.status === 'in_progress') {
+        updatedData = { 
+          ...(updatedData.tp ? { tp: parseFloat(updatedData.tp) } : {}), 
+          ...(updatedData.sl ? { sl: parseFloat(updatedData.sl) } : {}), 
+          ...(updatedData.multiple_tps ? { multiple_tps: updatedData.multiple_tps.map(tp => parseFloat(tp)) } : {}),
+          ...(updatedData.status ? { status: updatedData.status } : {}),
+          ...(updatedData.outcome ? { outcome: updatedData.outcome } : {}),
+          ...(updatedData.profit ? { profit: parseFloat(updatedData.profit) } : {}),
+          ...(updatedData.is_edited ? { is_edited: updatedData.is_edited } : {}),
+          ...(updatedData.direction ? { direction: updatedData.direction } : {}),
+        };
+      }
+      const { error: tradeError } = await supabase
+        .from('trades')
+        .update(updatedData)
+        .eq('id', tradeId)
+        .eq('user_id', userId);
+      if (tradeError) throw new Error(tradeError.message);
+      const updatedTrades = trades.map(t =>
+        t.id === tradeId ? { ...t, ...updatedData } : t
+      );
+      setTrades(updatedTrades);
+      setSelectedTrade({
+        trade: { ...selectedTrade.trade, ...updatedData },
+        habit: selectedTrade.habit,
+      });
+    } catch (err) {
+      console.error('Edit trade error:', err);
+      setError(`Failed to edit trade: ${err.message}`);
     }
-  }, [selectedTrade]);
-
-const handleEditTrade = async (tradeId, updatedData) => {
-  try {
-    const trade = trades.find(t => t.id === tradeId);
-    if (trade.status === 'in_progress') {
-      updatedData = { 
-        ...(updatedData.tp ? { tp: parseFloat(updatedData.tp) } : {}), 
-        ...(updatedData.sl ? { sl: parseFloat(updatedData.sl) } : {}), 
-        ...(updatedData.multiple_tps ? { multiple_tps: updatedData.multiple_tps.map(tp => parseFloat(tp)) } : {}),
-        ...(updatedData.status ? { status: updatedData.status } : {}),
-        ...(updatedData.outcome ? { outcome: updatedData.outcome } : {}),
-        ...(updatedData.profit ? { profit: parseFloat(updatedData.profit) } : {}),
-        ...(updatedData.is_edited ? { is_edited: updatedData.is_edited } : {})
-      };
-    }
-    const { error: tradeError } = await supabase
-      .from('trades')
-      .update(updatedData)
-      .eq('id', tradeId)
-      .eq('user_id', userId);
-    if (tradeError) throw new Error(tradeError.message);
-    const updatedTrades = trades.map(t =>
-      t.id === tradeId ? { ...t, ...updatedData } : t
-    );
-    setTrades(updatedTrades);
-    setSelectedTrade({
-      trade: { ...selectedTrade.trade, ...updatedData },
-      habit: selectedTrade.habit,
-    });
-  } catch (err) {
-    console.error('Edit trade error:', err);
-    setError(`Failed to edit trade: ${err.message}`);
-  }
-};
+  };
 
   const calculateStreak = (trades) => {
     let currentTrades = 0;
@@ -272,7 +370,7 @@ const handleEditTrade = async (tradeId, updatedData) => {
 
       const streakData = calculateStreak(trades.filter(trade => trade.id !== tradeId));
       await supabase.from('user_records').upsert({
-        user贈_id: userId,
+        user_id: userId,
         best_unbroken_trades: streakData.maxTrades,
         best_unbroken_days: streakData.maxDays,
         updated_at: new Date().toISOString(),
@@ -309,6 +407,53 @@ const handleEditTrade = async (tradeId, updatedData) => {
     await supabase.auth.signOut();
     navigate('/login');
     setIsMenuOpen(false);
+  };
+
+  const handleBroadcast = async (e) => {
+    e.preventDefault();
+    const message = e.target.message.value;
+    const pairName = e.target.pairName.value;
+    const tp = e.target.tp.value;
+    const sl = e.target.sl.value;
+    const entryRangeLower = e.target.entryRangeLower.value;
+    const entryRangeUpper = e.target.entryRangeUpper.value;
+    const type = e.target.type.value;
+
+    if (!message || !pairName || !tp || !sl || !entryRangeLower || !entryRangeUpper || !type) {
+      setError('Please fill in all fields');
+      return;
+    }
+
+    const broadcastData = {
+      user_id: userId,
+      message,
+      pair_name: pairName,
+      tp: parseFloat(tp),
+      sl: parseFloat(sl),
+      entry_range_lower: parseFloat(entryRangeLower),
+      entry_range_upper: parseFloat(entryRangeUpper),
+      type,
+    };
+    console.log('Broadcast Data:', broadcastData);
+
+    const { error } = await supabase
+      .from('broadcast_signals')
+      .insert([broadcastData]);
+
+    if (error) {
+      setError(`Failed to broadcast signal: ${error.message}`);
+      return;
+    }
+    e.target.reset();
+    setSearchTerm('');
+    setPairName('');
+    setTp('');
+    setSl('');
+    setEntryRangeLower('');
+    setEntryRangeUpper('');
+    setType('');
+    setError(null);
+    toast.success('Signal broadcasted successfully!');
   };
 
   const filteredTrades = trades.filter(trade => {
@@ -443,6 +588,7 @@ const handleEditTrade = async (tradeId, updatedData) => {
 
   return (
     <div className="container py-8 relative">
+      <Toaster position="top-right" />
       <motion.div
         className="flex justify-between items-center mb-6"
         initial={{ opacity: 0 }}
@@ -467,7 +613,13 @@ const handleEditTrade = async (tradeId, updatedData) => {
         <p aria-live="polite">XAU/USD: ${prices.gold}</p>
       </div>
       {isMenuOpen && (
-        <div className="absolute top-14 right-0 futuristic-card holographic-border p-4 w-48 sm:w-56 max-h-[80vh] overflow-y-auto z-50">
+        <motion.div
+          className="absolute top-14 right-0 futuristic-card holographic-border p-4 w-48 sm:w-56 max-h-[80vh] overflow-y-auto z-50"
+          initial={{ opacity: 0, x: 20 }}
+          animate={{ opacity: 1, x: 0 }}
+          exit={{ opacity: 0, x: 20 }}
+          transition={{ duration: 0.2 }}
+        >
           <div className="flex flex-col gap-2 text-xs">
             <motion.button
               onClick={handleExport}
@@ -522,8 +674,59 @@ const handleEditTrade = async (tradeId, updatedData) => {
               <option value="wasteland">Wasteland</option>
               <option value="retrowave">Retrowave</option>
             </select>
+            <motion.button
+              onClick={() => setIsSignalsOpen(!isSignalsOpen)}
+              className="w-full text-left px-4 py-2 text-[var(--color-text-primary)] hover:bg-[var(--color-bg-secondary)]"
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+            >
+              Trading Signals
+            </motion.button>
+            {isSignalsOpen && (
+              <motion.div
+                className="pl-4"
+                initial={{ height: 0, opacity: 0 }}
+                animate={{ height: 'auto', opacity: 1 }}
+                exit={{ height: 0, opacity: 0 }}
+              >
+                <div className="mb-2">
+                  <label className="block text-sm text-[var(--color-text-secondary)] mb-1">
+                    Filter Signals
+                  </label>
+                  <select
+                    value={signalFilter}
+                    onChange={(e) => setSignalFilter(e.target.value)}
+                    className="futuristic-input w-full"
+                  >
+                    <option value="all">All</option>
+                    <option value="crypto">Crypto</option>
+                    <option value="forex">Forex</option>
+                  </select>
+                </div>
+                <div className="max-h-60 overflow-y-auto">
+                  {broadcastSignals
+                    .filter((signal) => signalFilter === 'all' || signal.type === signalFilter)
+                    .map((signal) => (
+                      <div
+                        key={signal.id}
+                        className="p-2 border-b border-[var(--color-glass-border)] text-sm text-[var(--color-text-primary)]"
+                      >
+                        <p><strong>Pair:</strong> {signal.pair_name}</p>
+                        <p><strong>Message:</strong> {signal.message}</p>
+                        <p><strong>TP:</strong> {signal.tp}</p>
+                        <p><strong>SL:</strong> {signal.sl}</p>
+                        <p><strong>Entry Range:</strong> {signal.entry_range_lower} - {signal.entry_range_upper}</p>
+                        <p><strong>Type:</strong> {signal.type}</p>
+                        <p className="text-xs text-[var(--color-text-secondary)]">
+                          {new Date(signal.created_at).toLocaleString()}
+                        </p>
+                      </div>
+                    ))}
+                </div>
+              </motion.div>
+            )}
           </div>
-        </div>
+        </motion.div>
       )}
       {error && (
         <motion.div
@@ -532,7 +735,8 @@ const handleEditTrade = async (tradeId, updatedData) => {
           animate={{ opacity: 1 }}
         >
           <p className="text-red-400 text-sm" role="alert">{error}</p>
-        </motion.div>)}
+        </motion.div>
+      )}
       {!userId ? (
         <motion.div
           className="futuristic-card p-4 mb-6"
@@ -545,6 +749,154 @@ const handleEditTrade = async (tradeId, updatedData) => {
         </motion.div>
       ) : (
         <>
+          {userRole === 'master' && (
+            <motion.div
+              className="futuristic-card p-6 mb-6"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+            >
+              <h2 className="text-lg font-semibold text-[var(--color-text-primary)] mb-4">
+                Broadcast Trading Signal
+              </h2>
+              <form
+                onSubmit={handleBroadcast}
+                className="space-y-4"
+              >
+                <div>
+                  <label className="block text-sm text-[var(--color-text-secondary)] mb-1">
+                    Search Pair
+                  </label>
+                  <input
+                    type="text"
+                    placeholder="Search for a pair (e.g., BTC/USD)"
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                    className="futuristic-input w-full"
+                  />
+                  {pairSuggestions.length > 0 && (
+                    <ul className="border border-[var(--color-glass-border)] mt-1 max-h-40 overflow-y-auto bg-[var(--color-glass-bg)] rounded-lg">
+                      {pairSuggestions.map((pair) => (
+                        <li
+                          key={pair.id}
+                          onClick={() => {
+                            setPairName(pair.name);
+                            setSearchTerm('');
+                            setPairSuggestions([]);
+                          }}
+                          className="cursor-pointer p-2 hover:bg-[var(--color-bg-secondary)] text-[var(--color-text-primary)]"
+                        >
+                          {pair.name}
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+                  <input
+                    type="text"
+                    name="pairName"
+                    placeholder="Selected Pair"
+                    value={pairName}
+                    onChange={(e) => setPairName(e.target.value)}
+                    className="futuristic-input w-full mt-2"
+                    readOnly
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm text-[var(--color-text-secondary)] mb-1">
+                    Signal Message
+                  </label>
+                  <textarea
+                    name="message"
+                    placeholder="e.g., Buy signal details"
+                    className="futuristic-input w-full"
+                    rows="3"
+                    value={message}
+                    onChange={(e) => setMessage(e.target.value)}
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm text-[var(--color-text-secondary)] mb-1">
+                    Take Profit (TP)
+                  </label>
+                  <input
+                    type="number"
+                    name="tp"
+                    placeholder="Take Profit"
+                    className="futuristic-input w-full"
+                    step="0.01"
+                    value={tp}
+                    onChange={(e) => setTp(e.target.value)}
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm text-[var(--color-text-secondary)] mb-1">
+                    Stop Loss (SL)
+                  </label>
+                  <input
+                    type="number"
+                    name="sl"
+                    placeholder="Stop Loss"
+                    className="futuristic-input w-full"
+                    step="0.01"
+                    value={sl}
+                    onChange={(e) => setSl(e.target.value)}
+                  />
+                </div>
+                <div className="flex space-x-2">
+                  <div className="w-1/2">
+                    <label className="block text-sm text-[var(--color-text-secondary)] mb-1">
+                      Entry Range Lower
+                    </label>
+                    <input
+                      type="number"
+                      name="entryRangeLower"
+                      placeholder="Lower Range"
+                      className="futuristic-input w-full"
+                      step="0.01"
+                      value={entryRangeLower}
+                      onChange={(e) => setEntryRangeLower(e.target.value)}
+                    />
+                  </div>
+                  <div className="w-1/2">
+                    <label className="block text-sm text-[var(--color-text-secondary)] mb-1">
+                      Entry Range Upper
+                    </label>
+                    <input
+                      type="number"
+                      name="entryRangeUpper"
+                      placeholder="Upper Range"
+                      className="futuristic-input w-full"
+                      step="0.01"
+                      value={entryRangeUpper}
+                      onChange={(e) => setEntryRangeUpper(e.target.value)}
+                    />
+                  </div>
+                </div>
+                <div>
+                  <label className="block text-sm text-[var(--color-text-secondary)] mb-1">
+                    Signal Type
+                  </label>
+                  <select
+                    name="type"
+                    className="futuristic-input w-full"
+                    value={type}
+                    onChange={(e) => setType(e.target.value)}
+                  >
+                    <option value="">Select Type</option>
+                    <option value="crypto">Crypto</option>
+                    <option value="forex">Forex</option>
+                  </select>
+                </div>
+                <motion.button
+                  type="submit"
+                  className="futuristic-button w-full"
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                >
+                  Broadcast Signal
+                </motion.button>
+              </form>
+            </motion.div>
+          )}
           <TradeForm supabase={supabase} userId={userId} onTradeAdded={handleTradeAdded} />
           <TradeAnalytics trades={trades} streakData={streakData} supabase={supabase} userId={userId} />
           <motion.div
@@ -787,7 +1139,6 @@ const determineOutcome = (trade, livePrice) => {
         if (stopLoss && currentPrice >= stopLoss) return 'Loss';
       }
     } else {
-      // Fallback to TP/SL if livePrice is unavailable
       if (direction === 'long') {
         if (takeProfits.some(tp => tp && tp > entryPrice)) return 'Win';
         if (stopLoss && stopLoss < entryPrice) return 'Loss';
