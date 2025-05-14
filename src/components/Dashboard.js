@@ -19,7 +19,7 @@ function Dashboard({ supabase }) {
   const [selectedTrade, setSelectedTrade] = useState(null);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [theme, setTheme] = useState(() => {
-    const validThemes = ['neon', 'white', 'black', 'grey', 'subtle', 'calm', 'ocean', 'forest', 'sunset'];
+    const validThemes = ['neon', 'white', 'black', 'grey', 'subtle', 'calm', 'ocean', 'forest', 'sunset', 'cyberpunk', 'fallout', 'neoncity', 'wasteland', 'retrowave'];
     const storedTheme = localStorage.getItem('theme');
     return validThemes.includes(storedTheme) ? storedTheme : 'neon';
   });
@@ -84,6 +84,7 @@ function Dashboard({ supabase }) {
         const btcData = await btcResponse.json();
         const btcPrice = btcData.price ? parseFloat(btcData.price).toFixed(2) : 'N/A';
 
+        // Note: Replace 'your-api-key' with process.env.REACT_APP_METALS_API_KEY in production
         const goldResponse = await fetch(`https://metals-api.com/api/latest?access_key=${process.env.REACT_APP_METALS_API_KEY || 'your-api-key'}&base=USD&symbols=XAU`);
         if (!goldResponse.ok) throw new Error('Failed to fetch XAU price');
         const goldData = await goldResponse.json();
@@ -101,38 +102,72 @@ function Dashboard({ supabase }) {
   }, [supabase, navigate]);
 
   const fetchLivePrice = async (pair, retries = 3) => {
+    const delay = ms => new Promise(resolve => setTimeout(resolve, ms));
     for (let attempt = 1; attempt <= retries; attempt++) {
       try {
         if (pair.toUpperCase().includes('/USD')) {
-          const symbol = pair.toUpperCase().replace('/USD', '');
+          const symbol = pair.toUpperCase().replace('/USD', '').toLowerCase();
           const response = await fetch(`https://api.coingecko.com/api/v3/simple/price?ids=${symbol}&vs_currencies=usd`);
-          if (!response.ok) throw new Error('Failed to fetch price');
+          if (!response.ok) throw new Error('Failed to fetch price from CoinGecko');
           const data = await response.json();
           return data[symbol]?.usd?.toFixed(2) || 'N/A';
         } else {
           const symbol = pair.toUpperCase().replace('/', '');
           const response = await fetch(`https://api.binance.com/api/v3/ticker/price?symbol=${symbol}`);
-          if (!response.ok) throw new Error('Failed to fetch price');
+          if (!response.ok) throw new Error('Failed to fetch price from Binance');
           const data = await response.json();
           return data.price ? parseFloat(data.price).toFixed(2) : 'N/A';
         }
       } catch (err) {
         if (attempt === retries) {
-          console.error(`Live price fetch error after ${retries} attempts:`, err);
+          // Fallback to Binance WebSocket for crypto pairs
+          if (pair.toUpperCase().includes('/USD') || pair.includes('/')) {
+            try {
+              const symbol = pair.toUpperCase().replace('/', '').toLowerCase();
+              const ws = new WebSocket(`wss://stream.binance.com:9443/ws/${symbol}@ticker`);
+              return new Promise((resolve) => {
+                ws.onmessage = (event) => {
+                  const data = JSON.parse(event.data);
+                  ws.close();
+                  resolve(data.c ? parseFloat(data.c).toFixed(2) : 'Unavailable');
+                };
+                ws.onerror = () => {
+                  ws.close();
+                  resolve('Unavailable');
+                };
+                setTimeout(() => {
+                  ws.close();
+                  resolve('Unavailable');
+                }, 5000); // Timeout after 5s
+              });
+            } catch (wsErr) {
+              console.error('WebSocket price fetch error:', wsErr);
+              return 'Unavailable';
+            }
+          }
           return 'Unavailable';
         }
-        await new Promise(resolve => setTimeout(resolve, 2000));
+        await delay(2000 * Math.pow(2, attempt)); // Exponential backoff
       }
     }
   };
 
   useEffect(() => {
     if (selectedTrade?.trade?.status === 'in_progress') {
+      const fetchInitialPrice = async () => {
+        setLivePrice('Fetching...');
+        const price = await fetchLivePrice(selectedTrade.trade.pair);
+        setLivePrice(price);
+      };
+      fetchInitialPrice();
+
       const interval = setInterval(async () => {
         const price = await fetchLivePrice(selectedTrade.trade.pair);
         setLivePrice(price);
-      }, 60000);
+      }, 60000); // Update every minute
       return () => clearInterval(interval);
+    } else {
+      setLivePrice(null);
     }
   }, [selectedTrade]);
 
@@ -140,7 +175,11 @@ function Dashboard({ supabase }) {
     try {
       const trade = trades.find(t => t.id === tradeId);
       if (trade.status === 'in_progress') {
-        updatedData = { ...(updatedData.tp ? { tp: updatedData.tp } : {}), ...(updatedData.sl ? { sl: updatedData.sl } : {}), ...(updatedData.multiple_tps ? { multiple_tps: updatedData.multiple_tps } : {}) };
+        updatedData = { 
+          ...(updatedData.tp ? { tp: updatedData.tp } : {}), 
+          ...(updatedData.sl ? { sl: updatedData.sl } : {}), 
+          ...(updatedData.multiple_tps ? { multiple_tps: updatedData.multiple_tps } : {}) 
+        };
       }
       const { error: tradeError } = await supabase
         .from('trades')
@@ -229,7 +268,7 @@ function Dashboard({ supabase }) {
 
       const streakData = calculateStreak(trades.filter(trade => trade.id !== tradeId));
       await supabase.from('user_records').upsert({
-        user_id: userId,
+        user贈_id: userId,
         best_unbroken_trades: streakData.maxTrades,
         best_unbroken_days: streakData.maxDays,
         updated_at: new Date().toISOString(),
@@ -329,9 +368,9 @@ function Dashboard({ supabase }) {
     const handleMouseMove = (e) => {
       if (cardRef.current) {
         const rect = cardRef.current.getBoundingClientRect();
-        const x = e.clientX - rect.left - rect.width / 2;
-        const y = e.clientY - rect.top - rect.height / 2;
-        setMousePosition({ x: x / 30, y: y / 30 });
+        const x = (e.clientX - rect.left - rect.width / 2) / 30;
+        const y = (e.clientY - rect.top - rect.height / 2) / 30;
+        setMousePosition({ x, y });
       }
     };
 
@@ -473,6 +512,11 @@ function Dashboard({ supabase }) {
               <option value="ocean">Ocean</option>
               <option value="forest">Forest</option>
               <option value="sunset">Sunset</option>
+              <option value="cyberpunk">Cyberpunk</option>
+              <option value="fallout">Fallout</option>
+              <option value="neoncity">Neon City</option>
+              <option value="wasteland">Wasteland</option>
+              <option value="retrowave">Retrowave</option>
             </select>
           </div>
         </div>
@@ -484,8 +528,7 @@ function Dashboard({ supabase }) {
           animate={{ opacity: 1 }}
         >
           <p className="text-red-400 text-sm" role="alert">{error}</p>
-        </motion.div>
-      )}
+        </motion.div>)}
       {!userId ? (
         <motion.div
           className="futuristic-card p-4 mb-6"
@@ -595,7 +638,7 @@ function Dashboard({ supabase }) {
                   {selectedTrade.trade.status === 'in_progress' && (
                     <>
                       <p className="font-medium">Current Price</p>
-                      <p aria-live="polite">{livePrice ? `${selectedTrade.trade.pair}: $${livePrice}` : 'Fetching...'}</p>
+                      <p aria-live="polite" aria-label="Current market price">{livePrice ? `${selectedTrade.trade.pair}: $${livePrice}` : 'Fetching...'}</p>
                     </>
                   )}
                   <p className="font-medium">Position Size</p>
@@ -727,10 +770,10 @@ const determineOutcome = (trade, livePrice) => {
   const { entry, tp, multiple_tps, sl, direction, status } = trade;
   const entryPrice = parseFloat(entry);
   const stopLoss = parseFloat(sl);
-  const currentPrice = livePrice ? parseFloat(livePrice) : entryPrice;
+  const currentPrice = livePrice && livePrice !== 'Unavailable' ? parseFloat(livePrice) : entryPrice;
   const takeProfits = multiple_tps ? multiple_tps.map(tp => parseFloat(tp)) : [parseFloat(tp)];
 
-  if (status === 'in_progress' && livePrice) {
+  if (status === 'in_progress' && livePrice && livePrice !== 'Unavailable') {
     if (direction === 'long') {
       if (takeProfits.some(tp => currentPrice >= tp)) return 'Win';
       if (currentPrice <= stopLoss) return 'Loss';
@@ -765,7 +808,7 @@ const calculateTradeProfit = (trade, livePrice, outcome) => {
   } else if (outcome === 'Breakeven') {
     exitPrice = entryPrice;
   } else {
-    exitPrice = livePrice ? parseFloat(livePrice) : entryPrice;
+    exitPrice = livePrice && livePrice !== 'Unavailable' ? parseFloat(livePrice) : entryPrice;
   }
 
   try {
