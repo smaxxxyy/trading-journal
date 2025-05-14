@@ -512,47 +512,47 @@ const calculateProfit = () => {
           aria-label="Screenshot upload"
           disabled={loading}
         />
-        <div className="grid grid-cols-1 gap-4">
-          <label className="flex items-center gap-4 p-2">
-            <input
-              type="checkbox"
-              checked={hadPlan}
-              onChange={() => setHadPlan(!hadPlan)}
-              onTouchStart={() => setHadPlan(!hadPlan)}
-              className="min-w-8 min-h-8 rounded focus:ring-2 focus:ring-[var(--color-accent)]"
-              style={{ touchAction: 'manipulation' }}
-              aria-label="Had a trading plan"
-              disabled={loading}
-            />
-            <span className="text-sm text-[var(--color-text-primary)]">Had a Plan</span>
-          </label>
-          <label className="flex items-center gap-4 p-2">
-            <input
-              type="checkbox"
-              checked={planFollowed}
-              onChange={() => setPlanFollowed(!planFollowed)}
-              onTouchStart={() => setPlanFollowed(!planFollowed)}
-              className="min-w-8 min-h-8 rounded focus:ring-2 focus:ring-[var(--color-accent)]"
-              style={{ touchAction: 'manipulation' }}
-              aria-label="Followed the trading plan"
-              disabled={loading}
-            />
-            <span className="text-sm text-[var(--color-text-primary)]">Plan Followed</span>
-          </label>
-          <label className="flex items-center gap-4 p-2">
-            <input
-              type="checkbox"
-              checked={wasGamble}
-              onChange={() => setWasGamble(!wasGamble)}
-              onTouchStart={() => setWasGamble(!wasGamble)}
-              className="min-w-8 min-h-8 rounded focus:ring-2 focus:ring-[var(--color-accent)]"
-              style={{ touchAction: 'manipulation' }}
-              aria-label="Trade was a gamble"
-              disabled={loading}
-            />
-            <span className="text-sm text-[var(--color-text-primary)]">Was a Gamble</span>
-          </label>
-        </div>
+<div className="grid grid-cols-1 gap-4">
+  <label className="flex items-center gap-4 p-2 cursor-pointer">
+    <input
+      type="checkbox"
+      checked={hadPlan}
+      onChange={() => setHadPlan(!hadPlan)}
+      onClick={() => setHadPlan(!hadPlan)}
+      className="min-w-8 min-h-8 rounded focus:ring-2 focus:ring-[var(--color-accent)]"
+      style={{ touchAction: 'manipulation' }}
+      aria-label="Had a trading plan"
+      disabled={loading}
+    />
+    <span className="text-sm text-[var(--color-text-primary)]">Had a Plan</span>
+  </label>
+  <label className="flex items-center gap-4 p-2 cursor-pointer">
+    <input
+      type="checkbox"
+      checked={planFollowed}
+      onChange={() => setPlanFollowed(!planFollowed)}
+      onClick={() => setPlanFollowed(!planFollowed)}
+      className="min-w-8 min-h-8 rounded focus:ring-2 focus:ring-[var(--color-accent)]"
+      style={{ touchAction: 'manipulation' }}
+      aria-label="Followed the trading plan"
+      disabled={loading}
+    />
+    <span className="text-sm text-[var(--color-text-primary)]">Plan Followed</span>
+  </label>
+  <label className="flex items-center gap-4 p-2 cursor-pointer">
+    <input
+      type="checkbox"
+      checked={wasGamble}
+      onChange={() => setWasGamble(!wasGamble)}
+      onClick={() => setWasGamble(!wasGamble)}
+      className="min-w-8 min-h-8 rounded focus:ring-2 focus:ring-[var(--color-accent)]"
+      style={{ touchAction: 'manipulation' }}
+      aria-label="Trade was a gamble"
+      disabled={loading}
+    />
+    <span className="text-sm text-[var(--color-text-primary)]">Was a Gamble</span>
+  </label>
+</div>
         <motion.button
           type="submit"
           className="futuristic-button w-full"
