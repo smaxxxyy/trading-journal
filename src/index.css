@@ -295,8 +295,4 @@ textarea.futuristic-input {
 
 .futuristic-input:focus {
   @apply ring-2 ring-[var(--color-accent)];
-<<<<<<< HEAD
 }
-=======
-}
->>>>>>> 82309c093cde1dbef7f80382cf9b805243dd53d8
