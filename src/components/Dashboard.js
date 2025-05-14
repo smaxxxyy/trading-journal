@@ -768,6 +768,7 @@ const calculateTradeProfit = (trade, livePrice, outcome) => {
     exitPrice = livePrice ? parseFloat(livePrice) : entryPrice;
   }
 
+  
   try {
     if (is_crypto && position_unit === 'USD') {
       const initialMargin = size / leverage;
