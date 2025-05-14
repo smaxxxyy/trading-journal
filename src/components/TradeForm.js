@@ -352,6 +352,7 @@ function TradeForm({ supabase, userId, onTradeAdded }) {
           aria-label="Screenshot upload"
           disabled={loading}
         />
+        {/* Updated Checkboxes Section */}
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
           <label className="flex items-center gap-3">
             <input
@@ -370,11 +371,11 @@ function TradeForm({ supabase, userId, onTradeAdded }) {
               checked={planFollowed}
               onChange={(e) => {
                 setPlanFollowed(e.target.checked);
-                if (e.target.checked) setWasGamble(false);
+                if (e.target.checked) setWasGamble(false); // Uncheck "Was a Gamble" if "Plan Followed" is checked
               }}
               className="rounded focus:ring-opacity-50"
               aria-label="Plan Followed"
-              disabled={loading || wasGamble}
+              disabled={loading || wasGamble} // Disable if "Was a Gamble" is checked
             />
             <span className="text-sm">Plan Followed</span>
           </label>
@@ -384,15 +385,19 @@ function TradeForm({ supabase, userId, onTradeAdded }) {
               checked={wasGamble}
               onChange={(e) => {
                 setWasGamble(e.target.checked);
-                if (e.target.checked) setPlanFollowed(false);
+                if (e.target.checked) setPlanFollowed(false); // Uncheck "Plan Followed" if "Was a Gamble" is checked
               }}
               className="rounded focus:ring-opacity-50"
               aria-label="Was a Gamble"
-              disabled={loading || planFollowed}
+              disabled={loading || planFollowed} // Disable if "Plan Followed" is checked
             />
             <span className="text-sm">Was a Gamble</span>
           </label>
         </div>
+        {/* Added UI Feedback */}
+        <p className="text-xs text-[var(--color-text-secondary)] mt-1">
+          Note: You can only select either "Plan Followed" or "Was a Gamble", not both.
+        </p>
         <motion.button
           type="submit"
           className="futuristic-button w-full"
