@@ -9,15 +9,30 @@ function Login({ supabase }) {
   const navigate = useNavigate();
 
   const handleSignUp = async () => {
-    const { error } = await supabase.auth.signUp({ email, password });
+    setError(null);
+    const { data, error } = await supabase.auth.signUp({ email, password });
     if (error) {
       setError(error.message);
     } else {
-      alert('Check your email for confirmation');
+      const { user } = data;
+      if (user) {
+        // Create user record in users table with default role
+        const { error: userError } = await supabase
+          .from('users')
+          .insert([{ id: user.id, role: 'user', created_at: new Date().toISOString() }]);
+        if (userError) {
+          setError(`Failed to create user profile: ${userError.message}`);
+        } else {
+          alert('Check your email for confirmation');
+        }
+      } else {
+        setError('No user data returned after signup');
+      }
     }
   };
 
   const handleLogin = async () => {
+    setError(null);
     const { error } = await supabase.auth.signInWithPassword({ email, password });
     if (error) {
       setError(error.message);
