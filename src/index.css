@@ -1,208 +1,309 @@
 @import 'tailwindcss';
 
+/* Default Theme: Neon (Updated) */
 :root {
-  /* Default: Synthwave Neon Theme */
-  --color-neon-purple: #7b2cbf;
-  --color-neon-pink: #e63946;
-  --color-neon-blue: #1d3557;
-  --color-glass-bg: rgba(0, 0, 0, 0.1);
-  --color-glass-border: rgba(0, 0, 0, 0.2);
-  --color-bg-dark: #000000;
-  --color-text-primary: #ffffff;
-  --color-text-secondary: #ccc;
-  --color-accent: var(--color-neon-pink);
+  --color-neon-purple: #8b5cf6; /* Brighter, richer purple */
+  --color-neon-pink: #f472b6; /* Softer, vibrant pink */
+  --color-neon-blue: #60a5fa; /* Lighter, futuristic blue */
+  --color-glass-bg: linear-gradient(135deg, rgba(139, 92, 246, 0.15), rgba(96, 165, 250, 0.15)); /* Gradient glass */
+  --color-glass-border: linear-gradient(45deg, rgba(139, 92, 246, 0.4), rgba(96, 165, 250, 0.4)); /* Gradient border */
+  --color-bg-dark: #1e1b4b; /* Deeper purple base */
+  --color-text-primary: #f5f3ff; /* Near-white for high contrast */
+  --color-text-secondary: #c4b5fd; /* Light purple for secondary text */
+  --color-accent: var(--color-neon-purple);
   --color-button-from: var(--color-neon-purple);
-  --color-button-to: var(--color-neon-blue);
+  --color-button-to: var(--color-neon-pink);
 }
 
-/* Apple Light inspired */
+/* White Theme (Updated) */
 :root[data-theme="white"] {
-  --color-bg-dark: #ffffff;
-  --color-glass-bg: rgba(240, 240, 240, 0.7);
-  --color-glass-border: rgba(200, 200, 200, 0.8);
-  --color-text-primary: #333333;
-  --color-text-secondary: #666666;
-  --color-accent: #007aff;
-  --color-button-from: #aecbfa;
-  --color-button-to: #0066cc;
+  --color-bg-dark: #f8fafc; /* Softer off-white */
+  --color-glass-bg: linear-gradient(135deg, rgba(203, 213, 225, 0.15), rgba(147, 197, 253, 0.15));
+  --color-glass-border: linear-gradient(45deg, rgba(203, 213, 225, 0.4), rgba(147, 197, 253, 0.4));
+  --color-text-primary: #1e293b; /* Darker slate for contrast */
+  --color-text-secondary: #64748b; /* Cool gray */
+  --color-accent: #3b82f6; /* Vibrant blue accent */
+  --color-button-from: #3b82f6;
+  --color-button-to: #2563eb;
 }
 
-/* Neo Noir (Black) */
+/* Black Theme (Updated) */
 :root[data-theme="black"] {
-  --color-bg-dark: #101010;
-  --color-glass-bg: rgba(20, 20, 20, 0.8);
-  --color-glass-border: rgba(50, 50, 50, 0.6);
-  --color-text-primary: #eaeaea;
-  --color-text-secondary: #a0a0a0;
-  --color-accent: #ff004d;
-  --color-button-from: #ff004d;
-  --color-button-to: #00e756;
+  --color-bg-dark: #0a0a0a; /* Richer black */
+  --color-glass-bg: linear-gradient(135deg, rgba(209, 213, 219, 0.15), rgba(156, 163, 175, 0.15));
+  --color-glass-border: linear-gradient(45deg, rgba(209, 213, 219, 0.4), rgba(156, 163, 175, 0.4));
+  --color-text-primary: #f3f4f6; /* Bright white for contrast */
+  --color-text-secondary: #d1d5db; /* Light gray */
+  --color-accent: #6b7280; /* Metallic gray accent */
+  --color-button-from: #6b7280;
+  --color-button-to: #4b5563;
 }
 
-/* GitHub Dark Dimmed inspired */
+/* Grey Theme (Updated) */
 :root[data-theme="grey"] {
-  --color-bg-dark: #2d333b;
-  --color-glass-bg: rgba(45, 51, 59, 0.6);
-  --color-glass-border: rgba(255, 255, 255, 0.1);
-  --color-text-primary: #adbac7;
-  --color-text-secondary: #768390;
-  --color-accent: #79b8ff;
-  --color-button-from: #373e47;
-  --color-button-to: #2d333b;
+  --color-bg-dark: #1e293b; /* Cooler slate-gray */
+  --color-glass-bg: linear-gradient(135deg, rgba(45, 212, 191, 0.15), rgba(125, 211, 252, 0.15));
+  --color-glass-border: linear-gradient(45deg, rgba(45, 212, 191, 0.4), rgba(125, 211, 252, 0.4));
+  --color-text-primary: #e5e7eb; /* Light gray for readability */
+  --color-text-secondary: #94a3b8; /* Soft teal-gray */
+  --color-accent: #2dd4bf; /* Teal accent */
+  --color-button-from: #2dd4bf;
+  --color-button-to: #0ea5e9;
 }
 
-/* Cyberpunk 2077 (Subtle) */
+/* Subtle Theme (Updated) */
 :root[data-theme="subtle"] {
-  --color-bg-dark: #0f0c29;
-  --color-glass-bg: rgba(15, 12, 41, 0.7);
-  --color-glass-border: rgba(255, 255, 0, 0.5);
-  --color-text-primary: #ffde00;
-  --color-text-secondary: #ff8c00;
-  --color-accent: #ff007f;
-  --color-button-from: #ff007f;
-  --color-button-to: #00cfff;
+  --color-bg-dark: #f1f5f9; /* Warmer beige-gray */
+  --color-glass-bg: linear-gradient(135deg, rgba(167, 139, 250, 0.15), rgba(216, 180, 254, 0.15));
+  --color-glass-border: linear-gradient(45deg, rgba(167, 139, 250, 0.4), rgba(216, 180, 254, 0.4));
+  --color-text-primary: #312e81; /* Deep indigo */
+  --color-text-secondary: #818cf8; /* Soft purple */
+  --color-accent: #a78bfa; /* Light purple accent */
+  --color-button-from: #a78bfa;
+  --color-button-to: #7c3aed;
 }
 
-/* Calm Ocean */
+/* Calm Theme (Updated) */
 :root[data-theme="calm"] {
-  --color-bg-dark: #e0f7fa;
-  --color-glass-bg: rgba(224, 247, 250, 0.7);
-  --color-glass-border: rgba(165, 214, 167, 0.8);
-  --color-text-primary: #004d40;
-  --color-text-secondary: #00796b;
-  --color-accent: #00bcd4;
-  --color-button-from: #4dd0e1;
-  --color-button-to: #00838f;
+  --color-bg-dark: #dbeafe; /* Brighter, serene blue */
+  --color-glass-bg: linear-gradient(135deg, rgba(59, 130, 246, 0.15), rgba(147, 197, 253, 0.15));
+  --color-glass-border: linear-gradient(45deg, rgba(59, 130, 246, 0.4), rgba(147, 197, 253, 0.4));
+  --color-text-primary: #1e3a8a; /* Deep blue */
+  --color-text-secondary: #60a5fa; /* Light blue */
+  --color-accent: #3b82f6; /* Vibrant blue accent */
+  --color-button-from: #3b82f6;
+  --color-button-to: #1d4ed8;
 }
 
-/* Synthwave Ocean */
+/* Ocean Theme (Updated) */
 :root[data-theme="ocean"] {
-  --color-bg-dark: #001f3f;
-  --color-glass-bg: rgba(0, 31, 63, 0.8);
-  --color-glass-border: rgba(0, 116, 217, 0.5);
-  --color-text-primary: #ffffff;
-  --color-text-secondary: #7fdbff;
-  --color-accent: #0074d9;
-  --color-button-from: #39cccc;
-  --color-button-to: #001f3f;
+  --color-bg-dark: #0c1c3c; /* Deeper ocean blue */
+  --color-glass-bg: linear-gradient(135deg, rgba(56, 189, 248, 0.15), rgba(45, 212, 191, 0.15));
+  --color-glass-border: linear-gradient(45deg, rgba(56, 189, 248, 0.4), rgba(45, 212, 191, 0.4));
+  --color-text-primary: #e0f2fe; /* Bright sky blue */
+  --color-text-secondary: #7dd3fc; /* Turquoise */
+  --color-accent: #22d3ee; /* Cyan accent */
+  --color-button-from: #22d3ee;
+  --color-button-to: #0284c7;
 }
 
-/* Cyber Forest */
+/* Forest Theme (Updated) */
 :root[data-theme="forest"] {
-  --color-bg-dark: #081c15;
-  --color-glass-bg: rgba(8, 28, 21, 0.8);
-  --color-glass-border: rgba(34, 139, 34, 0.5);
-  --color-text-primary: #98fb98;
-  --color-text-secondary: #2e8b57;
-  --color-accent: #32cd32;
-  --color-button-from: #00ff7f;
-  --color-button-to: #228b22;
+  --color-bg-dark: #152e1a; /* Richer forest green */
+  --color-glass-bg: linear-gradient(135deg, rgba(74, 222, 128, 0.15), rgba(110, 231, 183, 0.15));
+  --color-glass-border: linear-gradient(45deg, rgba(74, 222, 128, 0.4), rgba(110, 231, 183, 0.4));
+  --color-text-primary: #f0fdf4; /* Pale green */
+  --color-text-secondary: #86efac; /* Bright green */
+  --color-accent: #16a34a; /* Deep green accent */
+  --color-button-from: #16a34a;
+  --color-button-to: #15803d;
 }
 
-/* Sunset Glow */
+/* Sunset Theme (Updated) */
 :root[data-theme="sunset"] {
-  --color-bg-dark: #ff4500;
-  --color-glass-bg: rgba(255, 69, 0, 0.7);
-  --color-glass-border: rgba(255, 160, 122, 0.5);
-  --color-text-primary: #fffaf0;
-  --color-text-secondary: #fa8072;
-  --color-accent: #ff6347;
-  --color-button-from: #ff7f50;
-  --color-button-to: #ff4500;
+  --color-bg-dark: #4c1d13; /* Warmer, deeper red-orange */
+  --color-glass-bg: linear-gradient(135deg, rgba(249, 115, 22, 0.15), rgba(234, 88, 12, 0.15));
+  --color-glass-border: linear-gradient(45deg, rgba(249, 115, 22, 0.4), rgba(234, 88, 12, 0.4));
+  --color-text-primary: #fef3c7; /* Warm yellow */
+  --color-text-secondary: #fdba74; /* Bright orange */
+  --color-accent: #ea580c; /* Vivid orange accent */
+  --color-button-from: #ea580c;
+  --color-button-to: #c2410c;
 }
 
+/* Cyberpunk Theme (Unchanged, Updated Glassmorphism) */
+:root[data-theme="cyberpunk"] {
+  --color-bg-dark: #0d0b2e;
+  --color-glass-bg: linear-gradient(135deg, rgba(255, 20, 147, 0.15), rgba(0, 204, 255, 0.15));
+  --color-glass-border: linear-gradient(45deg, rgba(255, 20, 147, 0.4), rgba(0, 204, 255, 0.4));
+  --color-text-primary: #00ffcc;
+  --color-text-secondary: #ff80bf;
+  --color-accent: #ff00ff;
+  --color-button-from: #ff00ff;
+  --color-button-to: #00ccff;
+}
 
-/* ======= Base Styles ======= */
+/* Fallout Theme (Unchanged, Updated Glassmorphism) */
+:root[data-theme="fallout"] {
+  --color-bg-dark: #2e2b22;
+  --color-glass-bg: linear-gradient(135deg, rgba(166, 156, 94, 0.15), rgba(74, 112, 67, 0.15));
+  --color-glass-border: linear-gradient(45deg, rgba(166, 156, 94, 0.4), rgba(74, 112, 67, 0.4));
+  --color-text-primary: #d9d9a8;
+  --color-text-secondary: #a69c5e;
+  --color-accent: #4a7043;
+  --color-button-from: #4a7043;
+  --color-button-to: #2e4a2a;
+}
+
+/* Neon City Theme (Unchanged, Updated Glassmorphism) */
+:root[data-theme="neoncity"] {
+  --color-bg-dark: #1a0b33;
+  --color-glass-bg: linear-gradient(135deg, rgba(148, 0, 211, 0.15), rgba(255, 20, 147, 0.15));
+  --color-glass-border: linear-gradient(45deg, rgba(148, 0, 211, 0.4), rgba(255, 20, 147, 0.4));
+  --color-text-primary: #e6e6fa;
+  --color-text-secondary: #ff69b4;
+  --color-accent: #9400d3;
+  --color-button-from: #9400d3;
+  --color-button-to: #ff1493;
+}
+
+/* Wasteland Theme (Unchanged, Updated Glassmorphism) */
+:root[data-theme="wasteland"] {
+  --color-bg-dark: #3c2f2f;
+  --color-glass-bg: linear-gradient(135deg, rgba(139, 69, 19, 0.15), rgba(160, 82, 45, 0.15));
+  --color-glass-border: linear-gradient(45deg, rgba(139, 69, 19, 0.4), rgba(160, 82, 45, 0.4));
+  --color-text-primary: #e6d5b8;
+  --color-text-secondary: #b89778;
+  --color-accent: #8b4513;
+  --color-button-from: #8b4513;
+  --color-button-to: #5c4033;
+}
+
+/* Retrowave Theme (Unchanged, Updated Glassmorphism) */
+:root[data-theme="retrowave"] {
+  --color-bg-dark: #1b1a2f;
+  --color-glass-bg: linear-gradient(135deg, rgba(255, 105, 180, 0.15), rgba(51, 153, 255, 0.15));
+  --color-glass-border: linear-gradient(45deg, rgba(255, 105, 180, 0.4), rgba(51, 153, 255, 0.4));
+  --color-text-primary: #f0e6ff;
+  --color-text-secondary: #ff66cc;
+  --color-accent: #ff33cc;
+  --color-button-from: #ff33cc;
+  --color-button-to: #3399ff;
+}
+
+/* Base Styles */
 body {
-  @apply bg-gradient-to-br from-[var(--color-bg-dark)] via-[var(--color-bg-dark)] to-[var(--color-bg-dark)] text-[var(--color-text-primary)] min-h-screen font-sans;
+  @apply bg-[var(--color-bg-dark)] text-[var(--color-text-primary)] font-sans;
 }
 
 .container {
-  @apply max-w-7xl mx-auto px-4 sm:px-6 lg:px-8;
+  @apply max-w-6xl mx-auto px-4 sm:px-6 lg:px-8;
 }
 
 .futuristic-card {
-  @apply relative bg-[var(--color-glass-bg)] backdrop-blur-lg border border-[var(--color-glass-border)] rounded-xl shadow-xl overflow-hidden transition-all duration-300;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+  @apply bg-[var(--color-glass-bg)] backdrop-blur-lg rounded-2xl shadow-lg border border-[var(--color-glass-border)];
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  /* Alternative: Solid Background (Uncomment to replace glassmorphism)
+  --color-glass-bg: rgba(255, 255, 255, 0.3); /* Adjust opacity as needed */
+  backdrop-filter: none;
+  */
 }
 
-.futuristic-card::before {
-  content: '';
-  @apply absolute inset-0 opacity-0 transition-opacity duration-300;
-  background: linear-gradient(135deg, var(--color-button-from), var(--color-button-to));
-  animation: pulse 6s ease-in-out infinite;
-}
-
-.futuristic-card:hover::before {
-  @apply opacity-10;
-}
-
-.futuristic-input {
-  @apply w-full bg-[var(--color-glass-bg)] backdrop-blur-md border border-[var(--color-glass-border)] rounded-xl px-4 py-3 text-[var(--color-text-primary)] placeholder-[var(--color-text-secondary)] focus:outline-none focus:ring-2 focus:ring-[var(--color-accent)] transition-all duration-300;
-}
-
-.futuristic-select {
-  @apply w-full bg-[var(--color-glass-bg)] backdrop-blur-md border border-[var(--color-glass-border)] rounded-xl px-4 py-3 text-[var(--color-text-primary)] appearance-none focus:outline-none focus:ring-2 focus:ring-[var(--color-accent)] transition-all duration-300;
-}
-
-.futuristic-button {
-  @apply relative bg-gradient-to-r from-[var(--color-button-from)] to-[var(--color-button-to)] text-[var(--color-text-primary)] font-medium px-6 py-3 rounded-xl hover:shadow-[0_0_15px_rgba(0,0,0,0.3)] transition-all duration-300 overflow-hidden;
-}
-
-.futuristic-button::after {
-  content: '';
-  @apply absolute inset-0 bg-white opacity-0 transition-opacity duration-200;
-}
-
-.futuristic-button:hover::after {
-  @apply opacity-10;
-}
-
-.futuristic-file-input {
-  @apply w-full bg-[var(--color-glass-bg)] backdrop-blur-md border border-[var(--color-glass-border)] rounded-xl px-4 py-3 text-[var(--color-text-primary)] file:bg-gradient-to-r file:from-[var(--color-button-from)] file:to-[var(--color-button-to)] file:text-[var(--color-text-primary)] file:font-medium file:px-4 file:py-2 file:rounded-xl file:border-0 file:cursor-pointer focus:outline-none focus:ring-2 focus:ring-[var(--color-accent)] transition-all duration-300;
+.futuristic-card:hover {
+  @apply shadow-2xl;
+  transform: translateY(-2px);
 }
 
 .holographic-border {
-  @apply relative;
+  background: linear-gradient(
+    45deg,
+    var(--color-button-from),
+    var(--color-button-to)
+  );
+  background-size: 200% 200%;
+  animation: holographic 3s ease infinite;
 }
 
-.holographic-border::before {
-  content: '';
-  @apply absolute -inset-1 bg-gradient-to-r from-[var(--color-button-from)] via-[var(--color-text-secondary)] to-[var(--color-button-to)] opacity-50 animate-[pulse_4s_ease-in-out_infinite];
+@keyframes holographic {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+.futuristic-button {
+  @apply text-white font-medium rounded-lg px-4 py-2 bg-gradient-to-r from-[var(--color-button-from)] to-[var(--color-button-to)] transition-all duration-300;
+}
+
+.futuristic-button:hover {
+  @apply shadow-lg;
+  transform: translateY(-1px);
+}
+
+.futuristic-button:active {
+  transform: translateY(0);
+}
+
+.futuristic-input {
+  @apply w-full px-3 py-2 bg-[var(--color-glass-bg)] border border-[var(--color-glass-border)] rounded-lg text-[var(--color-text-primary)] placeholder-[var(--color-text-secondary)] focus:outline-none focus:ring-2 focus:ring-[var(--color-accent)] backdrop-blur-lg;
+  /* Alternative: Solid Background (Uncomment to replace glassmorphism)
+  background: rgba(255, 255, 255, 0.3);
+  backdrop-filter: none;
+  */
+}
+
+.futuristic-input-solid {
+  @apply w-full px-3 py-2 bg-[var(--color-bg-dark)] border border-[var(--color-glass-border)] rounded-lg text-[var(--color-text-primary)] placeholder-[var(--color-text-secondary)] focus:outline-none focus:ring-2 focus:ring-[var(--color-accent)];
+}
+
+.futuristic-select {
+  @apply w-full px-3 py-2 bg-[var(--color-glass-bg)] border border-[var(--color-glass-border)] rounded-lg text-[var(--color-text-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--color-accent)] appearance-none backdrop-blur-lg;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%23d1d5db' stroke-width='2'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' d='M19 9l-7 7-7-7'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 0.75rem center;
+  background-size: 1.5em;
+  /* Alternative: Solid Background (Uncomment to replace glassmorphism)
+  background: rgba(255, 255, 255, 0.3);
+  backdrop-filter: none;
+  */
+}
+
+.futuristic-file-input {
+  @apply w-full px-3 py-2 bg-[var(--color-glass-bg)] border border-[var(--color-glass-border)] rounded-lg text-[var(--color-text-primary)] file:mr-4 file:py-1 file:px-3 file:rounded file:border-0 file:bg-[var(--color-button-from)] file:text-white file:cursor-pointer backdrop-blur-lg;
+  /* Alternative: Solid Background (Uncomment to replace glassmorphism)
+  background: rgba(255, 255, 255, 0.3);
+  backdrop-filter: none;
+  */
 }
 
 input[type="checkbox"] {
-  @apply w-5 h-5 appearance-none border border-[var(--color-glass-border)] rounded-md bg-[var(--color-glass-bg)] focus:ring-2 focus:ring-[var(--color-accent)] transition-all duration-200;
+  @apply w-8 h-8 rounded bg-[var(--color-glass-bg)] border border-[var(--color-glass-border)] text-[var(--color-accent)] focus:ring-2 focus:ring-[var(--color-accent)] backdrop-blur-lg;
+  appearance: none;
+  background-color: var(--color-glass-bg);
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+  /* Alternative: Solid Background (Uncomment to replace glassmorphism)
+  background: rgba(255, 255, 255, 0.3);
+  backdrop-filter: none;
+  */
 }
 
 input[type="checkbox"]:checked {
-  @apply bg-gradient-to-r from-[var(--color-button-from)] to-[var(--color-button-to)] shadow-[0_0_4px_var(--color-accent)];
+  background-color: var(--color-accent);
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 16 16' fill='white' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M12.207 4.793a1 1 0 010 1.414l-5 5a1 1 0 01-1.414 0l-2-2a1 1 0 011.414-1.414L6.5 9.086l4.293-4.293a1 1 0 011.414 0z'/%3E%3C/svg%3E");
+  background-size: 70%;
+  background-position: center;
+  background-repeat: no-repeat;
 }
 
-input[type="range"] {
-  @apply w-full h-2 rounded-lg appearance-none cursor-pointer;
-  background: linear-gradient(to right, var(--color-button-from), var(--color-button-to));
+input[type="checkbox"]:focus {
+  @apply outline-none ring-2 ring-[var(--color-accent)];
 }
 
-input[type="range"]::-webkit-slider-thumb {
-  @apply appearance-none w-5 h-5 rounded-full bg-[var(--color-accent)] border border-[var(--color-glass-border)] shadow-[0_0_8px_var(--color-accent)] cursor-pointer transition-all duration-200;
+/* Scrollbar Styling */
+.scrollbar-thin {
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-accent) var(--color-glass-bg);
 }
 
-input[type="range"]::-moz-range-thumb {
-  @apply w-5 h-5 rounded-full bg-[var(--color-accent)] border border-[var(--color-glass-border)] shadow-[0_0_8px_var(--color-accent)] cursor-pointer transition-all duration-200;
+.scrollbar-thin::-webkit-scrollbar {
+  width: 8px;
 }
 
-@keyframes pulse {
-  0%, 100% { opacity: 0; }
-  50% { opacity: 0.1; }
+.scrollbar-thin::-webkit-scrollbar-track {
+  background: var(--color-glass-bg);
 }
 
-::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
-}
-
-::-webkit-scrollbar-thumb {
+.scrollbar-thin::-webkit-scrollbar-thumb {
   background: var(--color-accent);
-  border-radius: 9999px;
+  border-radius: 4px;
+}
+
+/* Accessibility: Reduced Motion */
+@media (prefers-reduced-motion: reduce) {
+  .futuristic-card,
+  .futuristic-button,
+  .holographic-border {
+    transition: none;
+    animation: none;
+  }
 }
