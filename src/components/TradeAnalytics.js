@@ -40,8 +40,8 @@ function TradeAnalytics({ trades, streakData, supabase, userId }) {
           {
             label: 'RR Ratio',
             data: rrRatios,
-            backgroundColor: 'rgba(168, 85, 247, 0.6)',
-            borderColor: '#a855f7',
+            backgroundColor: getComputedStyle(document.documentElement).getPropertyValue('--color-button-from').trim(),
+            borderColor: getComputedStyle(document.documentElement).getPropertyValue('--color-accent').trim(),
             borderWidth: 1,
           },
         ],
@@ -52,13 +52,34 @@ function TradeAnalytics({ trades, streakData, supabase, userId }) {
         scales: {
           y: {
             beginAtZero: true,
-            title: { display: true, text: 'Risk-Reward Ratio', color: '#e5e7eb' },
-            ticks: { color: '#e5e7eb' },
-            grid: { color: 'rgba(255, 255, 255, 0.2)' },
+            title: { 
+              display: true, 
+              text: 'Risk-Reward Ratio', 
+              color: getComputedStyle(document.documentElement).getPropertyValue('--color-text-primary').trim() 
+            },
+            ticks: { 
+              color: getComputedStyle(document.documentElement).getPropertyValue('--color-text-primary').trim() 
+            },
+            grid: { 
+              color: getComputedStyle(document.documentElement).getPropertyValue('--color-glass-border').trim() 
+            },
           },
-          x: { ticks: { color: '#e5e7eb' }, grid: { color: 'rgba(255, 255, 255, 0.2)' } },
+          x: { 
+            ticks: { 
+              color: getComputedStyle(document.documentElement).getPropertyValue('--color-text-primary').trim() 
+            }, 
+            grid: { 
+              color: getComputedStyle(document.documentElement).getPropertyValue('--color-glass-border').trim() 
+            } 
+          },
         },
-        plugins: { legend: { labels: { color: '#e5e7eb' } } },
+        plugins: { 
+          legend: { 
+            labels: { 
+              color: getComputedStyle(document.documentElement).getPropertyValue('--color-text-primary').trim() 
+            } 
+          } 
+        },
       },
     });
 
@@ -80,15 +101,19 @@ function TradeAnalytics({ trades, streakData, supabase, userId }) {
   );
 
   const profitLoss = trades.reduce((acc, trade) => {
-    if (!trade.position_size || !trade.entry || !trade.outcome) return acc;
-    const size = parseFloat(trade.position_size);
-    const entry = parseFloat(trade.entry);
-    let exitPrice;
-    if (trade.outcome === 'Win') exitPrice = parseFloat(trade.tp);
-    else if (trade.outcome === 'Loss') exitPrice = parseFloat(trade.sl);
-    else return acc;
-    return acc + (exitPrice - entry) * size;
-  }, 0);
+  if (trade.profit && !isNaN(trade.profit)) {
+    return acc + parseFloat(trade.profit);
+  }
+  if (!trade.position_size || !trade.entry || !trade.outcome) return acc;
+  const size = parseFloat(trade.position_size);
+  const entry = parseFloat(trade.entry);
+  let exitPrice;
+  if (trade.outcome === 'Win') exitPrice = parseFloat(trade.tp || trade.multiple_tps?.[0] || entry);
+  else if (trade.outcome === 'Loss') exitPrice = parseFloat(trade.sl || entry);
+  else return acc;
+  if (isNaN(exitPrice)) return acc;
+  return acc + (exitPrice - entry) * size;
+}, 0);
 
   const winRate = trades.length > 0 ? ((outcomes.wins / trades.length) * 100).toFixed(2) : 0;
 
@@ -99,41 +124,43 @@ function TradeAnalytics({ trades, streakData, supabase, userId }) {
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5 }}
     >
-      <h3 className="text-xl font-bold mb-4" aria-label="Trade Analytics">
+      <h3 className="text-xl font-bold mb-4 text-[var(--color-text-primary)]" aria-label="Trade Analytics">
         Trade Analytics
       </h3>
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6 text-sm">
         <div>
-          <p className="font-medium">Total Trades</p>
-          <p className="text-base">{trades.length}</p>
+          <p className="font-medium text-[var(--color-text-primary)]">Total Trades</p>
+          <p className="text-base text-[var(--color-text-secondary)]" aria-live="polite">{trades.length}</p>
         </div>
         <div>
-          <p className="font-medium">Win Rate</p>
-          <p className="text-base">{winRate}%</p>
+          <p className="font-medium text-[var(--color-text-primary)]">Win Rate</p>
+          <p className="text-base text-[var(--color-text-secondary)]" aria-live="polite">{winRate}%</p>
         </div>
         <div>
-          <p className="font-medium">Profit/Loss</p>
-          <p className="text-base">{profitLoss.toFixed(2)}</p>
+          <p className="font-medium text-[var(--color-text-primary)]">Profit/Loss</p>
+         <p className="text-base text-[var(--color-text-secondary)]" aria-live="polite">{isNaN(profitLoss) ? 'Pending' : `$${profitLoss.toFixed(2)}`}</p>
         </div>
         <div>
-          <p className="font-medium">Current Unbroken Trades</p>
-          <p className="text-base">{streakData?.currentTrades || 0}</p>
+          <p className="font-medium text-[var(--color-text-primary)]">Current Unbroken Trades</p>
+          <p className="text-base text-[var(--color-text-secondary)]" aria-live="polite">{streakData?.currentTrades || 0}</p>
         </div>
         <div>
-          <p className="font-medium">Current Unbroken Days</p>
-          <p className="text-base">{streakData?.currentDays || 0}</p>
+          <p className="font-medium text-[var(--color-text-primary)]">Current Unbroken Days</p>
+          <p className="text-base text-[var(--color-text-secondary)]" aria-live="polite">{streakData?.currentDays || 0}</p>
         </div>
         <div>
-          <p className="font-medium">Best Unbroken Trades</p>
-          <p className="text-base">{records.best_unbroken_trades}</p>
+          <p className="font-medium text-[var(--color-text-primary)]">Best Unbroken Trades</p>
+          <p className="text-base text-[var(--color-text-secondary)]" aria-live="polite">{records.best_unbroken_trades}</p>
         </div>
         <div>
-          <p className="font-medium">Best Unbroken Days</p>
-          <p className="text-base">{records.best_unbroken_days}</p>
+          <p className="font-medium text-[var(--color-text-primary)]">Best Unbroken Days</p>
+          <p className="text-base text-[var(--color-text-secondary)]" aria-live="polite">{records.best_unbroken_days}</p>
         </div>
       </div>
       <div className="relative h-64">
-        <canvas ref={chartRef} aria-label="RR Ratio Chart"></canvas>
+        <canvas ref={chartRef} aria-label="Bar chart of Risk-Reward Ratios per trade">
+          <p>Your browser does not support canvas elements. This chart displays Risk-Reward Ratios for each trade.</p>
+        </canvas>
       </div>
     </motion.div>
   );
