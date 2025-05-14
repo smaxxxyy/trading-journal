@@ -296,3 +296,63 @@ textarea.futuristic-input {
 .futuristic-input:focus {
   @apply ring-2 ring-[var(--color-accent)];
 }
+
+/* Notification Styles */
+/* Toast Notification (react-hot-toast) */
+.toast-container {
+  @apply z-50;
+}
+
+.toast {
+  @apply futuristic-card holographic-border p-4 min-w-[250px] max-w-[400px] text-sm backdrop-blur-lg;
+  animation: slideIn 0.3s ease-out;
+}
+
+/* Success Toast */
+.toast-success {
+  @apply border-l-4 border-green-500;
+  background: linear-gradient(
+    90deg,
+    rgba(34, 197, 94, 0.2),
+    var(--color-glass-bg)
+  );
+}
+
+/* Error Toast */
+.toast-error {
+  @apply border-l-4 border-red-500;
+  background: linear-gradient(
+    90deg,
+    rgba(239, 68, 68, 0.2),
+    var(--color-glass-bg)
+  );
+}
+
+/* Toast Text */
+.toast-message {
+  @apply text-[var(--color-text-primary)] font-medium;
+}
+
+/* Toast Animation */
+@keyframes slideIn {
+  0% {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+  100% {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+/* Reduced Motion for Toast Animation */
+@media (prefers-reduced-motion: reduce) {
+  .toast {
+    animation: none;
+  }
+}
+
+/* Note: Browser Push Notification Icon */
+/* In Dashboard.js, the push notification uses an icon at '/path-to-icon.png'.
+   Replace this path with the actual location of your notification icon in the public folder,
+   e.g., '/notification-icon.png', and ensure the file exists. */
