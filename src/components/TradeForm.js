@@ -63,16 +63,17 @@ function TradeForm({ supabase, userId, onTradeAdded }) {
 
   const sanitizeInput = (input) => input.replace(/[<>"'&]/g, '');
 
-  const calculateProfit = () => {
-    if (!positionSize || !entry || !leverage || !outcome) return null;
-    const size = parseFloat(positionSize);
-    const entryPrice = parseFloat(entry);
-    let exitPrice;
-    if (outcome === 'Win' && tp[0]) exitPrice = parseFloat(tp[0]);
-    else if (outcome === 'Loss' && sl) exitPrice = parseFloat(sl);
-    else if (outcome === 'Breakeven') exitPrice = entryPrice;
-    else return null;
-
+const calculateProfit = () => {
+  if (!positionSize || !entry || !leverage || status === 'in_progress') return null;
+  const size = parseFloat(positionSize);
+  const entryPrice = parseFloat(entry);
+  let exitPrice;
+  if (outcome === 'Win' && tp[0]) exitPrice = parseFloat(tp[0]);
+  else if (outcome === 'Loss' && sl) exitPrice = parseFloat(sl);
+  else if (outcome === 'Breakeven') exitPrice = entryPrice;
+  else return null;
+  if (isNaN(exitPrice)) return null;
+  try {
     if (isCrypto && positionUnit === 'USD') {
       const initialMargin = size / leverage;
       const priceChange = (exitPrice - entryPrice) / entryPrice;
@@ -82,7 +83,11 @@ function TradeForm({ supabase, userId, onTradeAdded }) {
       return (pipDifference * size * 10 * leverage).toFixed(2);
     }
     return null;
-  };
+  } catch (err) {
+    console.error('Profit calculation error:', err);
+    return null;
+  }
+};
 
   const handleSubmit = async (e) => {
     e.preventDefault();
