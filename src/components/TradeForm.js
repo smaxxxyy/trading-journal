@@ -116,7 +116,7 @@ function TradeForm({ supabase, userId, onTradeAdded }) {
       return;
     }
     if (!direction || !status) {
-      setError('Please select Status');
+      setError('Please select Direction and Status');
       setLoading(false);
       return;
     }
@@ -415,39 +415,52 @@ function TradeForm({ supabase, userId, onTradeAdded }) {
           disabled={loading}
         />
         <div className="grid grid-cols-2 gap-2 items-center">
-          <input
-            type="number"
-            value={leverage}
-            onChange={(e) => setLeverage(parseFloat(e.target.value) || 1)}
-            placeholder="Leverage"
-            className="futuristic-input"
-            step="1"
-            min="1"
-            aria-label="Leverage input"
-            disabled={loading}
-          />
-          <select
-            value={leverage}
-            onChange={(e) => setLeveragePreset(e.target.value)}
-            className="futuristic-select"
-            aria-label="Leverage preset"
-            disabled={loading}
-          >
-            <option value={1}>Custom</option>
-            <option value={25}>x25</option>
-            <option value={50}>x50</option>
-            <option value={75}>x75</option>
-            <option value={100}>x100</option>
-            <option value={125}>x125</option>
-            <option value={150}>x150</option>
-            <option value={200}>x200</option>
-            <option value={300}>x300</option>
-            <option value={400}>x400</option>
-            <option value={500}>x500</option>
-            <option value={800}>x800</option>
-            <option value={1000}>x1000</option>
-            <option value={2000}>x2000</option>
-          </select>
+          <div>
+            <label htmlFor="leverage-input" className="text-sm font-medium text-[var(--color-text-primary)]">
+              Leverage
+            </label>
+            <input
+              id="leverage-input"
+              type="number"
+              value={leverage}
+              onChange={(e) => setLeverage(parseFloat(e.target.value) || 1)}
+              placeholder="Leverage (e.g., 50)"
+              className="futuristic-input mt-1"
+              step="1"
+              min="1"
+              aria-label="Leverage input"
+              aria-describedby={error ? 'form-error' : undefined}
+              disabled={loading}
+            />
+          </div>
+          <div>
+            <label htmlFor="leverage-preset" className="text-sm font-medium text-[var(--color-text-primary)]">
+              Leverage Preset
+            </label>
+            <select
+              id="leverage-preset"
+              value={leverage}
+              onChange={(e) => setLeveragePreset(e.target.value)}
+              className="futuristic-select mt-1"
+              aria-label="Leverage preset"
+              disabled={loading}
+            >
+              <option value={1}>Custom</option>
+              <option value={25}>x25</option>
+              <option value={50}>x50</option>
+              <option value={75}>x75</option>
+              <option value={100}>x100</option>
+              <option value={125}>x125</option>
+              <option value={150}>x150</option>
+              <option value={200}>x200</option>
+              <option value={300}>x300</option>
+              <option value={400}>x400</option>
+              <option value={500}>x500</option>
+              <option value={800}>x800</option>
+              <option value={1000}>x1000</option>
+              <option value={2000}>x2000</option>
+            </select>
+          </div>
         </div>
         <select
           value={status}
@@ -497,63 +510,39 @@ function TradeForm({ supabase, userId, onTradeAdded }) {
         <div className="grid grid-cols-1 gap-4">
           <label className="flex items-center gap-4 p-2">
             <input
-              type="radio"
-              name="planStatus"
-              checked={hadPlan && !wasGamble}
-              onChange={() => {
-                setHadPlan(true);
-                setWasGamble(false);
-                setPlanFollowed(true);
-              }}
-              onTouchStart={() => {
-                setHadPlan(true);
-                setWasGamble(false);
-                setPlanFollowed(true);
-              }}
+              type="checkbox"
+              checked={hadPlan}
+              onChange={() => setHadPlan(!hadPlan)}
+              onTouchStart={() => setHadPlan(!hadPlan)}
               className="min-w-8 min-h-8 rounded focus:ring-2 focus:ring-[var(--color-accent)]"
-              aria-label="Had a Plan and Followed"
+              style={{ touchAction: 'manipulation' }}
+              aria-label="Had a trading plan"
               disabled={loading}
             />
-            <span className="text-sm text-[var(--color-text-primary)]">Had Plan & Followed</span>
+            <span className="text-sm text-[var(--color-text-primary)]">Had a Plan</span>
           </label>
           <label className="flex items-center gap-4 p-2">
             <input
-              type="radio"
-              name="planStatus"
-              checked={!hadPlan && !wasGamble}
-              onChange={() => {
-                setHadPlan(false);
-                setWasGamble(false);
-                setPlanFollowed(false);
-              }}
-              onTouchStart={() => {
-                setHadPlan(false);
-                setWasGamble(false);
-                setPlanFollowed(false);
-              }}
+              type="checkbox"
+              checked={planFollowed}
+              onChange={() => setPlanFollowed(!planFollowed)}
+              onTouchStart={() => setPlanFollowed(!planFollowed)}
               className="min-w-8 min-h-8 rounded focus:ring-2 focus:ring-[var(--color-accent)]"
-              aria-label="No Plan"
+              style={{ touchAction: 'manipulation' }}
+              aria-label="Followed the trading plan"
               disabled={loading}
             />
-            <span className="text-sm text-[var(--color-text-primary)]">No Plan</span>
+            <span className="text-sm text-[var(--color-text-primary)]">Plan Followed</span>
           </label>
           <label className="flex items-center gap-4 p-2">
             <input
-              type="radio"
-              name="planStatus"
+              type="checkbox"
               checked={wasGamble}
-              onChange={() => {
-                setWasGamble(true);
-                setHadPlan(false);
-                setPlanFollowed(false);
-              }}
-              onTouchStart={() => {
-                setWasGamble(true);
-                setHadPlan(false);
-                setPlanFollowed(false);
-              }}
+              onChange={() => setWasGamble(!wasGamble)}
+              onTouchStart={() => setWasGamble(!wasGamble)}
               className="min-w-8 min-h-8 rounded focus:ring-2 focus:ring-[var(--color-accent)]"
-              aria-label="Was a Gamble"
+              style={{ touchAction: 'manipulation' }}
+              aria-label="Trade was a gamble"
               disabled={loading}
             />
             <span className="text-sm text-[var(--color-text-primary)]">Was a Gamble</span>
