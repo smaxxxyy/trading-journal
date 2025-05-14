@@ -99,37 +99,37 @@ function TradeAnalytics({ trades, streakData, supabase, userId }) {
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5 }}
     >
-      <h3 className="text-xl font-bold text-[var(--color-neon-blue)] mb-4" aria-label="Trade Analytics">
+      <h3 className="text-xl font-bold mb-4" aria-label="Trade Analytics">
         Trade Analytics
       </h3>
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6 text-sm">
         <div>
-          <p className="text-gray-100 font-medium">Total Trades</p>
-          <p className="text-[var(--color-neon-purple)] text-base">{trades.length}</p>
+          <p className="font-medium">Total Trades</p>
+          <p className="text-base">{trades.length}</p>
         </div>
         <div>
-          <p className="text-gray-100 font-medium">Win Rate</p>
-          <p className="text-[var(--color-neon-purple)] text-base">{winRate}%</p>
+          <p className="font-medium">Win Rate</p>
+          <p className="text-base">{winRate}%</p>
         </div>
         <div>
-          <p className="text-gray-100 font-medium">Profit/Loss</p>
-          <p className="text-[var(--color-neon-purple)] text-base">{profitLoss.toFixed(2)}</p>
+          <p className="font-medium">Profit/Loss</p>
+          <p className="text-base">{profitLoss.toFixed(2)}</p>
         </div>
         <div>
-          <p className="text-gray-100 font-medium">Current Unbroken Trades</p>
-          <p className="text-[var(--color-neon-purple)] text-base">{streakData?.currentTrades || 0}</p>
+          <p className="font-medium">Current Unbroken Trades</p>
+          <p className="text-base">{streakData?.currentTrades || 0}</p>
         </div>
         <div>
-          <p className="text-gray-100 font-medium">Current Unbroken Days</p>
-          <p className="text-[var(--color-neon-purple)] text-base">{streakData?.currentDays || 0}</p>
+          <p className="font-medium">Current Unbroken Days</p>
+          <p className="text-base">{streakData?.currentDays || 0}</p>
         </div>
         <div>
-          <p className="text-gray-100 font-medium">Best Unbroken Trades</p>
-          <p className="text-[var(--color-neon-purple)] text-base">{records.best_unbroken_trades}</p>
+          <p className="font-medium">Best Unbroken Trades</p>
+          <p className="text-base">{records.best_unbroken_trades}</p>
         </div>
         <div>
-          <p className="text-gray-100 font-medium">Best Unbroken Days</p>
-          <p className="text-[var(--color-neon-purple)] text-base">{records.best_unbroken_days}</p>
+          <p className="font-medium">Best Unbroken Days</p>
+          <p className="text-base">{records.best_unbroken_days}</p>
         </div>
       </div>
       <div className="relative h-64">

@@ -17,7 +17,7 @@ function TradeForm({ supabase, userId, onTradeAdded }) {
   const [hadPlan, setHadPlan] = useState(false);
   const [planFollowed, setPlanFollowed] = useState(false);
   const [wasGamble, setWasGamble] = useState(false);
-  const [leverage, setLeverage] = useState(1);
+  const [leverage, setLeverage] = useState('');
   const [direction, setDirection] = useState('');
   const [status, setStatus] = useState('');
   const [error, setError] = useState(null);
@@ -31,11 +31,21 @@ function TradeForm({ supabase, userId, onTradeAdded }) {
       if (!isNaN(entryPrice) && !isNaN(takeProfit) && !isNaN(stopLoss) && entryPrice !== stopLoss) {
         const rr = Math.abs((takeProfit - entryPrice) / (entryPrice - stopLoss)).toFixed(2);
         setRrRatio(rr);
+        // Auto-determine direction
+        if (takeProfit > entryPrice && stopLoss < entryPrice) {
+          setDirection('long');
+        } else if (takeProfit < entryPrice && stopLoss > entryPrice) {
+          setDirection('short');
+        } else {
+          setDirection('');
+        }
       } else {
         setRrRatio('');
+        setDirection('');
       }
     } else {
       setRrRatio('');
+      setDirection('');
     }
   }, [entry, tp, sl]);
 
@@ -62,7 +72,8 @@ function TradeForm({ supabase, userId, onTradeAdded }) {
 
   const calculateProfit = () => {
     if (!positionSize || !entry || !leverage || !outcome) return null;
-    const margin = parseFloat(positionSize) / leverage;
+    const numericLeverage = parseFloat(leverage.replace('x', '')) || 1;
+    const margin = parseFloat(positionSize) / numericLeverage;
     const size = parseFloat(positionSize);
     let exitPrice;
     if (outcome === 'Win' && tp) exitPrice = parseFloat(tp);
@@ -70,7 +81,7 @@ function TradeForm({ supabase, userId, onTradeAdded }) {
     else if (outcome === 'Breakeven') exitPrice = parseFloat(entry);
     else return null;
     const priceChange = (exitPrice - parseFloat(entry)) / parseFloat(entry);
-    return (priceChange * size * leverage - margin).toFixed(2);
+    return (priceChange * size * numericLeverage - margin).toFixed(2);
   };
 
   const handleSubmit = async (e) => {
@@ -91,7 +102,7 @@ function TradeForm({ supabase, userId, onTradeAdded }) {
     }
 
     if (!direction || !status) {
-      setError('Please select Direction and Status');
+      setError('Direction could not be determined or Status is missing. Please check Entry, TP, and SL values.');
       setLoading(false);
       return;
     }
@@ -131,12 +142,14 @@ function TradeForm({ supabase, userId, onTradeAdded }) {
         position_size: parseFloat(positionSize) || null,
         pair: sanitizeInput(pair) || null,
         tags: tags.trim() ? tags.split(',').map(tag => tag.trim()).filter(tag => tag) : [],
-        leverage: parseFloat(leverage) || 1,
+        leverage: leverage ? parseFloat(leverage.replace('x', '')) : 1,
         profit: profit ? parseFloat(profit) : null,
         direction: direction || null,
         status: status || null,
         is_edited: false,
       };
+
+      console.log('Trade Data:', tradeData);
 
       const { data, error: supabaseError } = await supabase.from('trades').insert([tradeData]).select();
       if (supabaseError) throw new Error(supabaseError.message);
@@ -172,7 +185,7 @@ function TradeForm({ supabase, userId, onTradeAdded }) {
       setHadPlan(false);
       setPlanFollowed(false);
       setWasGamble(false);
-      setLeverage(1);
+      setLeverage('');
       setDirection('');
       setStatus('');
       onTradeAdded();
@@ -262,33 +275,38 @@ function TradeForm({ supabase, userId, onTradeAdded }) {
           className="futuristic-input"
           step="0.01"
           aria-label="Risk-Reward Ratio input"
-          disabled={loading}
+          disabled={true} // Disabled since it's auto-calculated
         />
         <div className="grid grid-cols-1">
           <label className="block text-sm mb-1">
-            Leverage: {leverage}x
+            Leverage
           </label>
           <input
-            type="range"
-            min="1"
-            max="2000"
+            type="text"
             value={leverage}
-            onChange={(e) => setLeverage(parseFloat(e.target.value))}
-            className="w-full h-2 rounded-lg"
+            onChange={(e) => setLeverage(e.target.value)}
+            placeholder="Leverage (e.g., x50)"
+            list="leverage-presets"
+            className="futuristic-input w-full"
             disabled={loading}
           />
+          <datalist id="leverage-presets">
+            <option value="x25" />
+            <option value="x50" />
+            <option value="x100" />
+            <option value="x500" />
+            <option value="x1000" />
+            <option value="x2000" />
+          </datalist>
         </div>
-        <select
+        <input
+          type="text"
           value={direction}
-          onChange={(e) => setDirection(e.target.value)}
-          className="futuristic-select"
-          aria-label="Trade Direction input"
-          disabled={loading}
-        >
-          <option value="">Select Direction</option>
-          <option value="long">Long</option>
-          <option value="short">Short</option>
-        </select>
+          placeholder="Direction (auto-determined)"
+          className="futuristic-input"
+          aria-label="Trade Direction"
+          disabled={true} // Disabled since it's auto-determined
+        />
         <select
           value={status}
           onChange={(e) => setStatus(e.target.value)}
