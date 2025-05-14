@@ -101,15 +101,19 @@ function TradeAnalytics({ trades, streakData, supabase, userId }) {
   );
 
   const profitLoss = trades.reduce((acc, trade) => {
-    if (!trade.position_size || !trade.entry || !trade.outcome) return acc;
-    const size = parseFloat(trade.position_size);
-    const entry = parseFloat(trade.entry);
-    let exitPrice;
-    if (trade.outcome === 'Win') exitPrice = parseFloat(trade.tp || trade.multiple_tps?.[0]);
-    else if (trade.outcome === 'Loss') exitPrice = parseFloat(trade.sl);
-    else return acc;
-    return acc + (exitPrice - entry) * size;
-  }, 0);
+  if (trade.profit && !isNaN(trade.profit)) {
+    return acc + parseFloat(trade.profit);
+  }
+  if (!trade.position_size || !trade.entry || !trade.outcome) return acc;
+  const size = parseFloat(trade.position_size);
+  const entry = parseFloat(trade.entry);
+  let exitPrice;
+  if (trade.outcome === 'Win') exitPrice = parseFloat(trade.tp || trade.multiple_tps?.[0] || entry);
+  else if (trade.outcome === 'Loss') exitPrice = parseFloat(trade.sl || entry);
+  else return acc;
+  if (isNaN(exitPrice)) return acc;
+  return acc + (exitPrice - entry) * size;
+}, 0);
 
   const winRate = trades.length > 0 ? ((outcomes.wins / trades.length) * 100).toFixed(2) : 0;
 
@@ -134,7 +138,7 @@ function TradeAnalytics({ trades, streakData, supabase, userId }) {
         </div>
         <div>
           <p className="font-medium text-[var(--color-text-primary)]">Profit/Loss</p>
-          <p className="text-base text-[var(--color-text-secondary)]" aria-live="polite">{profitLoss.toFixed(2)}</p>
+         <p className="text-base text-[var(--color-text-secondary)]" aria-live="polite">{isNaN(profitLoss) ? 'Pending' : `$${profitLoss.toFixed(2)}`}</p>
         </div>
         <div>
           <p className="font-medium text-[var(--color-text-primary)]">Current Unbroken Trades</p>
