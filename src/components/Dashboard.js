@@ -171,35 +171,39 @@ function Dashboard({ supabase }) {
     }
   }, [selectedTrade]);
 
-  const handleEditTrade = async (tradeId, updatedData) => {
-    try {
-      const trade = trades.find(t => t.id === tradeId);
-      if (trade.status === 'in_progress') {
-        updatedData = { 
-          ...(updatedData.tp ? { tp: updatedData.tp } : {}), 
-          ...(updatedData.sl ? { sl: updatedData.sl } : {}), 
-          ...(updatedData.multiple_tps ? { multiple_tps: updatedData.multiple_tps } : {}) 
-        };
-      }
-      const { error: tradeError } = await supabase
-        .from('trades')
-        .update(updatedData)
-        .eq('id', tradeId)
-        .eq('user_id', userId);
-      if (tradeError) throw new Error(tradeError.message);
-
-      const updatedTrades = trades.map(t =>
-        t.id === tradeId ? { ...t, ...updatedData } : t
-      );
-      setTrades(updatedTrades);
-      setSelectedTrade({
-        trade: { ...selectedTrade.trade, ...updatedData },
-        habit: selectedTrade.habit,
-      });
-    } catch (err) {
-      setError(`Failed to edit trade: ${err.message}`);
+const handleEditTrade = async (tradeId, updatedData) => {
+  try {
+    const trade = trades.find(t => t.id === tradeId);
+    if (trade.status === 'in_progress') {
+      updatedData = { 
+        ...(updatedData.tp ? { tp: parseFloat(updatedData.tp) } : {}), 
+        ...(updatedData.sl ? { sl: parseFloat(updatedData.sl) } : {}), 
+        ...(updatedData.multiple_tps ? { multiple_tps: updatedData.multiple_tps.map(tp => parseFloat(tp)) } : {}),
+        ...(updatedData.status ? { status: updatedData.status } : {}),
+        ...(updatedData.outcome ? { outcome: updatedData.outcome } : {}),
+        ...(updatedData.profit ? { profit: parseFloat(updatedData.profit) } : {}),
+        ...(updatedData.is_edited ? { is_edited: updatedData.is_edited } : {})
+      };
     }
-  };
+    const { error: tradeError } = await supabase
+      .from('trades')
+      .update(updatedData)
+      .eq('id', tradeId)
+      .eq('user_id', userId);
+    if (tradeError) throw new Error(tradeError.message);
+    const updatedTrades = trades.map(t =>
+      t.id === tradeId ? { ...t, ...updatedData } : t
+    );
+    setTrades(updatedTrades);
+    setSelectedTrade({
+      trade: { ...selectedTrade.trade, ...updatedData },
+      habit: selectedTrade.habit,
+    });
+  } catch (err) {
+    console.error('Edit trade error:', err);
+    setError(`Failed to edit trade: ${err.message}`);
+  }
+};
 
   const calculateStreak = (trades) => {
     let currentTrades = 0;
@@ -770,24 +774,27 @@ const determineOutcome = (trade, livePrice) => {
   const { entry, tp, multiple_tps, sl, direction, status } = trade;
   const entryPrice = parseFloat(entry);
   const stopLoss = parseFloat(sl);
-  const currentPrice = livePrice && livePrice !== 'Unavailable' ? parseFloat(livePrice) : entryPrice;
   const takeProfits = multiple_tps ? multiple_tps.map(tp => parseFloat(tp)) : [parseFloat(tp)];
-
-  if (status === 'in_progress' && livePrice && livePrice !== 'Unavailable') {
-    if (direction === 'long') {
-      if (takeProfits.some(tp => currentPrice >= tp)) return 'Win';
-      if (currentPrice <= stopLoss) return 'Loss';
-    } else if (direction === 'short') {
-      if (takeProfits.some(tp => currentPrice <= tp)) return 'Win';
-      if (currentPrice >= stopLoss) return 'Loss';
-    }
-  } else {
-    if (direction === 'long') {
-      if (takeProfits.some(tp => tp > entryPrice)) return 'Win';
-      if (stopLoss < entryPrice) return 'Loss';
-    } else if (direction === 'short') {
-      if (takeProfits.some(tp => tp < entryPrice)) return 'Win';
-      if (stopLoss > entryPrice) return 'Loss';
+  const currentPrice = livePrice && livePrice !== 'Unavailable' && !isNaN(livePrice) ? parseFloat(livePrice) : null;
+  
+  if (status === 'in_progress') {
+    if (currentPrice) {
+      if (direction === 'long') {
+        if (takeProfits.some(tp => tp && currentPrice >= tp)) return 'Win';
+        if (stopLoss && currentPrice <= stopLoss) return 'Loss';
+      } else if (direction === 'short') {
+        if (takeProfits.some(tp => tp && currentPrice <= tp)) return 'Win';
+        if (stopLoss && currentPrice >= stopLoss) return 'Loss';
+      }
+    } else {
+      // Fallback to TP/SL if livePrice is unavailable
+      if (direction === 'long') {
+        if (takeProfits.some(tp => tp && tp > entryPrice)) return 'Win';
+        if (stopLoss && stopLoss < entryPrice) return 'Loss';
+      } else if (direction === 'short') {
+        if (takeProfits.some(tp => tp && tp < entryPrice)) return 'Win';
+        if (stopLoss && stopLoss > entryPrice) return 'Loss';
+      }
     }
   }
   return 'Breakeven';
@@ -798,19 +805,19 @@ const calculateTradeProfit = (trade, livePrice, outcome) => {
   const entryPrice = parseFloat(entry);
   const size = parseFloat(position_size);
   let exitPrice;
-
-  if (outcome === 'Win' && multiple_tps) {
-    exitPrice = parseFloat(multiple_tps[0]); // Use first TP for simplicity
-  } else if (outcome === 'Win' && tp) {
-    exitPrice = parseFloat(tp);
-  } else if (outcome === 'Loss' && sl) {
-    exitPrice = parseFloat(sl);
+  
+  if (outcome === 'Win') {
+    exitPrice = multiple_tps && multiple_tps[0] ? parseFloat(multiple_tps[0]) : parseFloat(tp || entry);
+  } else if (outcome === 'Loss') {
+    exitPrice = parseFloat(sl || entry);
   } else if (outcome === 'Breakeven') {
     exitPrice = entryPrice;
   } else {
-    exitPrice = livePrice && livePrice !== 'Unavailable' ? parseFloat(livePrice) : entryPrice;
+    exitPrice = livePrice && livePrice !== 'Unavailable' && !isNaN(livePrice) ? parseFloat(livePrice) : entryPrice;
   }
-
+  
+  if (isNaN(exitPrice)) return '0.00';
+  
   try {
     if (is_crypto && position_unit === 'USD') {
       const initialMargin = size / leverage;
