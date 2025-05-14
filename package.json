@@ -15,7 +15,8 @@
     "react-router-dom": "^6.26.1",
     "react-scripts": "^5.0.1",
     "web-vitals": "^5.0.0",
-    "zod": "^3.24.4"
+    "zod": "^3.24.4",
+    "react-hot-toast": "^1.22.22"
   },
   "resolutions": {
     "tailwindcss": "^4.1.6",
